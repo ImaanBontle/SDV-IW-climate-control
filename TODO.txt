@@ -1,12 +1,12 @@
-- (high) Test ability to influence weather tomorrow
-	- Sunny
-	- Raining
-	- Storming
-	- Windy
-	- Snowing
 - (high) Implement custom probabilities for each state
 - (high) Implement config.json for each season
 - (medium) Implement dynamic probabilities based on day of season
 - (low) Change priority of probabilities for each season
 - (low) Implement templates for different biomes
 - (low) Implement template probability profiles over season length
+- (DONE) Test ability to influence weather tomorrow
+	- Sunny
+	- Raining
+	- Storming
+	- Windy
+	- Snowing
