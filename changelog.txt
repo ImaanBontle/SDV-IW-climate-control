@@ -1,6 +1,7 @@
 v0.2.0:
 -----
 - Added config file for each weather type's chance per season.
+- Implemented a dice roll for changing the weather tomorrow (first weather feature implemented!).
 
 v0.1.0:
 -----
