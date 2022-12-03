@@ -14,7 +14,7 @@ namespace IW_ClimateControl
         public double SpringRainChance { get; set; } = 40;
         public double SpringStormChance { get; set; } = 15;
         public double SpringWindChance { get; set; } = 20;
-        public double SpringSnowChance { get; set; } = 0.25;
+        public double SpringSnowChance { get; set; } = 1;
 
         // Summer // mostly sunny, but can be intense rain
         public double SummerRainChance { get; set; } = 10; // Watch out, TV overrides into storms 85% of the time!
@@ -23,15 +23,15 @@ namespace IW_ClimateControl
         public double SummerSnowChance { get; set; } = 0;
 
         // Fall // very dry and windy, small chance of snow
-        public double FallRainChance { get; set; } = 4;
-        public double FallStormChance { get; set; } = 2;
-        public double FallWindChance { get; set; } = 60;
-        public double FallSnowChance { get; set; } = 1;
+        public double FallRainChance { get; set; } = 8;
+        public double FallStormChance { get; set; } = 4;
+        public double FallWindChance { get; set; } = 40; // Lower than vanilla, but vanilla only applies after storms, so should balance out.
+        public double FallSnowChance { get; set; } = 2;
 
         // Winter // lots of snow, seldom rain
         public double WinterRainChance { get; set; } = 5;
         public double WinterStormChance { get; set; } = 0;
         public double WinterWindChance { get; set; } = 20; // TV says snow, but creates gentle snowflakes (really pretty)
-        public double WinterSnowChance { get; set; } = 60; // This is actually less than the game's base chance!
+        public double WinterSnowChance { get; set; } = 40; // Game's base chance is 63, but combined with wind of 20, should be roughly the same.
     }
 }
