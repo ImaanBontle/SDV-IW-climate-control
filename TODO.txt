@@ -1,9 +1,9 @@
-- (high) Implement custom probabilities for each state
-- (high) Implement config.json for each season
+- (50% Done) Implement custom probabilities for each state [Still need to implement the actual weather changes]
 - (medium) Implement dynamic probabilities based on day of season
 - (low) Change priority of probabilities for each season
 - (low) Implement templates for different biomes
 - (low) Implement template probability profiles over season length
+- (DONE) Implement config.json for each season
 - (DONE) Test ability to influence weather tomorrow
 	- Sunny
 	- Raining
