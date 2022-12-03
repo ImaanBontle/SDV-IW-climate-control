@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
+using IW_ClimateControl;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -17,13 +18,25 @@ namespace IWClimateControl
         Tuple<string, string> GetWeatherInfo();
         string TranslateTomorrowStates(int integerState);
         int TranslateTomorrowStates(string stringState);
+        double RollTheDice();
+        int RollTheDiceInt();
     }
 
     internal sealed class ClimateControl : Mod
     {
+        // Where to grab config values
+        private CCConfig Config;
+        // Where they will be stored internally as fields for the class to access
+        public static Dictionary<string, Dictionary<string, double>> weatherChances = new();
+
         // Main method
         public override void Entry(IModHelper helper)
         {
+            // Tell SMAPI where to grab config values and to make config.json if absent
+            this.Config = this.Helper.ReadConfig<CCConfig>();
+            // Grab weather chances for calculations
+            weatherChances = GrabWeatherChances();
+
             // When day begins, set tomorrow's weather
             this.Helper.Events.GameLoop.DayStarted += DayStarted_ChangeWeather;
 
@@ -32,49 +45,73 @@ namespace IWClimateControl
         // Change tomorrow's weather
         private void DayStarted_ChangeWeather(object sender, DayStartedEventArgs e)
         {
-            // Grab from IWAPI
+            // Grab relevant info for calculation
+            var currentDate = Game1.Date;
             IIWAPI api = this.Helper.ModRegistry.GetApi<IIWAPI>("MsBontle.ImmersiveWeathers");
-            if (api != null)
-            {
-                //Tuple<string, string> weatherInfo = api.GetWeatherInfo();
-                //int tomorrowInteger = api.TranslateTomorrowStates(weatherInfo.Item2);
-                //string tomorrowString = api.TranslateTomorrowStates(tomorrowInteger);
-                //this.Monitor.Log($"Tomorrow's weather is {weatherInfo.Item2}, which corresponds to an integer of {tomorrowInteger} and a string of {tomorrowString}", LogLevel.Info);
-                //this.Monitor.Log($"Today's day is {Game1.Date.DayOfWeek}", LogLevel.Info);
 
-                string currentDay = Game1.Date.DayOfWeek.ToString();
-                this.Monitor.Log($"Warning! Today is {currentDay}. Expect strange weather tomorrow...", LogLevel.Info);
-                if (currentDay == "Monday")
-                {
-                    Game1.weatherForTomorrow = api.TranslateTomorrowStates("Sunny");
-                }
-                else if (currentDay == "Tuesday")
-                {
-                    Game1.weatherForTomorrow = api.TranslateTomorrowStates("Raining");
-                }
-                else if (currentDay == "Wednesday")
-                {
-                    Game1.weatherForTomorrow = api.TranslateTomorrowStates("Snowing");
-                }
-                else if (currentDay == "Thursday")
-                {
-                    Game1.weatherForTomorrow = api.TranslateTomorrowStates("Windy");
-                }
-                else if (currentDay == "Friday")
-                {
-                    Game1.weatherForTomorrow = api.TranslateTomorrowStates("Wedding");
-                }
-                else if (currentDay == "Saturday")
-                {
-                    Game1.weatherForTomorrow = api.TranslateTomorrowStates("Festival");
-                }
-                else if (currentDay == "Sunday")
-                {
-                    Game1.weatherForTomorrow = api.TranslateTomorrowStates("Storming");
-                }
+            // Check if tomorrow is OK to change
+            if ((currentDate.DayOfMonth != 28) &&
+                (Game1.weatherForTomorrow != api.TranslateTomorrowStates("Festival")) &&
+                (Game1.weatherForTomorrow != api.TranslateTomorrowStates("Wedding")))
+            {
+                // If so, attempt to change it
+                string weatherJackpot = WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, api);
+                this.Monitor.Log($"Weather for tomorrow changed to {weatherJackpot}", LogLevel.Info);
+                Game1.weatherForTomorrow = api.TranslateTomorrowStates(weatherJackpot);
             }
-            //Game1.weatherForTomorrow = 1;
-            
+            else
+            {
+                // If not, don't touch it
+                this.Monitor.Log("Tomorrow will always be sunny, so no changes will be made.", LogLevel.Info);
+            }  
+        }
+        
+        // Grab weather chances from config
+        private Dictionary<string, Dictionary<string, double>> GrabWeatherChances()
+        {
+            return new Dictionary<string, Dictionary<string, double>>
+            {
+                {
+                    "spring",
+                    new Dictionary<string, double>
+                    {
+                        { "rain", this.Config.SpringRainChance },
+                        { "storm", this.Config.SpringStormChance },
+                        { "wind", this.Config.SpringWindChance },
+                        { "snow", this.Config.SpringSnowChance }
+                    }
+                },
+                {
+                    "summer",
+                    new Dictionary<string, double>
+                    {
+                        { "rain", this.Config.SummerRainChance },
+                        { "storm", this.Config.SummerStormChance },
+                        { "wind", this.Config.SummerWindChance },
+                        { "snow", this.Config.SummerSnowChance }
+                    }
+                },
+                {
+                    "fall",
+                    new Dictionary<string, double>
+                    {
+                        { "rain", this.Config.FallRainChance },
+                        { "storm", this.Config.FallStormChance },
+                        { "wind", this.Config.FallWindChance },
+                        { "snow", this.Config.FallSnowChance }
+                    }
+                },
+                {
+                    "winter",
+                    new Dictionary<string, double>
+                    {
+                        { "rain", this.Config.WinterRainChance },
+                        { "storm", this.Config.WinterStormChance },
+                        { "wind", this.Config.WinterWindChance },
+                        { "snow", this.Config.WinterSnowChance }
+                    }
+                }
+            };
         }
     }
 }
