@@ -1,3 +1,6 @@
+- (high) Implement event calls to Framework OR find another SMAPI event trigger for Framework to report on weather only AFTER sister mods have all performed changes i.e. only one mod logs to terminal and not each separate mod
+- (high) Add logging to config, so it can be disabled
+- (high) Come up with better logging statements lol
 - (medium) Implement dynamic probabilities based on day of season
 - (low) Change priority of probabilities for each season ------> TARGET: v1.0.0
 - (low) Implement templates for different biomes

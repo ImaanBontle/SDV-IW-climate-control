@@ -12,7 +12,7 @@ using StardewValley.Monsters;
 
 namespace IWClimateControl
 {
-    // Interface for IWAPI
+    // Internal interface for IWAPI
     public interface IIWAPI
     {
         Tuple<string, string> GetWeatherInfo();
@@ -22,6 +22,7 @@ namespace IWClimateControl
         int RollTheDiceInt();
     }
 
+    // Main class
     internal sealed class ClimateControl : Mod
     {
         // Where to grab config values
@@ -32,16 +33,25 @@ namespace IWClimateControl
         // Main method
         public override void Entry(IModHelper helper)
         {
-            // Tell SMAPI where to grab config values and to make config.json if absent
+            // -------------
+            // LAUNCH CONFIG
+            // -------------
+            // At launch, tell SMAPI where to grab config values and to make config.json if absent
             this.Config = this.Helper.ReadConfig<CCConfig>();
-            // Grab weather chances for calculations
+            // Populate field with config's weather chances for calculations
             weatherChances = GrabWeatherChances();
 
+            // ---------
+            // DAY START
+            // ---------
             // When day begins, set tomorrow's weather
             this.Helper.Events.GameLoop.DayStarted += DayStarted_ChangeWeather;
 
         }
-        
+
+        // --------------
+        // CHANGE WEATHER
+        // --------------
         // Change tomorrow's weather
         private void DayStarted_ChangeWeather(object sender, DayStartedEventArgs e)
         {
