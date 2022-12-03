@@ -14,6 +14,7 @@ namespace IW_ClimateControl
         // Generate weather based on config values
         public static string GenerateWeather(WorldDate currentDate, Dictionary<string, Dictionary<string, double>> weatherChances, IIWAPI api)
         {
+            // Initialize
             string weatherJackpot = "";
             string currentSeason = currentDate.Season;
             // Flip a coin for each state. All at once so custom priorities can be implemented later
