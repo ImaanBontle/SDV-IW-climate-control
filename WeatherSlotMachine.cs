@@ -12,16 +12,32 @@ namespace IW_ClimateControl
     internal class WeatherSlotMachine
     {
         // Generate weather based on config values
-        public static IWAPI.WeatherType GenerateWeather(WorldDate currentDate, Dictionary<IWAPI.SeasonType, Dictionary<IWAPI.WeatherType, double>> weatherChances, IWAPI api)
+        public static IWAPI.WeatherType GenerateWeather(WorldDate currentDate, ModelDefinition weatherChances, IWAPI api)
         {
             // Initialize
-            string currentSeason = currentDate.Season;
             IWAPI.WeatherType weatherJackpot = new();
+            Season modelSeason = new();
+            IWAPI.SeasonType currentSeason = Enum.Parse<IWAPI.SeasonType>(currentDate.Season);
+            switch (currentSeason)
+            {
+                case IWAPI.SeasonType.spring:
+                    modelSeason = weatherChances.Spring;
+                    break;
+                case IWAPI.SeasonType.summer:
+                    modelSeason = weatherChances.Summer;
+                    break;
+                case IWAPI.SeasonType.fall:
+                    modelSeason = weatherChances.Fall;
+                    break;
+                case IWAPI.SeasonType.winter:
+                    modelSeason = weatherChances.Winter;
+                    break;
+            }
             // Flip a coin for each state. All at once so custom priorities can be implemented later
-            bool stormBool = WeatherCoin.FlipStormCoin(weatherChances[Enum.Parse<IWAPI.SeasonType>(currentSeason)][IWAPI.WeatherType.storming], api);
-            bool rainBool = WeatherCoin.FlipRainCoin(weatherChances[Enum.Parse<IWAPI.SeasonType>(currentSeason)][IWAPI.WeatherType.raining], api);
-            bool snowBool = WeatherCoin.FlipSnowCoin(weatherChances[Enum.Parse<IWAPI.SeasonType>(currentSeason)][IWAPI.WeatherType.snowing], api);
-            bool windBool = WeatherCoin.FlipWindCoin(weatherChances[Enum.Parse<IWAPI.SeasonType>(currentSeason)][IWAPI.WeatherType.windy], api);
+            bool stormBool = WeatherCoin.FlipStormCoin(modelSeason.Storm.Mid, api);
+            bool rainBool = WeatherCoin.FlipStormCoin(modelSeason.Rain.Mid, api);
+            bool windBool = WeatherCoin.FlipStormCoin(modelSeason.Wind.Mid, api);
+            bool snowBool = WeatherCoin.FlipStormCoin(modelSeason.Snow.Mid, api);
             // For now, prioritise storms over rain over wind over snow
             if (stormBool)
                 weatherJackpot = IWAPI.WeatherType.storming;
@@ -36,7 +52,7 @@ namespace IW_ClimateControl
             return weatherJackpot;
         }
 
-        // Check against list of allowed dates // TODO: Check Winter 14, 15, 16
+        // Check against list of allowed dates // TODO Check Winter 14, 15, 16
         public static bool CheckCanChange(WorldDate currentDate)
         {
             bool canChange = true;
