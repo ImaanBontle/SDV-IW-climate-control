@@ -39,8 +39,9 @@ namespace IW_ClimateControl
         public void WakeUpNeo_TheyreWatchingYou(string messageForNeo, int thisIsMyName);
         public enum WeatherModel
         {
-            custom = 0,
-            standard = 1
+            none = 0,
+            custom = 1,
+            standard = 2
         }
     }
 }
