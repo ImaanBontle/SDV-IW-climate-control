@@ -72,12 +72,25 @@ namespace IWClimateControl
             // At game ready, SMAPI grabs API from Framework
             this.Helper.Events.GameLoop.GameLaunched += GameLoop_GameLaunched;
 
+            // -----------
+            // SAVE LOADED
+            // -----------
+            // At save load, cache relevant weather model
+            this.Helper.Events.GameLoop.SaveLoaded += SaveLoaded_CacheWeatherModel;
+
+            // -----------------
+            // RETURNED TO TITLE
+            // -----------------
+            // At return to title, uncache the weather model
+            this.Helper.Events.GameLoop.ReturnedToTitle += ReturnedToTitle_UncacheWeatherModel;
+
             // ---------
             // DAY START
             // ---------
             // When day begins, set tomorrow's weather
             this.Helper.Events.GameLoop.DayStarted += DayStarted_ChangeWeather;
         }
+
 
         // ---------
         // GRAB APIS
@@ -87,6 +100,42 @@ namespace IWClimateControl
         {
             this.iWAPI = this.Helper.ModRegistry.GetApi<IWAPI>("MsBontle.ImmersiveWeathers");
         }
+
+
+        // -------------------
+        // CACHE WEATHER MODEL
+        // -------------------
+        // Cache relevant weather model into model's field
+        private void SaveLoaded_CacheWeatherModel(object sender, SaveLoadedEventArgs e)
+        {
+            // Make sure to use correct model for calculations
+            if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
+            {
+                this.Monitor.Log("Model loaded from config", LogLevel.Info);
+                weatherChances = Config.WeatherModel;
+                modelChoice = IWAPI.WeatherModel.custom;
+            }
+            else
+            {
+                this.Monitor.Log("Model loaded from standard", LogLevel.Info);
+                weatherChances = standardModel.Model;
+                modelChoice = IWAPI.WeatherModel.standard;
+            }
+            modelChosen = true;
+        }
+
+
+        // ---------------------
+        // UNCACHE WEATHER MODEL
+        // ---------------------
+        // Uncache the weather model, in case the player changes it later when GMCM is integrated
+        private void ReturnedToTitle_UncacheWeatherModel(object sender, ReturnedToTitleEventArgs e)
+        {
+            weatherChances = null;
+            modelChoice = IWAPI.WeatherModel.none;
+            modelChosen = false;
+        }
+
 
         // --------------
         // CHANGE WEATHER
@@ -103,24 +152,6 @@ namespace IWClimateControl
             {
                 // If so, attempt to change tomorrow's weather
                 IWAPI.WeatherType weatherJackpot;
-                // Only load model if necessary
-                if (modelChosen == false)
-                {
-                    // Make sure to use correct model for calculations
-                    if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
-                    {
-                        this.Monitor.Log("Model loaded from config", LogLevel.Info);
-                        weatherChances = Config.WeatherModel;
-                        modelChoice = IWAPI.WeatherModel.custom;
-                    }
-                    else
-                    {
-                        this.Monitor.Log("Model loaded from standard", LogLevel.Info);
-                        weatherChances = standardModel.Model;
-                        modelChoice = IWAPI.WeatherModel.standard;
-                    }
-                    modelChosen = true;
-                }
                 weatherJackpot = WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, iWAPI);
                 Game1.weatherForTomorrow = (int)weatherJackpot;
 
