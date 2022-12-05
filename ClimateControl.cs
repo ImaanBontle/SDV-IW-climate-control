@@ -60,7 +60,7 @@ namespace IWClimateControl
             // -----------
             // DATA MODELS
             // -----------
-            // At launch, SMAPI repeats the Config process for the weather models
+            // At launch, SMAPI repeats the Config process for each of the weather models
             // Read files
             standardModel = this.Helper.Data.ReadJsonFile<StandardModel>("models/standard.json") ?? new StandardModel();
             // Save files (if needed)

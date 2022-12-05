@@ -52,7 +52,7 @@ namespace IW_ClimateControl
             return weatherJackpot;
         }
 
-        // Check against list of allowed dates // TODO Check Winter 14, 15, 16
+        // Check against list of allowed dates
         public static bool CheckCanChange(WorldDate currentDate)
         {
             bool canChange = true;
@@ -101,6 +101,7 @@ namespace IW_ClimateControl
     // Flips coins for weather states
     internal class WeatherCoin
     {
+        // TODO: Simplify, can all be one method
         // Thunderstorm
         public static bool FlipStormCoin(double stormChance, IWAPI api)
         {
