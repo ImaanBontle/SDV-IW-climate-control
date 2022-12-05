@@ -13,13 +13,36 @@ using StardewValley.Monsters;
 namespace IWClimateControl
 {
     // Internal interface for IWAPI
-    public interface IIWAPI
+    public interface IWAPI
     {
+        public enum WeatherType
+        {
+            sunny = 0,
+            raining = 1,
+            windy = 2,
+            storming = 3,
+            festival = 4,
+            snowing = 5,
+            wedding = 6,
+            unknown = 7
+        }
+        public enum SeasonType
+        {
+            spring = 0,
+            summer = 1,
+            fall = 2,
+            winter = 3
+        }
         Tuple<string, string> GetWeatherInfo();
         string TranslateTomorrowStates(int integerState);
         int TranslateTomorrowStates(string stringState);
         double RollTheDice();
         int RollTheDiceInt();
+        public enum FollowTheWhiteRabbit
+        {
+            ClimateControl = 0
+        }
+        public void WakeUpNeo_TheyreWatchingYou(string messageForNeo, int thisIsMyName);
     }
 
     // Main class
@@ -28,7 +51,7 @@ namespace IWClimateControl
         // Where to grab config values
         private CCConfig Config;
         // Where they will be stored internally as fields for the class to access
-        public static Dictionary<string, Dictionary<string, double>> weatherChances = new();
+        public static Dictionary<IWAPI.SeasonType, Dictionary<IWAPI.WeatherType, double>> weatherChances = new();
 
         // Main method
         public override void Entry(IModHelper helper)
@@ -57,68 +80,66 @@ namespace IWClimateControl
         {
             // Grab relevant info for calculation
             var currentDate = Game1.Date;
-            IIWAPI api = this.Helper.ModRegistry.GetApi<IIWAPI>("MsBontle.ImmersiveWeathers");
+            IWAPI api = this.Helper.ModRegistry.GetApi<IWAPI>("MsBontle.ImmersiveWeathers");
 
-            // Check if tomorrow is OK to change
-            if ((currentDate.DayOfMonth != 28) &&
-                (Game1.weatherForTomorrow != api.TranslateTomorrowStates("Festival")) &&
-                (Game1.weatherForTomorrow != api.TranslateTomorrowStates("Wedding")))
+            // Check if weather is allowed to be changed
+            bool canChange = WeatherSlotMachine.CheckCanChange(currentDate);
+            if (canChange)
             {
-                // If so, attempt to change it
-                string weatherJackpot = WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, api);
-                this.Monitor.Log($"Weather for tomorrow changed to {weatherJackpot}", LogLevel.Info);
-                Game1.weatherForTomorrow = api.TranslateTomorrowStates(weatherJackpot);
+                // Attempt to change tomorrow's weather
+                IWAPI.WeatherType weatherJackpot = WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, api);
+                Game1.weatherForTomorrow = (int)weatherJackpot;
+
+                // Call the framework
+                api.WakeUpNeo_TheyreWatchingYou($"Weather for tomorrow changed to {weatherJackpot}.", (int)IWAPI.FollowTheWhiteRabbit.ClimateControl);
             }
             else
-            {
-                // If not, don't touch it
-                this.Monitor.Log("Tomorrow will always be sunny, so no changes will be made.", LogLevel.Info);
-            }  
+                api.WakeUpNeo_TheyreWatchingYou($"Weather tomorrow is unchanged.", (int)IWAPI.FollowTheWhiteRabbit.ClimateControl);
         }
         
         // Grab weather chances from config
-        private Dictionary<string, Dictionary<string, double>> GrabWeatherChances()
+        private Dictionary<IWAPI.SeasonType, Dictionary<IWAPI.WeatherType, double>> GrabWeatherChances()
         {
-            return new Dictionary<string, Dictionary<string, double>>
+            return new Dictionary<IWAPI.SeasonType, Dictionary<IWAPI.WeatherType, double>>
             {
                 {
-                    "spring",
-                    new Dictionary<string, double>
+                    IWAPI.SeasonType.spring,
+                    new Dictionary<IWAPI.WeatherType, double>
                     {
-                        { "rain", this.Config.SpringRainChance },
-                        { "storm", this.Config.SpringStormChance },
-                        { "wind", this.Config.SpringWindChance },
-                        { "snow", this.Config.SpringSnowChance }
+                        { IWAPI.WeatherType.raining, this.Config.SpringRainChance },
+                        { IWAPI.WeatherType.storming, this.Config.SpringStormChance },
+                        { IWAPI.WeatherType.windy, this.Config.SpringWindChance },
+                        { IWAPI.WeatherType.snowing, this.Config.SpringSnowChance }
                     }
                 },
                 {
-                    "summer",
-                    new Dictionary<string, double>
+                    IWAPI.SeasonType.summer,
+                    new Dictionary<IWAPI.WeatherType, double>
                     {
-                        { "rain", this.Config.SummerRainChance },
-                        { "storm", this.Config.SummerStormChance },
-                        { "wind", this.Config.SummerWindChance },
-                        { "snow", this.Config.SummerSnowChance }
+                        { IWAPI.WeatherType.raining, this.Config.SummerRainChance },
+                        { IWAPI.WeatherType.storming, this.Config.SummerStormChance },
+                        { IWAPI.WeatherType.windy, this.Config.SummerWindChance },
+                        { IWAPI.WeatherType.snowing, this.Config.SummerSnowChance }
                     }
                 },
                 {
-                    "fall",
-                    new Dictionary<string, double>
+                    IWAPI.SeasonType.fall,
+                    new Dictionary<IWAPI.WeatherType, double>
                     {
-                        { "rain", this.Config.FallRainChance },
-                        { "storm", this.Config.FallStormChance },
-                        { "wind", this.Config.FallWindChance },
-                        { "snow", this.Config.FallSnowChance }
+                        { IWAPI.WeatherType.raining, this.Config.FallRainChance },
+                        { IWAPI.WeatherType.storming, this.Config.FallStormChance },
+                        { IWAPI.WeatherType.windy, this.Config.FallWindChance },
+                        { IWAPI.WeatherType.snowing, this.Config.FallSnowChance }
                     }
                 },
                 {
-                    "winter",
-                    new Dictionary<string, double>
+                    IWAPI.SeasonType.winter,
+                    new Dictionary<IWAPI.WeatherType, double>
                     {
-                        { "rain", this.Config.WinterRainChance },
-                        { "storm", this.Config.WinterStormChance },
-                        { "wind", this.Config.WinterWindChance },
-                        { "snow", this.Config.WinterSnowChance }
+                        { IWAPI.WeatherType.raining, this.Config.WinterRainChance },
+                        { IWAPI.WeatherType.storming, this.Config.WinterStormChance },
+                        { IWAPI.WeatherType.windy, this.Config.WinterWindChance },
+                        { IWAPI.WeatherType.snowing, this.Config.WinterSnowChance }
                     }
                 }
             };
