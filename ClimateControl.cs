@@ -10,18 +10,15 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 
-// TODO: Update TODO from file and move following items to appropriate code
-
-// TODO: Move model check to save load (unset model choice parameters)
-// TODO: Broadcast model choice, model updated and weather change to Framework
-// TODO: Update API
-// TODO: Implement broadcast in Framework and cache values
-// TODO: Write custom log messages for weather changes
-// TODO: Standardise trace vs info messages. Add traces for every time a mod does an action, framework receives a broadcast, and messages sent to player
-// TODO: Add config for SMAPI logging
-// TODO: Add mod config menu (make sure to reload any changes from player)
-// TODO: Add multiple season values
-// TODO: Add interpolation between values and cache
+// TODO: Move model check to moment of save load (unset model choice parameters when exiting to main menu) <----- v0.3.1
+// TODO: Broadcast model choice, model updated and weather change to Framework <----- v0.4.0
+// TODO: Standardise trace vs info messages. Add traces for every time a mod does an action, framework receives a broadcast, and messages sent to player <----- v0.4.0
+// TODO: Change priority of probabilities calculation <----- v0.5.0
+// TODO: Add multiple season values <----- v0.6.0
+// TODO: Add mod config menu (make sure to reload any changes from player) <----- v0.7.0
+// TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
+// TODO: Add more than one template <----- ???
+// TODO: Improve comments <----- ???
 
 namespace IWClimateControl
 {

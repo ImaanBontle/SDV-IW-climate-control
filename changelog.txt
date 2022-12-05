@@ -9,6 +9,7 @@ v0.3.0:
 - Added list of models to API.
 - Made sure mod only caches Framework's API once rather than daily.
 - Mod only checks for model choice the first time.
+- Integrated TODO into code, rather than separate file
 
 v0.2.1:
 -----
