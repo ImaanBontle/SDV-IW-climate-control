@@ -1,3 +1,19 @@
+v0.3.0:
+-----
+- Added integration with Framework. Now broadcasts weather changes to SMAPI console through the Framework.
+- Created a class framework for storing multiple different template models and printing these to json files at first launch. Major code re-write to accomodate this.
+- If player edits a template's json files, mod will use the edited values.
+- Player can also create a custom template by editing config.json and also specifying a "custom" model.
+- Subcategorised seasonal weather into "Mid" grouping, in anticipation of "Early", "Mid" and "Late" chances of each weather type.
+- Fleshed out code comments.
+- Added list of models to API.
+- Made sure mod only caches Framework's API once rather than daily.
+- Mod only checks for model choice the first time.
+
+v0.2.1:
+-----
+- Minor code clean-up.
+
 v0.2.0:
 -----
 - Added config file for each weather type's chance per season.
