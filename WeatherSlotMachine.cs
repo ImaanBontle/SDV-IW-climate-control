@@ -12,37 +12,98 @@ namespace IW_ClimateControl
     internal class WeatherSlotMachine
     {
         // Generate weather based on config values
-        public static string GenerateWeather(WorldDate currentDate, Dictionary<string, Dictionary<string, double>> weatherChances, IIWAPI api)
+        public static IWAPI.WeatherType GenerateWeather(WorldDate currentDate, ModelDefinition weatherChances, IWAPI api)
         {
             // Initialize
-            string weatherJackpot = "";
-            string currentSeason = currentDate.Season;
+            IWAPI.WeatherType weatherJackpot = new();
+            Season modelSeason = new();
+            IWAPI.SeasonType currentSeason = Enum.Parse<IWAPI.SeasonType>(currentDate.Season);
+            switch (currentSeason)
+            {
+                case IWAPI.SeasonType.spring:
+                    modelSeason = weatherChances.Spring;
+                    break;
+                case IWAPI.SeasonType.summer:
+                    modelSeason = weatherChances.Summer;
+                    break;
+                case IWAPI.SeasonType.fall:
+                    modelSeason = weatherChances.Fall;
+                    break;
+                case IWAPI.SeasonType.winter:
+                    modelSeason = weatherChances.Winter;
+                    break;
+            }
             // Flip a coin for each state. All at once so custom priorities can be implemented later
-            bool stormBool = WeatherCoin.FlipStormCoin(weatherChances[currentSeason]["storm"], api);
-            bool rainBool = WeatherCoin.FlipRainCoin(weatherChances[currentSeason]["rain"], api);
-            bool snowBool = WeatherCoin.FlipSnowCoin(weatherChances[currentSeason]["snow"], api);
-            bool windBool = WeatherCoin.FlipWindCoin(weatherChances[currentSeason]["wind"], api);
+            bool stormBool = WeatherCoin.FlipStormCoin(modelSeason.Storm.Mid, api);
+            bool rainBool = WeatherCoin.FlipStormCoin(modelSeason.Rain.Mid, api);
+            bool windBool = WeatherCoin.FlipStormCoin(modelSeason.Wind.Mid, api);
+            bool snowBool = WeatherCoin.FlipStormCoin(modelSeason.Snow.Mid, api);
             // For now, prioritise storms over rain over wind over snow
             if (stormBool)
-                weatherJackpot = "Storming";
+                weatherJackpot = IWAPI.WeatherType.storming;
             else if (rainBool)
-                weatherJackpot = "Raining";
+                weatherJackpot = IWAPI.WeatherType.raining;
             else if (windBool)
-                weatherJackpot = "Windy";
+                weatherJackpot = IWAPI.WeatherType.windy;
             else if (snowBool)
-                weatherJackpot = "Snowing";
+                weatherJackpot = IWAPI.WeatherType.snowing;
             else
-                weatherJackpot = "Sunny";
+                weatherJackpot = IWAPI.WeatherType.sunny;
             return weatherJackpot;
         }
+
+        // Check against list of allowed dates
+        public static bool CheckCanChange(WorldDate currentDate)
+        {
+            bool canChange = true;
+            switch (currentDate.TotalDays)
+            {
+                case 1:
+                case 2:
+                case 3:
+                    canChange = false;
+                    break;
+                default:
+                    switch (Game1.weatherForTomorrow)
+                    {
+                        case (int)IWAPI.WeatherType.festival:
+                        case (int)IWAPI.WeatherType.wedding:
+                            canChange = false;
+                            break;
+                        default:
+                            switch (currentDate.DayOfMonth)
+                            {
+                                case 28:
+                                    canChange = false;
+                                    break;
+                                default:
+                                    switch (Enum.Parse<IWAPI.SeasonType>(currentDate.Season))
+                                    {
+                                        case IWAPI.SeasonType.summer:
+                                            if ((currentDate.DayOfMonth + 1) % 13 == 0)
+                                                canChange = false;
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+            return canChange;
+        }
+
 
     }
 
     // Flips coins for weather states
     internal class WeatherCoin
     {
+        // TODO: Simplify, can all be one method
         // Thunderstorm
-        public static bool FlipStormCoin(double stormChance, IIWAPI api)
+        public static bool FlipStormCoin(double stormChance, IWAPI api)
         {
             // If dice roll lands within the percentage, permit the change.
             // Otherwise, deny it. Smaller percentages have narrower
@@ -54,7 +115,7 @@ namespace IW_ClimateControl
         }
 
         // Rain
-        public static bool FlipRainCoin(double rainChance, IIWAPI api)
+        public static bool FlipRainCoin(double rainChance, IWAPI api)
         {
             bool rainBool = false;
             if ((0.01 * rainChance) >= api.RollTheDice())
@@ -63,7 +124,7 @@ namespace IW_ClimateControl
         }
 
         // Snow
-        public static bool FlipSnowCoin(double snowChance, IIWAPI api)
+        public static bool FlipSnowCoin(double snowChance, IWAPI api)
         {
             bool snowBool = false;
             if ((0.01 * snowChance) >= api.RollTheDice())
@@ -72,7 +133,7 @@ namespace IW_ClimateControl
         }
 
         // Wind
-        public static bool FlipWindCoin(double windChance, IIWAPI api)
+        public static bool FlipWindCoin(double windChance, IWAPI api)
         {
             bool windBool = false;
             if ((0.01 * windChance) >= api.RollTheDice())

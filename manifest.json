@@ -1,16 +1,16 @@
 ﻿{
   "Name": "ImmersiveWeathers - ClimateControl",
   "Author": "MsBontle",
-  "Version": "0.2.1",
+  "Version": "0.3.0",
   "Description": "Allows for custom control of the game's climate in each season and week.",
   "UniqueID": "MsBontle.ClimateControl",
   "EntryDll": "IW-ClimateControl.dll",
   "MinimumApiVersion": "3.18.1",
-  "UpdateKeys": [ "GitHub:ImaanBontle/SDV-IW-climate-control" ],
+  "UpdateKeys": [ "Nexus:14659", "ModDrop:???", "GitHub:ImaanBontle/SDV-IW-climate-control" ],
   "Dependencies": [
     {
       "UniqueID": "MsBontle.ImmersiveWeathers",
-      "MinimumVersion": "0.4.0"
+      "MinimumVersion": "0.5.0"
     }
   ]
 }

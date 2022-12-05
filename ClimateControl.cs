@@ -10,43 +10,82 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 
+// TODO: Move model check to moment of save load (unset model choice parameters when exiting to main menu) <----- v0.3.1
+// TODO: Broadcast model choice, model updated and weather change to Framework <----- v0.4.0
+// TODO: Standardise trace vs info messages. Add traces for every time a mod does an action, framework receives a broadcast, and messages sent to player <----- v0.4.0
+// TODO: Change priority of probabilities calculation <----- v0.5.0
+// TODO: Add multiple season values <----- v0.6.0
+// TODO: Add mod config menu (make sure to reload any changes from player) <----- v0.7.0
+// TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
+// TODO: Add more than one template <----- ???
+// TODO: Improve comments <----- ???
+
 namespace IWClimateControl
 {
-    // Internal interface for IWAPI
-    public interface IIWAPI
+    // ----------
+    // MAIN CLASS
+    // ----------
+    // SMAPI creates instance of this at launch
+    internal class ClimateControl : Mod
     {
-        Tuple<string, string> GetWeatherInfo();
-        string TranslateTomorrowStates(int integerState);
-        int TranslateTomorrowStates(string stringState);
-        double RollTheDice();
-        int RollTheDiceInt();
-    }
+        // -----------------
+        // FIELDS AND VALUES
+        // -----------------
+        // SMAPI initialises fields at launch
+        // Where to grab config
+        private Config Config;
+        // Where to store API
+        IWAPI iWAPI;
+        // Where to grab models if necessary
+        StandardModel standardModel = new();
+        // Bool for checking model choice only once
+        bool modelChosen = false;
+        IWAPI.WeatherModel modelChoice;
+        // Where to store chosen model
+        ModelDefinition weatherChances;
 
-    // Main class
-    internal sealed class ClimateControl : Mod
-    {
-        // Where to grab config values
-        private CCConfig Config;
-        // Where they will be stored internally as fields for the class to access
-        public static Dictionary<string, Dictionary<string, double>> weatherChances = new();
-
-        // Main method
+        // -----------
+        // MAIN METHOD 
+        // -----------
+        // SMAPI executes this at launch
         public override void Entry(IModHelper helper)
         {
-            // -------------
-            // LAUNCH CONFIG
-            // -------------
-            // At launch, tell SMAPI where to grab config values and to make config.json if absent
-            this.Config = this.Helper.ReadConfig<CCConfig>();
-            // Populate field with config's weather chances for calculations
-            weatherChances = GrabWeatherChances();
+            // -----------
+            // CONFIG FILE
+            // -----------
+            // At launch, SMAPI creates Config, copies values from config.json and updates any empty values,
+            // or if config.json is missing, creates a new one using values from Config
+            this.Config = this.Helper.ReadConfig<Config>();
+
+            // -----------
+            // DATA MODELS
+            // -----------
+            // At launch, SMAPI repeats the Config process for each of the weather models
+            // Read files
+            standardModel = this.Helper.Data.ReadJsonFile<StandardModel>("models/standard.json") ?? new StandardModel();
+            // Save files (if needed)
+            this.Helper.Data.WriteJsonFile("models/standard.json", standardModel);
+
+            // ----------
+            // API IMPORT
+            // ----------
+            // At game ready, SMAPI grabs API from Framework
+            this.Helper.Events.GameLoop.GameLaunched += GameLoop_GameLaunched;
 
             // ---------
             // DAY START
             // ---------
             // When day begins, set tomorrow's weather
             this.Helper.Events.GameLoop.DayStarted += DayStarted_ChangeWeather;
+        }
 
+        // ---------
+        // GRAB APIS
+        // ---------
+        // Grab APIs
+        private void GameLoop_GameLaunched(object sender, GameLaunchedEventArgs e)
+        {
+            this.iWAPI = this.Helper.ModRegistry.GetApi<IWAPI>("MsBontle.ImmersiveWeathers");
         }
 
         // --------------
@@ -56,72 +95,40 @@ namespace IWClimateControl
         private void DayStarted_ChangeWeather(object sender, DayStartedEventArgs e)
         {
             // Grab relevant info for calculation
-            var currentDate = Game1.Date;
-            IIWAPI api = this.Helper.ModRegistry.GetApi<IIWAPI>("MsBontle.ImmersiveWeathers");
+            WorldDate currentDate = Game1.Date;
 
-            // Check if tomorrow is OK to change
-            if ((currentDate.DayOfMonth != 28) &&
-                (Game1.weatherForTomorrow != api.TranslateTomorrowStates("Festival")) &&
-                (Game1.weatherForTomorrow != api.TranslateTomorrowStates("Wedding")))
+            // Check if weather is allowed to be changed
+            bool canChange = WeatherSlotMachine.CheckCanChange(currentDate);
+            if (canChange)
             {
-                // If so, attempt to change it
-                string weatherJackpot = WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, api);
-                this.Monitor.Log($"Weather for tomorrow changed to {weatherJackpot}", LogLevel.Info);
-                Game1.weatherForTomorrow = api.TranslateTomorrowStates(weatherJackpot);
+                // If so, attempt to change tomorrow's weather
+                IWAPI.WeatherType weatherJackpot;
+                // Only load model if necessary
+                if (modelChosen == false)
+                {
+                    // Make sure to use correct model for calculations
+                    if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
+                    {
+                        this.Monitor.Log("Model loaded from config", LogLevel.Info);
+                        weatherChances = Config.WeatherModel;
+                        modelChoice = IWAPI.WeatherModel.custom;
+                    }
+                    else
+                    {
+                        this.Monitor.Log("Model loaded from standard", LogLevel.Info);
+                        weatherChances = standardModel.Model;
+                        modelChoice = IWAPI.WeatherModel.standard;
+                    }
+                    modelChosen = true;
+                }
+                weatherJackpot = WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, iWAPI);
+                Game1.weatherForTomorrow = (int)weatherJackpot;
+
+                // Tell the framework about the change
+                iWAPI.WakeUpNeo_TheyreWatchingYou($"Weather for tomorrow changed to {weatherJackpot}.", (int)IWAPI.FollowTheWhiteRabbit.ClimateControl);
             }
             else
-            {
-                // If not, don't touch it
-                this.Monitor.Log("Tomorrow will always be sunny, so no changes will be made.", LogLevel.Info);
-            }  
-        }
-        
-        // Grab weather chances from config
-        private Dictionary<string, Dictionary<string, double>> GrabWeatherChances()
-        {
-            return new Dictionary<string, Dictionary<string, double>>
-            {
-                {
-                    "spring",
-                    new Dictionary<string, double>
-                    {
-                        { "rain", this.Config.SpringRainChance },
-                        { "storm", this.Config.SpringStormChance },
-                        { "wind", this.Config.SpringWindChance },
-                        { "snow", this.Config.SpringSnowChance }
-                    }
-                },
-                {
-                    "summer",
-                    new Dictionary<string, double>
-                    {
-                        { "rain", this.Config.SummerRainChance },
-                        { "storm", this.Config.SummerStormChance },
-                        { "wind", this.Config.SummerWindChance },
-                        { "snow", this.Config.SummerSnowChance }
-                    }
-                },
-                {
-                    "fall",
-                    new Dictionary<string, double>
-                    {
-                        { "rain", this.Config.FallRainChance },
-                        { "storm", this.Config.FallStormChance },
-                        { "wind", this.Config.FallWindChance },
-                        { "snow", this.Config.FallSnowChance }
-                    }
-                },
-                {
-                    "winter",
-                    new Dictionary<string, double>
-                    {
-                        { "rain", this.Config.WinterRainChance },
-                        { "storm", this.Config.WinterStormChance },
-                        { "wind", this.Config.WinterWindChance },
-                        { "snow", this.Config.WinterSnowChance }
-                    }
-                }
-            };
+                iWAPI.WakeUpNeo_TheyreWatchingYou($"Weather tomorrow is unchanged.", (int)IWAPI.FollowTheWhiteRabbit.ClimateControl);
         }
     }
 }
