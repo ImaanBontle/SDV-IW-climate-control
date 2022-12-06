@@ -10,7 +10,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 
-// TODO: Move model check to moment of save load (unset model choice parameters when exiting to main menu) <----- v0.3.1
 // TODO: Broadcast model choice, model updated and weather change to Framework <----- v0.4.0
 // TODO: Standardise trace vs info messages. Add traces for every time a mod does an action, framework receives a broadcast, and messages sent to player <----- v0.4.0
 // TODO: Change priority of probabilities calculation <----- v0.5.0
@@ -109,19 +108,35 @@ namespace IWClimateControl
         private void SaveLoaded_CacheWeatherModel(object sender, SaveLoadedEventArgs e)
         {
             // Make sure to use correct model for calculations
+            ImmersiveWeathers.RedPillOrBluePill shouldUpdateModel = new();
+            shouldUpdateModel.MessageFromTrinity.MessageType = ImmersiveWeathers.IWAPI.TypeOfMessage.saveLoaded;
+            shouldUpdateModel.MessageFromTrinity.SisterMod = ImmersiveWeathers.IWAPI.FollowTheWhiteRabbit.ClimateControl;
             if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
             {
-                this.Monitor.Log("Model loaded from config", LogLevel.Info);
+                shouldUpdateModel.MessageFromTrinity.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.custom;
+            }
+            else if (Config.ModelChoice == IWAPI.WeatherModel.standard.ToString())
+            {
+                shouldUpdateModel.MessageFromTrinity.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.standard;
+            }
+            else
+            {
+                shouldUpdateModel.MessageFromTrinity.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.none;
+            }
+            this.iWAPI.WakeUpNeo_TheyreWatchingYou(shouldUpdateModel);
+            /*
+            if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
+            {
                 weatherChances = Config.WeatherModel;
                 modelChoice = IWAPI.WeatherModel.custom;
             }
             else
             {
-                this.Monitor.Log("Model loaded from standard", LogLevel.Info);
                 weatherChances = standardModel.Model;
                 modelChoice = IWAPI.WeatherModel.standard;
             }
             modelChosen = true;
+            */
         }
 
 
@@ -131,9 +146,11 @@ namespace IWClimateControl
         // Uncache the weather model, in case the player changes it later when GMCM is integrated
         private void ReturnedToTitle_UncacheWeatherModel(object sender, ReturnedToTitleEventArgs e)
         {
+            /*
             weatherChances = null;
             modelChoice = IWAPI.WeatherModel.none;
             modelChosen = false;
+            */
         }
 
 
@@ -143,6 +160,7 @@ namespace IWClimateControl
         // Change tomorrow's weather
         private void DayStarted_ChangeWeather(object sender, DayStartedEventArgs e)
         {
+            /*
             // Grab relevant info for calculation
             WorldDate currentDate = Game1.Date;
 
@@ -160,6 +178,7 @@ namespace IWClimateControl
             }
             else
                 iWAPI.WakeUpNeo_TheyreWatchingYou($"Weather tomorrow is unchanged.", (int)IWAPI.FollowTheWhiteRabbit.ClimateControl);
+            */
         }
     }
 }

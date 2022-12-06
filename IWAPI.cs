@@ -8,7 +8,7 @@ namespace IW_ClimateControl
 {
     // Internal interface for IWAPI
     public interface IWAPI
-    {
+    { 
         public enum WeatherType
         {
             sunny = 0,
@@ -27,21 +27,27 @@ namespace IW_ClimateControl
             fall = 2,
             winter = 3
         }
-        Tuple<string, string> GetWeatherInfo();
-        string TranslateTomorrowStates(int integerState);
-        int TranslateTomorrowStates(string stringState);
-        double RollTheDice();
-        int RollTheDiceInt();
-        public enum FollowTheWhiteRabbit
-        {
-            ClimateControl = 0
-        }
-        public void WakeUpNeo_TheyreWatchingYou(string messageForNeo, int thisIsMyName);
         public enum WeatherModel
         {
             none = 0,
             custom = 1,
             standard = 2
         }
+        public enum FollowTheWhiteRabbit
+        {
+            ClimateControl = 0
+        }
+        public enum TypeOfMessage
+        {
+            saveLoaded = 0,
+            titleReturned = 1,
+            dayStarted = 2
+        }
+        public Tuple<string, string> GetWeatherInfo();
+        public string TranslateTomorrowStates(int integerState);
+        public int TranslateTomorrowStates(string stringState);
+        public double RollTheDice();
+        public int RollTheDiceInt();
+        public void WakeUpNeo_TheyreWatchingYou(ImmersiveWeathers.RedPillOrBluePill incomingMessage);
     }
 }
