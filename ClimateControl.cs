@@ -124,6 +124,7 @@ namespace IWClimateControl
                 shouldUpdateModel.MessageFromTrinity.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.none;
             }
             this.iWAPI.WakeUpNeo_TheyreWatchingYou(shouldUpdateModel);
+            this.Monitor.Log($"Should update model: {shouldUpdateModel.MessageFromNeo.GoAheadToLoad}", LogLevel.Info);
             /*
             if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
             {
