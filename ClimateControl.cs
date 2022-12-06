@@ -37,8 +37,7 @@ namespace IWClimateControl
         IWAPI iWAPI;
         // Where to grab models if necessary
         StandardModel standardModel = new();
-        // Bool for checking model choice only once
-        bool modelChosen = false;
+        // Where to store current model choice
         IWAPI.WeatherModel modelChoice;
         // Where to store chosen model
         ModelDefinition weatherChances;
@@ -107,37 +106,31 @@ namespace IWClimateControl
         // Cache relevant weather model into model's field
         private void SaveLoaded_CacheWeatherModel(object sender, SaveLoadedEventArgs e)
         {
-            // Make sure to use correct model for calculations
+            // Check if model needs to be reloaded
             ImmersiveWeathers.RedPillOrBluePill shouldUpdateModel = new();
             shouldUpdateModel.MessageFromTrinity.MessageType = ImmersiveWeathers.IWAPI.TypeOfMessage.saveLoaded;
             shouldUpdateModel.MessageFromTrinity.SisterMod = ImmersiveWeathers.IWAPI.FollowTheWhiteRabbit.ClimateControl;
             if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
-            {
                 shouldUpdateModel.MessageFromTrinity.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.custom;
-            }
             else if (Config.ModelChoice == IWAPI.WeatherModel.standard.ToString())
-            {
                 shouldUpdateModel.MessageFromTrinity.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.standard;
-            }
             else
-            {
                 shouldUpdateModel.MessageFromTrinity.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.none;
-            }
             this.iWAPI.WakeUpNeo_TheyreWatchingYou(shouldUpdateModel);
-            this.Monitor.Log($"Should update model: {shouldUpdateModel.MessageFromNeo.GoAheadToLoad}", LogLevel.Info);
-            /*
-            if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
+            // If so, which model?
+            if (shouldUpdateModel.MessageFromNeo.GoAheadToLoad)
             {
-                weatherChances = Config.WeatherModel;
-                modelChoice = IWAPI.WeatherModel.custom;
+                if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
+                {
+                    weatherChances = Config.WeatherModel;
+                    modelChoice = IWAPI.WeatherModel.custom;
+                }
+                else
+                {
+                    weatherChances = standardModel.Model;
+                    modelChoice = IWAPI.WeatherModel.standard;
+                }
             }
-            else
-            {
-                weatherChances = standardModel.Model;
-                modelChoice = IWAPI.WeatherModel.standard;
-            }
-            modelChosen = true;
-            */
         }
 
 
