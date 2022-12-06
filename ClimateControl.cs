@@ -74,13 +74,7 @@ namespace IWClimateControl
             // SAVE LOADED
             // -----------
             // At save load, cache relevant weather model
-            this.Helper.Events.GameLoop.SaveLoaded += SaveLoaded_CacheWeatherModel;
-
-            // -----------------
-            // RETURNED TO TITLE
-            // -----------------
-            // At return to title, uncache the weather model
-            this.Helper.Events.GameLoop.ReturnedToTitle += ReturnedToTitle_UncacheWeatherModel;
+            this.Helper.Events.GameLoop.SaveLoaded += SaveLoaded_CacheModel;
 
             // ---------
             // DAY START
@@ -104,21 +98,21 @@ namespace IWClimateControl
         // CACHE WEATHER MODEL
         // -------------------
         // Cache relevant weather model into model's field
-        private void SaveLoaded_CacheWeatherModel(object sender, SaveLoadedEventArgs e)
+        private void SaveLoaded_CacheModel(object sender, SaveLoadedEventArgs e)
         {
             // Check if model needs to be reloaded
-            ImmersiveWeathers.RedPillOrBluePill shouldUpdateModel = new();
-            shouldUpdateModel.MessageFromTrinity.MessageType = ImmersiveWeathers.IWAPI.TypeOfMessage.saveLoaded;
-            shouldUpdateModel.MessageFromTrinity.SisterMod = ImmersiveWeathers.IWAPI.FollowTheWhiteRabbit.ClimateControl;
+            ImmersiveWeathers.MessageContainer shouldUpdateModel = new();
+            shouldUpdateModel.Message.MessageType = ImmersiveWeathers.IWAPI.MessageTypes.saveLoaded;
+            shouldUpdateModel.Message.SisterMod = ImmersiveWeathers.IWAPI.SisterMods.ClimateControl;
             if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
-                shouldUpdateModel.MessageFromTrinity.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.custom;
+                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.custom;
             else if (Config.ModelChoice == IWAPI.WeatherModel.standard.ToString())
-                shouldUpdateModel.MessageFromTrinity.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.standard;
+                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.standard;
             else
-                shouldUpdateModel.MessageFromTrinity.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.none;
-            this.iWAPI.WakeUpNeo_TheyreWatchingYou(shouldUpdateModel);
+                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.none;
+            this.iWAPI.ProcessMessage(shouldUpdateModel);
             // If so, which model?
-            if (shouldUpdateModel.MessageFromNeo.GoAheadToLoad)
+            if (shouldUpdateModel.Response.GoAheadToLoad)
             {
                 if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
                 {
@@ -134,45 +128,31 @@ namespace IWClimateControl
         }
 
 
-        // ---------------------
-        // UNCACHE WEATHER MODEL
-        // ---------------------
-        // Uncache the weather model, in case the player changes it later when GMCM is integrated
-        private void ReturnedToTitle_UncacheWeatherModel(object sender, ReturnedToTitleEventArgs e)
-        {
-            /*
-            weatherChances = null;
-            modelChoice = IWAPI.WeatherModel.none;
-            modelChosen = false;
-            */
-        }
-
-
         // --------------
         // CHANGE WEATHER
         // --------------
         // Change tomorrow's weather
         private void DayStarted_ChangeWeather(object sender, DayStartedEventArgs e)
         {
-            /*
             // Grab relevant info for calculation
             WorldDate currentDate = Game1.Date;
+            IWAPI.WeatherType weatherJackpot;
+            ImmersiveWeathers.MessageContainer weatherWasChanged = new();
+            weatherWasChanged.Message.MessageType = ImmersiveWeathers.IWAPI.MessageTypes.dayStarted;
+            weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IWAPI.SisterMods.ClimateControl;
 
             // Check if weather is allowed to be changed
             bool canChange = WeatherSlotMachine.CheckCanChange(currentDate);
+            weatherWasChanged.Message.CouldChange = canChange;
             if (canChange)
             {
                 // If so, attempt to change tomorrow's weather
-                IWAPI.WeatherType weatherJackpot;
                 weatherJackpot = WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, iWAPI);
                 Game1.weatherForTomorrow = (int)weatherJackpot;
-
-                // Tell the framework about the change
-                iWAPI.WakeUpNeo_TheyreWatchingYou($"Weather for tomorrow changed to {weatherJackpot}.", (int)IWAPI.FollowTheWhiteRabbit.ClimateControl);
+                weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IWAPI.WeatherType)(int)weatherJackpot;
             }
-            else
-                iWAPI.WakeUpNeo_TheyreWatchingYou($"Weather tomorrow is unchanged.", (int)IWAPI.FollowTheWhiteRabbit.ClimateControl);
-            */
+            // Tell the framework about the change
+            this.iWAPI.ProcessMessage(weatherWasChanged);
         }
     }
 }

@@ -48,6 +48,6 @@ namespace IW_ClimateControl
         public int TranslateTomorrowStates(string stringState);
         public double RollTheDice();
         public int RollTheDiceInt();
-        public void WakeUpNeo_TheyreWatchingYou(ImmersiveWeathers.RedPillOrBluePill incomingMessage);
+        public void ProcessMessage(ImmersiveWeathers.MessageContainer Message);
     }
 }

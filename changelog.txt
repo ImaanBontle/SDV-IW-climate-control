@@ -1,3 +1,9 @@
+v0.4.0:
+-----
+- Implemented improved messaging system from framework.
+- Now broadcasts all relevant information to framework when changing weather and not just a simple string.
+- Waits for permission from framework before recaching the model on save load.
+
 v0.3.1:
 -----
 - Stopped mod from caching model every day. Now checks model choice on save loaded.
