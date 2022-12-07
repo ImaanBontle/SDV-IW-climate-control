@@ -11,8 +11,8 @@ using StardewValley;
 using StardewValley.Monsters;
 
 // TODO: Broadcast model choice, model updated and weather change to Framework <----- v0.4.0
-// TODO: Standardise trace vs info messages. Add traces for every time a mod does an action, framework receives a broadcast, and messages sent to player <----- v0.4.0
-// TODO: Change priority of probabilities calculation <----- v0.5.0
+// TODO: Standardise trace vs info messages. Add traces for every time a mod does an action, framework receives a broadcast, and messages sent to player <----- v0.5.0
+// TODO: Change priority of probabilities calculation <----- v0.6.0
 // TODO: Add multiple season values <----- v0.6.0
 // TODO: Add mod config menu (make sure to reload any changes from player) <----- v0.7.0
 // TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
