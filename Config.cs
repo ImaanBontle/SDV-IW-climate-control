@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace IW_ClimateControl
 {
     // Config file to generate
-    public sealed class Config
+    public sealed class ModConfig
     {
         private const string V = "standard";
 
@@ -19,13 +19,13 @@ namespace IW_ClimateControl
         [MatchParent("Model")]
         public ModelDefinition WeatherModel { get; set; }
 
-        public Config()
+        public ModConfig()
         {
             // Copy across properties
             if (this.ModelChoice == "standard")
             {
                 StandardModel standardModel = new();
-                PropertyMatcher<StandardModel, Config>.GenerateMatchedObject(standardModel, this);
+                PropertyMatcher<StandardModel, ModConfig>.GenerateMatchedObject(standardModel, this);
             }
         }
     }
