@@ -10,8 +10,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 
-// TODO: Broadcast model choice, model updated and weather change to Framework <----- v0.4.0
-// TODO: Standardise trace vs info messages. Add traces for every time a mod does an action, framework receives a broadcast, and messages sent to player <----- v0.5.0
 // TODO: Change priority of probabilities calculation <----- v0.6.0
 // TODO: Add multiple season values <----- v0.6.0
 // TODO: Add mod config menu (make sure to reload any changes from player) <----- v0.7.0
@@ -32,7 +30,7 @@ namespace IWClimateControl
         // -----------------
         // SMAPI initialises fields at launch
         // Where to grab config
-        private Config Config;
+        private ModConfig Config;
         // Where to store API
         IWAPI iWAPI;
         // Where to grab models if necessary
@@ -53,16 +51,17 @@ namespace IWClimateControl
             // -----------
             // At launch, SMAPI creates Config, copies values from config.json and updates any empty values,
             // or if config.json is missing, creates a new one using values from Config
-            this.Config = this.Helper.ReadConfig<Config>();
+            this.Config = this.Helper.ReadConfig<ModConfig>();
 
             // -----------
             // DATA MODELS
             // -----------
-            // At launch, SMAPI repeats the Config process for each of the weather models
+            // At launch, SMAPI repeats the above process for each of the weather models
             // Read files
             standardModel = this.Helper.Data.ReadJsonFile<StandardModel>("models/standard.json") ?? new StandardModel();
             // Save files (if needed)
             this.Helper.Data.WriteJsonFile("models/standard.json", standardModel);
+            this.Monitor.Log("Loaded weather templates.", LogLevel.Trace);
 
             // ----------
             // API IMPORT
@@ -91,6 +90,7 @@ namespace IWClimateControl
         private void GameLoop_GameLaunched(object sender, GameLaunchedEventArgs e)
         {
             this.iWAPI = this.Helper.ModRegistry.GetApi<IWAPI>("MsBontle.ImmersiveWeathers");
+            this.Monitor.Log("ClimateControl enabled!", LogLevel.Trace);
         }
 
 
@@ -101,6 +101,7 @@ namespace IWClimateControl
         private void SaveLoaded_CacheModel(object sender, SaveLoadedEventArgs e)
         {
             // Check if model needs to be reloaded
+            this.Monitor.Log("Checking if weather model needs (re-)caching...", LogLevel.Trace);
             ImmersiveWeathers.MessageContainer shouldUpdateModel = new();
             shouldUpdateModel.Message.MessageType = ImmersiveWeathers.IWAPI.MessageTypes.saveLoaded;
             shouldUpdateModel.Message.SisterMod = ImmersiveWeathers.IWAPI.SisterMods.ClimateControl;
@@ -118,12 +119,18 @@ namespace IWClimateControl
                 {
                     weatherChances = Config.WeatherModel;
                     modelChoice = IWAPI.WeatherModel.custom;
+                    this.Monitor.Log("Loading custom model...", LogLevel.Trace);
                 }
                 else
                 {
                     weatherChances = standardModel.Model;
                     modelChoice = IWAPI.WeatherModel.standard;
+                    this.Monitor.Log("Loading standard model...", LogLevel.Trace);
                 }
+            }
+            else
+            {
+                this.Monitor.Log("No changes made.", LogLevel.Trace);
             }
         }
 
@@ -135,24 +142,38 @@ namespace IWClimateControl
         private void DayStarted_ChangeWeather(object sender, DayStartedEventArgs e)
         {
             // Grab relevant info for calculation
+            this.Monitor.Log("Attempting to change weather...", LogLevel.Trace);
             WorldDate currentDate = Game1.Date;
-            IWAPI.WeatherType weatherJackpot;
             ImmersiveWeathers.MessageContainer weatherWasChanged = new();
             weatherWasChanged.Message.MessageType = ImmersiveWeathers.IWAPI.MessageTypes.dayStarted;
             weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IWAPI.SisterMods.ClimateControl;
 
             // Check if weather is allowed to be changed
-            bool canChange = WeatherSlotMachine.CheckCanChange(currentDate);
+            WeatherSlotMachine.CheckCanChange(currentDate, out bool canChange, out string reason);
             weatherWasChanged.Message.CouldChange = canChange;
             if (canChange)
             {
                 // If so, attempt to change tomorrow's weather
-                weatherJackpot = WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, iWAPI);
+                WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, iWAPI, out IWAPI.WeatherType weatherJackpot, out double diceRoll, out double odds);
+                if ( weatherJackpot == IWAPI.WeatherType.sunny )
+                    this.Monitor.Log($"No weather types passed the dice roll. Weather changed to {weatherJackpot}. Updating framework...", LogLevel.Trace);
+                else
+                    this.Monitor.Log($"Weather changed to {weatherJackpot}. Successfull dice roll was {diceRoll} against a probability of {0.01 * odds}. Updating framework...", LogLevel.Trace);
                 Game1.weatherForTomorrow = (int)weatherJackpot;
                 weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IWAPI.WeatherType)(int)weatherJackpot;
             }
+            else
+            {
+                this.Monitor.Log($"Weather could not be changed because {reason} Updating framework...", LogLevel.Trace);
+            }
             // Tell the framework about the change
             this.iWAPI.ProcessMessage(weatherWasChanged);
+            if (weatherWasChanged.Response.Acknowledged)
+                this.Monitor.Log("Acknowledgement received.", LogLevel.Trace);
+            else
+            {
+                this.Monitor.Log("Error: No acknowledgement received from framework. WHAT DO I DO??", LogLevel.Error);
+            }
         }
     }
 }

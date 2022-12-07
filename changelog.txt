@@ -1,3 +1,7 @@
+v0.5.0:
+-----
+- Added trace messages to SMAPI log for easier debugging.
+
 v0.4.0:
 -----
 - Implemented improved messaging system from framework.
