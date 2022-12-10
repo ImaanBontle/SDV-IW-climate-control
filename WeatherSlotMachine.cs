@@ -8,10 +8,20 @@ using System.Threading.Tasks;
 
 namespace IW_ClimateControl
 {
-    // Handles weather outcomes
+    /// <summary>
+    ///     Calculates weather for tomorrow.
+    /// </summary>
     internal class WeatherSlotMachine
     {
-        // Generate weather based on config values
+        /// <summary>
+        ///     Generates weather based on config values
+        /// </summary>
+        /// <param name="currentDate"></param>
+        /// <param name="weatherChances"></param>
+        /// <param name="api"></param>
+        /// <param name="weatherJackpot"></param>
+        /// <param name="diceRoll"></param>
+        /// <param name="odds"></param>
         public static void GenerateWeather(WorldDate currentDate, ModelDefinition weatherChances, IWAPI api, out IWAPI.WeatherType weatherJackpot, out double diceRoll, out double odds)
         {
             // Initialize

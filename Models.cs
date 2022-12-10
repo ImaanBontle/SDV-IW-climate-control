@@ -11,20 +11,13 @@ using System.Threading.Tasks;
 namespace IW_ClimateControl
 {
     /// <summary>
-    ///     The standard model for generic climates.
+    /// The standard model for generic climates.
     /// </summary>
-    /// <remarks>
-    ///     Spring has many gentle showers.<br/>
-    ///     Summer has intense but brief thunderstorms.<br/>
-    ///     Fall is dry and windy. <br/>
-    ///     Winter has lots of snowfall and some rain. <br/>
-    ///     <br/>
-    ///     Both Spring and Fall have a very small chance of snow.
-    /// </remarks>
+    /// <remarks>Spring has many gentle showers. Summer has intense but brief thunderstorms. Fall is dry and windy. Winter has lots of snowfall and some rain. Both Spring and Fall have a very small chance of snow.</remarks>
     public class StandardModel
     {
         /// <summary>
-        ///     The weather probabilities throughout the year.
+        /// The weather probabilities throughout the year.
         /// </summary>
         public ModelDefinition Model { get; set; }
 
@@ -63,27 +56,27 @@ namespace IW_ClimateControl
     }
 
     /// <summary>
-    ///     Generic container for weather probabilities throughout the year.
+    /// Generic container for weather probabilities throughout the year.
     /// </summary>
     public class ModelDefinition
     {
         /// <summary>
-        ///     Likelihood in Spring.
+        /// Likelihood in Spring.
         /// </summary>
         public Season Spring { get; set; }
 
         /// <summary>
-        ///     Likelihood in Summer.
+        /// Likelihood in Summer.
         /// </summary>
         public Season Summer { get; set; }
 
         /// <summary>
-        ///     Likelihood in Fall.
+        /// Likelihood in Fall.
         /// </summary>
         public Season Fall { get; set; }
 
         /// <summary>
-        ///     Likelihood in Winter.
+        /// Likelihood in Winter.
         /// </summary>
         public Season Winter { get; set; }
 
@@ -97,27 +90,27 @@ namespace IW_ClimateControl
     }
 
     /// <summary>
-    ///     Generic container for weather probabilities within the season.
+    /// Generic container for weather probabilities within the season.
     /// </summary>
     public class Season
     {
         /// <summary>
-        ///     Likelihood of rain.
+        /// Likelihood of rain.
         /// </summary>
         public Weather Rain { get; set; }
 
         /// <summary>
-        ///     Likelihood of thunderstoms.
+        /// Likelihood of thunderstoms.
         /// </summary>
         public Weather Storm { get; set; }
 
         /// <summary>
-        ///     Likelihood of windy weather.
+        /// Likelihood of windy weather.
         /// </summary>
         public Weather Wind { get; set; }
 
         /// <summary>
-        ///     Likelihood of snowfall.
+        /// Likelihood of snowfall.
         /// </summary>
         public Weather Snow { get; set; }
 
@@ -131,12 +124,12 @@ namespace IW_ClimateControl
     }
 
     /// <summary>
-    ///     Generic container for a weather's probabilities within a season.
+    /// Generic container for a weather's probabilities within a season.
     /// </summary>
     public class Weather
     {
         /// <summary>
-        ///     Probability on day 10.
+        /// Probability on day 10.
         /// </summary>
         public double Mid { get; set; }
     }

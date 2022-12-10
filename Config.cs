@@ -8,30 +8,25 @@ using System.Threading.Tasks;
 namespace IW_ClimateControl
 {
     /// <summary>
-    ///     The default user settings.
+    /// The default user settings.
     /// </summary>
     public sealed class ModConfig
     {
         /// <summary>
-        ///     The choice of inherited weather model.
+        /// The choice of inherited weather model.
         /// </summary>
-        /// <remarks>
-        ///     Defaults to the 'standard' model for generic climates.
-        /// </remarks>
+        /// <remarks>Defaults to the 'standard' model for generic climates.</remarks>
         public string ModelChoice { get; set; } = "standard";
 
         /// <summary>
-        ///     The inherited model properties.
+        /// The inherited model properties.
         /// </summary>
-        /// <remarks>
-        ///     Defaults to the 'standard' model for generic climates.
-        /// </remarks>
+        /// <remarks>Defaults to the 'standard' model for generic climates.</remarks>
         [MatchParent("Model")]
         public ModelDefinition WeatherModel { get; set; }
 
         /// <summary>
-        ///     Generates the user configuration and
-        ///     inherits from the chosen model.
+        /// Generates the user configuration and inherits from the chosen model.
         /// </summary>
         public ModConfig()
         {
@@ -46,13 +41,9 @@ namespace IW_ClimateControl
     }
 
     /// <summary>
-    ///     Cherry-picks relevant properties to inherit from another class.
+    /// Cherry-picks relevant properties to inherit from another class.
     /// </summary>
-    /// <remarks>
-    ///     See the
-    ///     <see href="https://www.pluralsight.com/guides/property-copying-between-two-objects-using-reflection">original article</see>
-    ///     for more information.
-    /// </remarks>
+    /// <remarks>See the <see href="https://www.pluralsight.com/guides/property-copying-between-two-objects-using-reflection">original article</see> for more information.</remarks>
     [AttributeUsage(AttributeTargets.Property)]
     public class MatchParentAttribute : Attribute
     {
@@ -64,13 +55,9 @@ namespace IW_ClimateControl
     }
 
     /// <summary>
-    ///     Performs the cherry-picking of class properties.
+    /// Performs the cherry-picking of class properties.
     /// </summary>
-    /// <remarks>
-    ///     See the
-    ///     <see href="https://www.pluralsight.com/guides/property-copying-between-two-objects-using-reflection">original article</see>
-    ///     for more information.
-    /// </remarks>
+    /// <remarks>See the <see href="https://www.pluralsight.com/guides/property-copying-between-two-objects-using-reflection">original article</see> for more information.</remarks>
     /// <typeparam name="TParent"></typeparam>
     /// <typeparam name="TChild"></typeparam>
     public class PropertyMatcher<TParent, TChild> where TParent : class

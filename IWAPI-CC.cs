@@ -12,7 +12,7 @@ namespace IW_ClimateControl
     public interface IWAPI
     { 
         /// <summary>
-        ///     All possible weathers recognised by Stardew Valley.
+        /// All possible weathers recognised by Stardew Valley.
         /// </summary>
         public enum WeatherType
         {
@@ -27,7 +27,7 @@ namespace IW_ClimateControl
         }
 
         /// <summary>
-        /// All possible seasons recognised by Stardew Valley.
+        ///  All possible seasons recognised by Stardew Valley.
         /// </summary>
         public enum SeasonType
         {
@@ -38,7 +38,7 @@ namespace IW_ClimateControl
         }
 
         /// <summary>
-        ///     All possible weather models used by this mod.
+        /// All possible weather models used by this mod.
         /// </summary>
         public enum WeatherModel
         {
@@ -48,7 +48,7 @@ namespace IW_ClimateControl
         }
 
         /// <summary>
-        ///     All sister mods recognised by the Framework.
+        /// All sister mods recognised by the Framework.
         /// </summary>
         public enum FollowTheWhiteRabbit
         {
@@ -56,11 +56,9 @@ namespace IW_ClimateControl
         }
 
         /// <summary>
-        ///     All possible updates sent by sister mods to the Framework.
+        /// All possible updates sent by sister mods to the Framework.
         /// </summary>
-        /// <remarks>
-        ///     Useful for responding differently based on when in a session the various features are triggered.
-        /// </remarks>
+        /// <remarks>Useful for responding differently based on when in a session the various features are triggered.</remarks>
         public enum TypeOfMessage
         {
             saveLoaded = 0,
@@ -69,57 +67,41 @@ namespace IW_ClimateControl
         }
 
         /// <summary>
-        ///     Weather forecast for today and tomorrow.
+        /// Weather forecast for today and tomorrow.
         /// </summary>
-        /// <returns>
-        ///     Tuple: Weather today and weather tomorrow.
-        /// </returns>
+        /// <returns>Tuple: Weather today and weather tomorrow.</returns>
         public Tuple<string, string> GetWeatherInfo();
 
         /// <summary>
-        ///     Converts an integer into the respective weather type recognised by Stardew Valley.
+        /// Converts an integer into the respective weather type recognised by Stardew Valley.
         /// </summary>
-        /// <param name="integerState">
-        ///     See <see cref="WeatherType"/> for possible values.
-        /// </param>
-        /// <returns>
-        ///     String version of a weather type.
-        /// </returns>
+        /// <param name="integerState">See <see cref="WeatherType"/> for possible values.</param>
+        /// <returns>String version of a weather type.</returns>
         public string TranslateTomorrowStates(int integerState);
 
         /// <summary>
-        ///     Converts a weather string into the respective integer recognised by Stardew Valley.
+        /// Converts a weather string into the respective integer recognised by Stardew Valley.
         /// </summary>
-        /// <param name="stringState">
-        ///     See <see cref="WeatherType"/> for possible values.
-        /// </param>
-        /// <returns>
-        ///     Integer value for a weather type.
-        /// </returns>
+        /// <param name="stringState">See <see cref="WeatherType"/> for possible values.</param>
+        /// <returns>Integer value for a weather type.</returns>
         public int TranslateTomorrowStates(string stringState);
 
         /// <summary>
-        ///     Request a random double from the Framework. Will reference EvenBetterRNG if possible.
+        /// Request a random double from the Framework. Will reference EvenBetterRNG if possible.
         /// </summary>
-        /// <returns>
-        ///     A random double between 0 and 1.
-        /// </returns>
+        /// <returns>A random double between 0 and 1.</returns>
         public double RollTheDice();
 
         /// <summary>
-        ///     Request a random integer from the Framework. Will reference EvenBetterRNG if possible.
+        /// Request a random integer from the Framework. Will reference EvenBetterRNG if possible.
         /// </summary>
-        /// <returns>
-        ///     A random integer.
-        /// </returns>
+        /// <returns>A random integer.</returns>
         public int RollTheDiceInt();
 
         /// <summary>
-        ///     Send a message to the Framework and receive a response.
+        /// Send a message to the Framework and receive a response.
         /// </summary>
-        /// <param name="Message">
-        ///     Container for both a message and a response when communicating with the Framework.
-        /// </param>
+        /// <param name="Message">Container for both a message and a response when communicating with the Framework.</param>
         public void ProcessMessage(ImmersiveWeathers.MessageContainer Message);
     }
 }
