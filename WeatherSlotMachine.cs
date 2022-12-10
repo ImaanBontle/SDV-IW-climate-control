@@ -44,49 +44,78 @@ namespace IW_ClimateControl
                     modelSeason = weatherChances.Winter;
                     break;
             }
+            ChooseWeather(modelSeason, api, out weatherJackpot, out diceRoll, out odds);
+        }
+
+        /// <summary>
+        /// Chooses weather for tomorrow.
+        /// </summary>
+        /// <param name="modelSeason">The likelihood of each weather type.</param>
+        /// <param name="api">Framework API</param>
+        /// <param name="weatherJackpot">The successful weather for tomorrow.</param>
+        /// <param name="diceRoll">The dice roll of the successful weather type.</param>
+        /// <param name="odds">The probability of the successful weather type.</param>
+        private static void ChooseWeather(Season modelSeason, IWAPI api, out IWAPI.WeatherType weatherJackpot, out double diceRoll, out double odds)
+        {
+            // Default values
+            diceRoll = 1.0;
+            odds = 0.0;
+            weatherJackpot = IWAPI.WeatherType.sunny;
+
+            // List of dicerolls for each weather type.
+            List<Tuple<bool, double>> weatherRolls = new();
 
             // Flip a coin for each type of weather.
-            WeatherCoin.FlipCoin(modelSeason.Storm.Mid, api, out bool stormBool, out double stormRoll);
-            WeatherCoin.FlipCoin(modelSeason.Rain.Mid, api, out bool rainBool, out double rainRoll);
-            WeatherCoin.FlipCoin(modelSeason.Wind.Mid, api, out bool windBool, out double windRoll);
-            WeatherCoin.FlipCoin(modelSeason.Snow.Mid, api, out bool snowBool, out double snowRoll);
+            weatherRolls.Add(FlipCoin(modelSeason.Storm.Mid, api));
+            weatherRolls.Add(FlipCoin(modelSeason.Rain.Mid, api));
+            weatherRolls.Add(FlipCoin(modelSeason.Wind.Mid, api));
+            weatherRolls.Add(FlipCoin(modelSeason.Snow.Mid, api));
 
-            // For now, prioritise storms over rain over wind over snow.
-            if (stormBool)
+            // Find the weather with the lowest successful dice-roll.
+            for (int i = 0; i < weatherRolls.Count; i++)
             {
-                // Thunderstorms.
-                weatherJackpot = IWAPI.WeatherType.storming;
-                diceRoll = stormRoll;
-                odds = modelSeason.Storm.Mid;
+                if ((weatherRolls[i].Item1 == true) && weatherRolls[i].Item2 <= diceRoll)
+                {
+                    diceRoll = weatherRolls[i].Item2;
+                    switch (i)
+                    {
+                        case 0:
+                            weatherJackpot = IWAPI.WeatherType.storming;
+                            odds = modelSeason.Storm.Mid;
+                            break;
+                        case 1:
+                            weatherJackpot = IWAPI.WeatherType.raining;
+                            odds = modelSeason.Rain.Mid;
+                            break;
+                        case 2:
+                            weatherJackpot = IWAPI.WeatherType.windy;
+                            odds = modelSeason.Wind.Mid;
+                            break;
+                        case 3:
+                            weatherJackpot = IWAPI.WeatherType.snowing;
+                            odds = modelSeason.Snow.Mid;
+                            break;
+                    }
+                }
             }
-            else if (rainBool)
-            {
-                // Rainfall.
-                weatherJackpot = IWAPI.WeatherType.raining;
-                diceRoll = rainRoll;
-                odds = modelSeason.Rain.Mid;
-            }
-            else if (windBool)
-            {
-                // Windy weather.
-                weatherJackpot = IWAPI.WeatherType.windy;
-                diceRoll = windRoll;
-                odds = modelSeason.Wind.Mid;
-            }
-            else if (snowBool)
-            {
-                // Snowfall.
-                weatherJackpot = IWAPI.WeatherType.snowing;
-                diceRoll = snowRoll;
-                odds = modelSeason.Snow.Mid;
-            }
-            else
-            {
-                // No winner, so default to Sunny.
-                weatherJackpot = IWAPI.WeatherType.sunny;
-                diceRoll = 0.0;
-                odds = 0.0;
-            }
+        }
+
+        /// <summary>
+        /// Roll a random number to determine if the weather changes.
+        /// </summary>
+        /// <param name="chance">Likelihood of a change.</param>
+        /// <param name="api">Framework API.</param>
+        /// <returns>Tuple: The successful weather type and the value of the dice roll.</returns>
+        private static Tuple<bool, double> FlipCoin(double chance, IWAPI api)
+        {
+            // If dice roll lands within the percentage, permit the change.
+            // Otherwise, deny it. Smaller percentages have narrower
+            // windows, corresponding to a lower likelihood of change.
+            bool weatherBool = false;
+            double diceRoll = api.RollTheDice();
+            if ((0.01 * chance) >= diceRoll)
+                weatherBool = true;
+            return new Tuple<bool, double>(weatherBool, diceRoll);
         }
 
         /// <summary>
@@ -151,32 +180,6 @@ namespace IW_ClimateControl
                     }
                     break;
             }
-        }
-
-
-    }
-
-    /// <summary>
-    /// Handles dice rolls for weather changes.
-    /// </summary>
-    internal class WeatherCoin
-    {
-        /// <summary>
-        /// Roll a random number to determine if the weather changes.
-        /// </summary>
-        /// <param name="chance">Likelihood of a change.</param>
-        /// <param name="api">Framework API.</param>
-        /// <param name="weatherBool">Can the weather change?</param>
-        /// <param name="diceRoll">Random number output by <see cref="IWAPI.RollTheDice"/></param>
-        public static void FlipCoin(double chance, IWAPI api, out bool weatherBool, out double diceRoll)
-        {
-            // If dice roll lands within the percentage, permit the change.
-            // Otherwise, deny it. Smaller percentages have narrower
-            // windows, corresponding to a lower likelihood of change.
-            weatherBool = false;
-            diceRoll = api.RollTheDice();
-            if ((0.01 * chance) >= diceRoll)
-                weatherBool = true;
         }
     }
 }
