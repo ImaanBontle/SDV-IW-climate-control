@@ -7,30 +7,52 @@ using System.Threading.Tasks;
 
 namespace IW_ClimateControl
 {
-    // Config file to generate
+    /// <summary>
+    /// The default user settings.
+    /// </summary>
     public sealed class ModConfig
     {
-        private const string V = "standard";
+        /// <summary>
+        /// The choice of inherited weather model.
+        /// </summary>
+        /// <remarks>
+        /// Defaults to the 'standard' model for generic climates.
+        /// </remarks>
+        public string ModelChoice { get; set; } = "standard";
 
-        // Which model to read from
-        public string ModelChoice { get; set; } = V;
-
-        // Preparing to copy across properties
+        /// <summary>
+        /// The inherited model properties.
+        /// </summary>
+        /// <remarks>
+        /// Defaults to the 'standard' model for generic climates.
+        /// </remarks>
         [MatchParent("Model")]
         public ModelDefinition WeatherModel { get; set; }
 
+        /// <summary>
+        /// Generates the user configuration and
+        /// inherits from the chosen model.
+        /// </summary>
         public ModConfig()
         {
             // Copy across properties
             if (this.ModelChoice == "standard")
             {
+                // The standard model for generic climates.
                 StandardModel standardModel = new();
                 PropertyMatcher<StandardModel, ModConfig>.GenerateMatchedObject(standardModel, this);
             }
         }
     }
 
-    // Class that cherry-picks relevant properties to copy: https://www.pluralsight.com/guides/property-copying-between-two-objects-using-reflection
+    /// <summary>
+    /// Cherry-picks relevant properties to inherit from another class.
+    /// </summary>
+    /// <remarks>
+    /// See the
+    /// <see href="https://www.pluralsight.com/guides/property-copying-between-two-objects-using-reflection">original article</see>
+    /// for more information.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property)]
     public class MatchParentAttribute : Attribute
     {
@@ -41,7 +63,19 @@ namespace IW_ClimateControl
         }
     }
 
-    // Class that does the copying: https://www.pluralsight.com/guides/property-copying-between-two-objects-using-reflection
+    /// <summary>
+    /// Performs the cherry-picking of class properties.
+    /// </summary>
+    /// <remarks>
+    /// See the
+    /// <see href="https://www.pluralsight.com/guides/property-copying-between-two-objects-using-reflection">
+    /// original article
+    /// </see>
+    /// for more information.
+    /// </remarks>
+    /// <typeparam name="TParent"></typeparam>
+    /// <typeparam name="TChild"></typeparam>
+    //Class that does the copying: 
     public class PropertyMatcher<TParent, TChild> where TParent : class
                                                   where TChild : class
     {
