@@ -10,33 +10,51 @@ using System.Threading.Tasks;
 
 namespace IW_ClimateControl
 {
+    /// <summary>
+    ///     The standard model for generic climates.
+    /// </summary>
+    /// <remarks>
+    ///     Spring has many gentle showers.<br/>
+    ///     Summer has intense but brief thunderstorms.<br/>
+    ///     Fall is dry and windy. <br/>
+    ///     Winter has lots of snowfall and some rain. <br/>
+    ///     <br/>
+    ///     Both Spring and Fall have a very small chance of snow.
+    /// </remarks>
     public class StandardModel
     {
+        /// <summary>
+        ///     The weather probabilities throughout the year.
+        /// </summary>
         public ModelDefinition Model { get; set; }
 
         public StandardModel()
         {
             Model = new ModelDefinition();
 
-            // very wet but light intensity, vanishing chance of snow
+            // Spring:
+            // Very wet but light intensity, vanishing chance of snow
             Model.Spring.Rain.Mid = 40;
             Model.Spring.Storm.Mid = 15;
             Model.Spring.Wind.Mid = 20;
             Model.Spring.Snow.Mid = 1;
 
-            // mostly sunny, but can be intense rain
+            // Summer:
+            // Mostly sunny, but can be intense rain
             Model.Summer.Rain.Mid = 10;
             Model.Summer.Storm.Mid = 20;
             Model.Summer.Wind.Mid = 5;
             Model.Summer.Snow.Mid = 0;
 
-            // very dry and windy, small chance of snow
+            // Fall:
+            // Very dry and windy Fall, small chance of snow
             Model.Fall.Rain.Mid = 8;
             Model.Fall.Storm.Mid = 4;
             Model.Fall.Wind.Mid = 40;
             Model.Fall.Snow.Mid = 2;
 
-            // lots of snow, seldom rain
+            // Winter:
+            // Lots of snow in Winter, seldom rain
             Model.Winter.Rain.Mid = 5;
             Model.Winter.Storm.Mid = 0;
             Model.Winter.Wind.Mid = 20;
@@ -44,11 +62,29 @@ namespace IW_ClimateControl
         }
     }
 
+    /// <summary>
+    ///     Generic container for weather probabilities throughout the year.
+    /// </summary>
     public class ModelDefinition
     {
+        /// <summary>
+        ///     Likelihood in Spring.
+        /// </summary>
         public Season Spring { get; set; }
+
+        /// <summary>
+        ///     Likelihood in Summer.
+        /// </summary>
         public Season Summer { get; set; }
+
+        /// <summary>
+        ///     Likelihood in Fall.
+        /// </summary>
         public Season Fall { get; set; }
+
+        /// <summary>
+        ///     Likelihood in Winter.
+        /// </summary>
         public Season Winter { get; set; }
 
         public ModelDefinition()
@@ -60,11 +96,29 @@ namespace IW_ClimateControl
         }
     }
 
+    /// <summary>
+    ///     Generic container for weather probabilities within the season.
+    /// </summary>
     public class Season
     {
+        /// <summary>
+        ///     Likelihood of rain.
+        /// </summary>
         public Weather Rain { get; set; }
+
+        /// <summary>
+        ///     Likelihood of thunderstoms.
+        /// </summary>
         public Weather Storm { get; set; }
+
+        /// <summary>
+        ///     Likelihood of windy weather.
+        /// </summary>
         public Weather Wind { get; set; }
+
+        /// <summary>
+        ///     Likelihood of snowfall.
+        /// </summary>
         public Weather Snow { get; set; }
 
         public Season()
@@ -76,8 +130,14 @@ namespace IW_ClimateControl
         }
     }
 
+    /// <summary>
+    ///     Generic container for a weather's probabilities within a season.
+    /// </summary>
     public class Weather
     {
+        /// <summary>
+        ///     Probability on day 10.
+        /// </summary>
         public double Mid { get; set; }
     }
 }
