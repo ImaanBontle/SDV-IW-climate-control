@@ -36,7 +36,7 @@ namespace IWClimateControl
         /// </summary>
         private ModConfig Config;
         /// <summary>
-        /// An instance of the ImmersiveWeathers API.
+        /// The Framework API.
         /// </summary>
         IWAPI iWAPI;
         /// <summary>
