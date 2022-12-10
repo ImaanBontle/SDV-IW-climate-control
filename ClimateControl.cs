@@ -24,7 +24,7 @@ namespace IWClimateControl
     // ----------
     // SMAPI creates an instance of this at launch.
     /// <summary>
-    /// The mod's entry point.
+    ///     The mod's entry point.
     /// </summary>
     internal class ClimateControl : Mod
     {
@@ -33,23 +33,23 @@ namespace IWClimateControl
         // -----------------
         // SMAPI initialises fields at launch
         /// <summary>
-        /// The configuration data for this session.
+        ///     The configuration data for this session.
         /// </summary>
         private ModConfig Config;
         /// <summary>
-        /// An instance of the ImmersiveWeathers API.
+        ///     An instance of the ImmersiveWeathers API.
         /// </summary>
         IWAPI iWAPI;
         /// <summary>
-        /// Cache of the standard model configuration data.
+        ///     Cache of the standard model configuration data.
         /// </summary>
         StandardModel standardModel = new();
         /// <summary>
-        /// The chosen model for this session.
+        ///     The chosen model for this session.
         /// </summary>
         IWAPI.WeatherModel modelChoice;
         /// <summary>
-        /// Contains model probability data for this session.
+        ///     Contains model probability data for this session.
         /// </summary>
         ModelDefinition weatherChances;
 
@@ -58,7 +58,7 @@ namespace IWClimateControl
         // -----------
         // SMAPI executes this at launch
         /// <summary>
-        /// The mod's entry method, called after SMAPI first loads the mod.
+        ///     The mod's entry method, called after SMAPI first loads the mod.
         /// </summary>
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
@@ -105,7 +105,7 @@ namespace IWClimateControl
         // ---------
         // Grab APIs
         /// <summary>
-        /// Grabs external APIs at game launch.
+        ///     Grabs external APIs at game launch.
         /// </summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
@@ -121,10 +121,10 @@ namespace IWClimateControl
         // -------------------
         // Cache relevant weather model into model's field
         /// <summary>
-        /// Loads the necessary weather model when the save is loaded.
+        ///     Loads the necessary weather model when the save is loaded.
         /// </summary>
         /// <remarks>
-        /// Contacts the Framework first, to check which models need to be loaded, if any.
+        ///     Contacts the Framework first, to check which models need to be loaded, if any.
         /// </remarks>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
@@ -176,11 +176,11 @@ namespace IWClimateControl
         // --------------
         // Change tomorrow's weather
         /// <summary>
-        /// Changes tomorrow's weather at the start of each day.
+        ///     Changes tomorrow's weather at the start of each day.
         /// </summary>
         /// <remarks>
-        /// Weather will not change if tomorrow is a special day
-        /// (e.g. tomorrow is a festival or a wedding).
+        ///     Weather will not change if tomorrow is a special day
+        ///     (e.g. tomorrow is a festival or a wedding).
         /// </remarks>
         /// <param name="sender"></param>
         /// <param name="e"></param>
