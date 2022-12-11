@@ -7,79 +7,57 @@ using System.Threading.Tasks;
 
 namespace IW_ClimateControl
 {
-    // Config file to generate
-    public sealed class ModConfig
+    /// <summary>
+    /// The default user settings.
+    /// </summary>
+    public sealed class ModConfig : StandardModel
     {
-        private const string V = "standard";
+        /// <summary>
+        /// The choice of inherited weather model.
+        /// </summary>
+        /// <remarks>Defaults to the 'standard' model for generic climates.</remarks>
+        public string ModelChoice { get; set; } = "standard";
 
-        // Which model to read from
-        public string ModelChoice { get; set; } = V;
-
-        // Preparing to copy across properties
-        [MatchParent("Model")]
-        public ModelDefinition WeatherModel { get; set; }
-
+        /// <summary>
+        /// Generates the user configuration and inherits from the chosen model.
+        /// </summary>
         public ModConfig()
         {
             // Copy across properties
             if (this.ModelChoice == "standard")
             {
+                // The standard model for generic climates.
                 StandardModel standardModel = new();
                 PropertyMatcher<StandardModel, ModConfig>.GenerateMatchedObject(standardModel, this);
             }
         }
     }
 
-    // Class that cherry-picks relevant properties to copy: https://www.pluralsight.com/guides/property-copying-between-two-objects-using-reflection
-    [AttributeUsage(AttributeTargets.Property)]
-    public class MatchParentAttribute : Attribute
-    {
-        public readonly string ParentPropertyName;
-        public MatchParentAttribute(string parentPropertyName)
-        {
-            ParentPropertyName = parentPropertyName;
-        }
-    }
-
-    // Class that does the copying: https://www.pluralsight.com/guides/property-copying-between-two-objects-using-reflection
+    /// <summary>
+    /// Copies model properties from another class.
+    /// </summary>
+    /// <typeparam name="TParent">The class from which properties are inherited.</typeparam>
+    /// <typeparam name="TChild">The class into which properties are copied.</typeparam>
     public class PropertyMatcher<TParent, TChild> where TParent : class
                                                   where TChild : class
     {
+        /// <summary>
+        /// Matches properties between two objects.
+        /// </summary>
+        /// <param name="parent">The parent object.</param>
+        /// <param name="child">The child object.</param>
         public static void GenerateMatchedObject(TParent parent, TChild child)
         {
             var childProperties = child.GetType().GetProperties();
+            var parentProperties = parent.GetType().GetProperties();
             foreach (var childProperty in childProperties)
             {
-                var attributesForProperty = childProperty.GetCustomAttributes(typeof(MatchParentAttribute), true);
-                var isOfTypeMatchParentAttribute = false;
-
-                MatchParentAttribute currentAttribute = null;
-
-                foreach (var attribute in attributesForProperty)
+                foreach (var parentProperty in parentProperties)
                 {
-                    if (attribute.GetType() == typeof(MatchParentAttribute))
+                    if ((parentProperty.Name == childProperty.Name) && (parentProperty.PropertyType == childProperty.PropertyType))
                     {
-                        isOfTypeMatchParentAttribute = true;
-                        currentAttribute = (MatchParentAttribute)attribute;
-                        break;
+                        childProperty.SetValue(child, parentProperty.GetValue(parent));
                     }
-                }
-
-                if (isOfTypeMatchParentAttribute)
-                {
-                    var parentProperties = parent.GetType().GetProperties();
-                    object parentPropertyValue = null;
-                    foreach (var parentProperty in parentProperties)
-                    {
-                        if (parentProperty.Name == currentAttribute.ParentPropertyName)
-                        {
-                            if (parentProperty.PropertyType == childProperty.PropertyType)
-                            {
-                                parentPropertyValue = parentProperty.GetValue(parent);
-                            }
-                        }
-                    }
-                    childProperty.SetValue(child, parentPropertyValue);
                 }
             }
         }

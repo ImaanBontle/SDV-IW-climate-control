@@ -1,3 +1,10 @@
+v0.5.1:
+-----
+- Added XML comments to methods and classes.
+- Cleaned up code and simplified config set-up.
+- Changed the choice of weather tomorrow from operating on a successful first-come, first-serve basis to a lowest successful dice-roll basis. This means that no weather type is prioritised more than another; only the weather probabilities affect the outcome.
+- Added dice-rolls for each successful weather type to the SMAPI trace log.
+
 v0.5.0:
 -----
 - Added trace messages to SMAPI log for easier debugging.
