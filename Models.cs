@@ -14,44 +14,37 @@ namespace IW_ClimateControl
     /// The standard model for generic climates.
     /// </summary>
     /// <remarks>Spring has many gentle showers. Summer has intense but brief thunderstorms. Fall is dry and windy. Winter has lots of snowfall and some rain. Both Spring and Fall have a very small chance of snow.</remarks>
-    public class StandardModel
+    public class StandardModel : ModelDefinition
     {
-        /// <summary>
-        /// The weather probabilities throughout the year.
-        /// </summary>
-        public ModelDefinition Model { get; set; }
-
         public StandardModel()
         {
-            Model = new ModelDefinition();
-
             // Spring:
             // Very wet but light intensity, vanishing chance of snow
-            Model.Spring.Rain.Mid = 40;
-            Model.Spring.Storm.Mid = 15;
-            Model.Spring.Wind.Mid = 20;
-            Model.Spring.Snow.Mid = 1;
+            Spring.Rain.Mid = 40;
+            Spring.Storm.Mid = 15;
+            Spring.Wind.Mid = 20;
+            Spring.Snow.Mid = 1;
 
             // Summer:
             // Mostly sunny, but can be intense rain
-            Model.Summer.Rain.Mid = 10;
-            Model.Summer.Storm.Mid = 20;
-            Model.Summer.Wind.Mid = 5;
-            Model.Summer.Snow.Mid = 0;
+            Summer.Rain.Mid = 10;
+            Summer.Storm.Mid = 20;
+            Summer.Wind.Mid = 5;
+            Summer.Snow.Mid = 0;
 
             // Fall:
             // Very dry and windy Fall, small chance of snow
-            Model.Fall.Rain.Mid = 8;
-            Model.Fall.Storm.Mid = 4;
-            Model.Fall.Wind.Mid = 40;
-            Model.Fall.Snow.Mid = 2;
+            Fall.Rain.Mid = 8;
+            Fall.Storm.Mid = 4;
+            Fall.Wind.Mid = 40;
+            Fall.Snow.Mid = 2;
 
             // Winter:
             // Lots of snow in Winter, seldom rain
-            Model.Winter.Rain.Mid = 5;
-            Model.Winter.Storm.Mid = 0;
-            Model.Winter.Wind.Mid = 20;
-            Model.Winter.Snow.Mid = 40;
+            Winter.Rain.Mid = 5;
+            Winter.Storm.Mid = 0;
+            Winter.Wind.Mid = 20;
+            Winter.Snow.Mid = 40;
         }
     }
 

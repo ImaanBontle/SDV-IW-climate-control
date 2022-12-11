@@ -78,22 +78,22 @@ namespace IW_ClimateControl
                         case 0:
                             weatherJackpot = IWAPI.WeatherType.storming;
                             odds = modelSeason.Storm.Mid;
-                            ClimateControl.eventLogger.SendToSMAPI($"Thunderstorm was successful with a diceroll of {diceRoll} vs. odds of {0.01 * odds}", EventType.trace);
+                            ClimateControl.eventLogger.SendToSMAPI($"Thunderstorm was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}", EventType.trace);
                             break;
                         case 1:
                             weatherJackpot = IWAPI.WeatherType.raining;
                             odds = modelSeason.Rain.Mid;
-                            ClimateControl.eventLogger.SendToSMAPI($"Rain was successful with a diceroll of {diceRoll} vs. odds of {0.01 * odds}", EventType.trace);
+                            ClimateControl.eventLogger.SendToSMAPI($"Rain was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}", EventType.trace);
                             break;
                         case 2:
                             weatherJackpot = IWAPI.WeatherType.windy;
                             odds = modelSeason.Wind.Mid;
-                            ClimateControl.eventLogger.SendToSMAPI($"Wind was successful with a diceroll of {diceRoll} vs. odds of {0.01 * odds}", EventType.trace);
+                            ClimateControl.eventLogger.SendToSMAPI($"Wind was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}", EventType.trace);
                             break;
                         case 3:
                             weatherJackpot = IWAPI.WeatherType.snowing;
                             odds = modelSeason.Snow.Mid;
-                            ClimateControl.eventLogger.SendToSMAPI($"Snow was successful with a diceroll of {diceRoll} vs. odds of {0.01 * odds}", EventType.trace);
+                            ClimateControl.eventLogger.SendToSMAPI($"Snow was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}", EventType.trace);
                             break;
                     }
                 }

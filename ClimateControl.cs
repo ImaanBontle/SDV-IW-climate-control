@@ -153,14 +153,14 @@ namespace IWClimateControl
                 if (Config.ModelChoice == IWAPI.WeatherModel.custom.ToString())
                 {
                     // Custom model created by player.
-                    weatherChances = Config.WeatherModel;
+                    weatherChances = Config;
                     modelChoice = IWAPI.WeatherModel.custom;
                     this.Monitor.Log("Loading custom model...", LogLevel.Trace);
                 }
                 else
                 {
                     // Standard model for generic climate.
-                    weatherChances = standardModel.Model;
+                    weatherChances = standardModel;
                     modelChoice = IWAPI.WeatherModel.standard;
                     this.Monitor.Log("Loading standard model...", LogLevel.Trace);
                 }
