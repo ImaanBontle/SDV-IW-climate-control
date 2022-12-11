@@ -10,7 +10,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 
-// TODO: Change priority of probabilities calculation <----- v0.6.0
 // TODO: Add multiple season values <----- v0.6.0
 // TODO: Add mod config menu (make sure to reload any changes from player) <----- v0.7.0
 // TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
@@ -50,6 +49,10 @@ namespace IWClimateControl
         /// Contains model probability data for this session.
         /// </summary>
         ModelDefinition weatherChances;
+        /// <summary>
+        /// Handles all messages to SMAPI.
+        /// </summary>
+        public static EventLogger eventLogger = new();
 
         // -----------
         // MAIN METHOD 
@@ -60,17 +63,23 @@ namespace IWClimateControl
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
+            // --------------
+            // SMAPI MESSAGES
+            // --------------
+            // Listen for messages to send to SMAPI.
+            eventLogger.Send += AlertSMAPI;
+
             // -----------
             // CONFIG FILE
             // -----------
             // At launch, SMAPI creates Config, copies values from config.json and updates any empty values,
-            // or if config.json is missing, creates a new one using values from Config
+            // or if config.json is missing, creates a new one using values from Config.
             this.Config = this.Helper.ReadConfig<ModConfig>();
 
             // -----------
             // DATA MODELS
             // -----------
-            // At launch, SMAPI repeats the above process for each of the weather models
+            // At launch, SMAPI repeats the above process for each of the weather models.
             // Read files
             standardModel = this.Helper.Data.ReadJsonFile<StandardModel>("models/standard.json") ?? new StandardModel();
             // Save files (if needed)
@@ -80,19 +89,19 @@ namespace IWClimateControl
             // ----------
             // API IMPORT
             // ----------
-            // At game ready, SMAPI grabs API from Framework
+            // At game ready, SMAPI grabs API from Framework.
             this.Helper.Events.GameLoop.GameLaunched += GameLoop_GameLaunched;
 
             // -----------
             // SAVE LOADED
             // -----------
-            // At save load, cache relevant weather model
+            // At save load, cache relevant weather model.
             this.Helper.Events.GameLoop.SaveLoaded += SaveLoaded_CacheModel;
 
             // ---------
             // DAY START
             // ---------
-            // When day begins, set tomorrow's weather
+            // When day begins, set tomorrow's weather.
             this.Helper.Events.GameLoop.DayStarted += DayStarted_ChangeWeather;
         }
 
@@ -190,14 +199,14 @@ namespace IWClimateControl
             // Can weather be changed?
             if (canChange)
             {
-                // If so, roll a die for each weather type..
-                WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, iWAPI, out IWAPI.WeatherType weatherJackpot, out double diceRoll, out double odds);
+                // If so, roll a die for each weather type.
+                IWAPI.WeatherType weatherJackpot = WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, iWAPI);
 
                 // Did any weather types pass the dice roll?
                 if (weatherJackpot != IWAPI.WeatherType.sunny)
                 {
                     // Yes. Weather will change to winner.
-                    this.Monitor.Log($"Weather changed to {weatherJackpot}. Successfull dice roll was {diceRoll} against a probability of {0.01 * odds}. Updating framework...", LogLevel.Trace);
+                    this.Monitor.Log($"Weather changed to {weatherJackpot}. Updating framework...", LogLevel.Trace);
                 }
                 else if (weatherJackpot == IWAPI.WeatherType.sunny)
                 {
@@ -228,6 +237,34 @@ namespace IWClimateControl
             {
                 // Not received. Log an error for SMAPI.
                 this.Monitor.Log("Error: No acknowledgement received from framework. WHAT DO I DO??", LogLevel.Error);
+            }
+        }
+
+        /// <summary>
+        /// Records messages to the SMAPI's log and terminal.
+        /// </summary>
+        /// <param name="e">The message to send to the log/terminal.</param>
+        internal void AlertSMAPI(object sender, EventMessage e)
+        {
+            switch (e.Type)
+            {
+                case EventType.trace:
+                    this.Monitor.Log(e.Message, LogLevel.Trace);
+                    break;
+                case EventType.debug:
+                    this.Monitor.Log(e.Message, LogLevel.Debug);
+                    break;
+                case EventType.info:
+                    this.Monitor.Log(e.Message, LogLevel.Info);
+                    break;
+                case EventType.warn:
+                    this.Monitor.Log(e.Message, LogLevel.Warn);
+                    break;
+                case EventType.error:
+                    this.Monitor.Log(e.Message, LogLevel.Error);
+                    break;
+                default:
+                    break;
             }
         }
     }
