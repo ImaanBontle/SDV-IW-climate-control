@@ -10,7 +10,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ImmersiveWeathers\ImmersiveWeathers.csproj" />
+    <ProjectReference Include="..\ImmersiveWeathers\ImmersiveWeathers.csproj">
+      <Private>False</Private>
+      <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
