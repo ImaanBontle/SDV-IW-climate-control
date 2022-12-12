@@ -1,0 +1,82 @@
+# This release drafter follows the conventions
+# from https://keepachangelog.com
+
+name-template: v$RESOLVED_VERSION
+tag-template: v$RESOLVED_VERSION
+template: >
+  ## What Changed 🚀
+  
+  DELETE THIS IF THERE ARE NO HIGHLIGHTS
+  
+  $CHANGES
+  
+  
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+categories:
+  - title: 💥 Breaking Changes
+    labels:
+      - breaking
+  - title: 🚑️ Critical Hotfix
+    labels:
+      - critical
+  - title: ✨ New Features
+    labels:
+      - feature
+      - enhancement
+  - title: ✏️ Typos
+    labels:
+      - typo
+  - title: 🐛 Bug Fixes
+    labels:
+      - fix
+      - bug
+  - title: ⚠️ Changes
+    labels:
+      - changed
+  - title: 🗑️ Deprecated
+    labels:
+      - deprecated
+  - title: ⚰️ Removed
+    labels:
+      - removed
+  - title: 🔒️ Security
+    labels:
+      - security
+  - title: 🔧 Configs
+    labels:
+      - config
+      - configuration
+  - title: 👽️ Integrations
+    labels:
+      - integration
+  - title: 🌐 Localization
+    labels:
+      - localization
+  - title: 📄 Documentation
+    labels:
+      - docs
+      - documentation
+  - title: 🏗️ API Changes
+    labels:
+      - api
+  - title: 🧩 Dependency Updates
+    labels:
+      - deps
+      - dependencies
+    collapse-after: 5
+change-template: "- $TITLE (#$NUMBER)"
+change-title-escapes: \<*_&
+version-resolver:
+  major:
+    labels:
+      - major
+  minor:
+    labels:
+      - minor
+  patch:
+    labels:
+      - patch
+  default: patch
+exclude-labels:
+  - skip-changelog
+sort-direction: "ascending"

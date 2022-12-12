@@ -1,0 +1,30 @@
+name: Label Checker
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - unlabeled
+  
+jobs:
+  check_semver_labels:
+    name: Check Semver labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for Semver labels
+        uses: danielchabr/pr-labels-checker@v3.1
+        with:
+          hasSome: major,minor,patch
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  check_cc_labels:
+    name: Check conventional commits labels
+    runs-on: ubuntu-latest
+    steps:
+      - uses: danielchabr/pr-labels-checker@v3.1
+        with:
+          hasSome: breaking,critical,feature,enhancement,typo,fix,bug,changed,deprecated,removed,security,config,configuration,integration,localization,docs,documentation,api,deps,dependencies,release,skip-changelog
+          githubToken: ${{ secrets.GITHUB_TOKEN }}

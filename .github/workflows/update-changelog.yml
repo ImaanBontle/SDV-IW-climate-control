@@ -1,0 +1,60 @@
+name: "Update Changelog"
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  update:
+    name: Update Changelog
+    runs-on: ubuntu-latest
+
+    steps:          
+      - name: Checkout Release
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+          token: ${{ secrets.ImaanBontleRepoActionToken }}
+
+      - name: Update CHANGELOG
+        uses: stefanzweifel/changelog-updater-action@v1
+        with:
+          latest-version: ${{ github.event.release.tag_name }}
+          release-notes: ${{ github.event.release.body }}
+      
+      - name: Commit Updated CHANGELOG
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: ${{ github.event.release.target_commitish }}
+          commit_message: 'docs(changelog): Update CHANGELOG'
+          file_pattern: CHANGELOG.md
+      
+      - name: Switch to Push Branch
+        run: git switch -c push-to-develop
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+        
+      - name: Push Branch to Remote
+        run: git push -u origin push-to-develop
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+      
+      - name: Create Pull Request to Develop
+        run: gh pr create -t PushChangelog -b "" -l skip-changelog -l patch
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+        
+      - name: Enable Auto-Merge
+        run: gh pr merge push-to-develop --auto --rebase
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+        
+      - name: Sleep for 30 seconds
+        run: sleep 30
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+        
+      - name: Delete Branch
+        run: git push -d origin push-to-develop
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
