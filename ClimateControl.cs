@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
+using GenericModConfigMenu;
 using IW_ClimateControl;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -37,6 +38,10 @@ namespace IWClimateControl
         /// The Framework API.
         /// </summary>
         IWAPI iWAPI;
+        /// <summary>
+        /// The GMCM API.
+        /// </summary>
+        IGenericModConfigMenuApi gMCM;
         /// <summary>
         /// Cache of the standard model configuration data.
         /// </summary>
@@ -118,6 +123,9 @@ namespace IWClimateControl
         {
             this.iWAPI = this.Helper.ModRegistry.GetApi<IWAPI>("MsBontle.ImmersiveWeathers");
             this.Monitor.Log("ClimateControl enabled!", LogLevel.Trace);
+            this.gMCM = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+            this.Monitor.Log("GenericModConfigMenu detected. Registering config options.", LogLevel.Trace);
+            GMCMHandler.Register(Config, gMCM, this.ModManifest, this.Helper);
         }
 
 
