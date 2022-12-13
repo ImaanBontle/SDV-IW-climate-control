@@ -20,31 +20,71 @@ namespace IW_ClimateControl
         {
             // Spring:
             // Very wet but light intensity, vanishing chance of snow
+            Spring.Rain.Early = 15;
+            Spring.Storm.Early = 2;
+            Spring.Wind.Early = 30;
+            Spring.Snow.Early = 5;
+
             Spring.Rain.Mid = 40;
-            Spring.Storm.Mid = 15;
+            Spring.Storm.Mid = 5;
             Spring.Wind.Mid = 20;
-            Spring.Snow.Mid = 1;
+            Spring.Snow.Mid = 0;
+
+            Spring.Rain.Late = 30;
+            Spring.Storm.Late = 15;
+            Spring.Wind.Late = 10;
+            Spring.Snow.Late = 0;
 
             // Summer:
             // Mostly sunny, but can be intense rain
+            Summer.Rain.Early = 15;
+            Summer.Storm.Early = 30;
+            Summer.Wind.Early = 5;
+            Summer.Snow.Early = 0;
+
             Summer.Rain.Mid = 10;
             Summer.Storm.Mid = 20;
             Summer.Wind.Mid = 5;
             Summer.Snow.Mid = 0;
 
+            Summer.Rain.Late = 5;
+            Summer.Storm.Late = 10;
+            Summer.Wind.Late = 10;
+            Summer.Snow.Late = 0;
+
             // Fall:
             // Very dry and windy Fall, small chance of snow
+            Fall.Rain.Early = 10;
+            Fall.Storm.Early = 5;
+            Fall.Wind.Early = 20;
+            Fall.Snow.Early = 0;
+
             Fall.Rain.Mid = 8;
             Fall.Storm.Mid = 4;
             Fall.Wind.Mid = 40;
             Fall.Snow.Mid = 2;
 
+            Fall.Rain.Late = 5;
+            Fall.Storm.Late = 0;
+            Fall.Wind.Late = 30;
+            Fall.Snow.Late = 10;
+
             // Winter:
             // Lots of snow in Winter, seldom rain
-            Winter.Rain.Mid = 5;
+            Winter.Rain.Early = 2;
+            Winter.Storm.Early = 0;
+            Winter.Wind.Early = 15;
+            Winter.Snow.Early = 30;
+
+            Winter.Rain.Mid = 0;
             Winter.Storm.Mid = 0;
             Winter.Wind.Mid = 20;
-            Winter.Snow.Mid = 40;
+            Winter.Snow.Mid = 50;
+
+            Winter.Rain.Late = 10;
+            Winter.Storm.Late = 0;
+            Winter.Wind.Late = 40;
+            Winter.Snow.Late = 20;
         }
     }
 
@@ -122,8 +162,16 @@ namespace IW_ClimateControl
     public class Weather
     {
         /// <summary>
-        /// Probability on day 10.
+        /// Probability on days 1-9.
+        /// </summary>
+        public double Early { get; set; }
+        /// <summary>
+        /// Probability on days 10-19.
         /// </summary>
         public double Mid { get; set; }
+        /// <summary>
+        /// Probability on days 20-28.
+        /// </summary>
+        public double Late { get; set; }
     }
 }
