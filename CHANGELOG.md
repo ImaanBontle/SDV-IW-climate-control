@@ -9,9 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Planned
 
-- More granular seasons
 - GMCM integration
-- Switched to better changelog system
 - Different daily probabilities
 
 ## [v0.5.1](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.5.0...0.5.1)
