@@ -1,26 +1,40 @@
-v0.5.1:
------
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.5.1...HEAD)
+
+### Planned
+
+- GMCM integration
+- Different daily probabilities
+
+## [v0.5.1](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.5.0...0.5.1)
+
 - Added XML comments to methods and classes.
 - Cleaned up code and simplified config set-up.
 - Changed the choice of weather tomorrow from operating on a successful first-come, first-serve basis to a lowest successful dice-roll basis. This means that no weather type is prioritised more than another; only the weather probabilities affect the outcome.
 - Added dice-rolls for each successful weather type to the SMAPI trace log.
 
-v0.5.0:
------
+## [v0.5.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.4.0...0.5.0)
+
 - Added trace messages to SMAPI log for easier debugging.
 
-v0.4.0:
------
+## [v0.4.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.3.1...0.4.0)
+
 - Implemented improved messaging system from framework.
 - Now broadcasts all relevant information to framework when changing weather and not just a simple string.
 - Waits for permission from framework before recaching the model on save load.
 
-v0.3.1:
------
+## [v0.3.1](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.3.0...0.3.1)
+
 - Stopped mod from caching model every day. Now checks model choice on save loaded.
 
-v0.3.0:
------
+## [v0.3.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.2.1...0.3.0)
+
 - Added integration with Framework. Now broadcasts weather changes to SMAPI console through the Framework.
 - Created a class framework for storing multiple different template models and printing these to json files at first launch. Major code re-write to accomodate this.
 - If player edits a template's json files, mod will use the edited values.
@@ -32,15 +46,15 @@ v0.3.0:
 - Mod only checks for model choice the first time.
 - Integrated TODO into code, rather than separate file
 
-v0.2.1:
------
+## [v0.2.1](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.2.0...0.2.1)
+
 - Minor code clean-up.
 
-v0.2.0:
------
+## [v0.2.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.1.0...0.2.0)
+
 - Added config file for each weather type's chance per season.
 - Implemented a dice roll for changing the weather tomorrow (first weather feature implemented!).
 
-v0.1.0:
------
+## v0.1.0
+
 - Initial release for purposes of generating GitHub keys. Demonstrates rudimentary fixing of weather to a certain day of the week.
