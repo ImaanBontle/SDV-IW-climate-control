@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.5.1...HEAD)
+## [Unreleased](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.6.0...HEAD)
 
 ### Planned
 
@@ -58,3 +58,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## v0.1.0
 
 - Initial release for purposes of generating GitHub keys. Demonstrates rudimentary fixing of weather to a certain day of the week.
+
+## [v0.6.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.5.1...v0.6.0) - 2022-12-13
+
+### What Changed 🚀
+
+Granular seasons and bugfixes!
+
+*(NB: Make sure to delete the old config.json and model files when updating.)*
+
+### ✨ New Features
+
+- Seasons are now granular (players can adjust early, mid and late probabilities per season) (#23)
+
+### 🐛 Bug Fixes
+
+- Winter 14, 15 and 16 are always sunny and will be ignored when changing the weather (#24)
+
+### 📄 Documentation
+
+- Switched to an improved changelog system (#21)
+
+**Full Changelog**: https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.5.1...v0.6.0
