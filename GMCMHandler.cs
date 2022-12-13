@@ -1,4 +1,6 @@
 ﻿using GenericModConfigMenu;
+using IWClimateControl;
+using ServiceStack.Text;
 using StardewModdingAPI;
 using System;
 using System.Collections.Generic;
@@ -8,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace IW_ClimateControl
 {
-    internal class GMCMHandler
+    internal class GMCMHelper
     {
         internal static void Register(ModConfig Config, IGenericModConfigMenuApi gMCM, StardewModdingAPI.IManifest ModManifest, IModHelper Helper)
         {
             // Register mod
             gMCM.Register(
                 mod: ModManifest,
-                reset: () => Config = new ModConfig(),
-                save: () => Helper.WriteConfig(Config)
+                reset: () => ModConfig.ResetModel(Config, Helper),
+                save: () => ModConfig.ChangeModel(Config, Helper)
             );
 
             // Add section title
