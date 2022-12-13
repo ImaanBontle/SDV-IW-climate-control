@@ -201,6 +201,14 @@ namespace IW_ClimateControl
                                                 reason = "tomorrow is a Summer day and is hardcoded to storm.";
                                             }
                                             break;
+                                        case IWAPI.SeasonType.winter:
+                                            if ((currentDate.DayOfMonth +1) is >=14 and <= 16)
+                                            {
+                                                // Winter 14, 15 and 16 are always sunny
+                                                canChange = false;
+                                                reason = "tomorrow is a Winter day and is hardcoded to be sunny.";
+                                            }
+                                            break;
                                     }
                                     break;
                             }
