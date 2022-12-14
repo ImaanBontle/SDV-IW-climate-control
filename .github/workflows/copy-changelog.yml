@@ -1,0 +1,69 @@
+name: "Update Changelog"
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  update:
+    name: Update Changelog
+    runs-on: ubuntu-latest
+
+    steps:          
+      - name: Checkout Develop
+        uses: actions/checkout@v3
+        with:
+          ref: 'develop'
+          token: ${{ secrets.ImaanBontleRepoActionToken }}
+    
+      - name: Checkout Main
+        uses: actions/checkout@v3
+        with:
+          ref: 'main'
+          token: ${{ secrets.ImaanBontleRepoActionToken }}
+      
+      - name: Switch to Push Branch
+        run: git switch -c push-to-main
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+          
+      - name: Grab Updated Changelog
+        run: git fetch && git checkout refs/remotes/origin/develop CHANGELOG.md
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+          
+      - name: Prepare for Commit
+        run: git config user.name "GitHub Commit Bot" && git config user.email "<>"
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+          
+      - name: Commit Updated Changelog
+        run: git commit -a -m "doc(changelog) grabbed updated changelog"
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+        
+      - name: Push Branch to Remote
+        run: git push -u origin push-to-main
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+      
+      - name: Create Pull Request to Main
+        run: gh pr create -t UpdateChangelog -b "" -l skip-changelog -l patch -B main
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+        
+      - name: Enable Auto-Merge
+        run: gh pr merge push-to-main --auto --rebase
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+        
+      - name: Sleep for 30 seconds
+        run: sleep 30
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+        
+      - name: Delete Branch
+        run: git push -d origin push-to-main
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}

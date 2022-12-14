@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
+using GenericModConfigMenu;
 using IW_ClimateControl;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -10,8 +11,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 
-// TODO: Add multiple season values <----- v0.6.0
-// TODO: Add mod config menu (make sure to reload any changes from player) <----- v0.7.0
 // TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
 // TODO: Add more than one template <----- ???
 
@@ -36,19 +35,27 @@ namespace IWClimateControl
         /// <summary>
         /// The Framework API.
         /// </summary>
-        IWAPI iWAPI;
+        private IWAPI iWAPI;
+        /// <summary>
+        /// The GMCM API.
+        /// </summary>
+        private IGenericModConfigMenuApi gMCM;
         /// <summary>
         /// Cache of the standard model configuration data.
         /// </summary>
-        StandardModel standardModel = new();
+        internal static StandardModel standardModel;
+        /// <summary>
+        /// Cache of the custom model configuration data.
+        /// </summary>
+        internal static StandardModel customModel;
         /// <summary>
         /// The chosen model for this session.
         /// </summary>
-        IWAPI.WeatherModel modelChoice;
+        internal static IWAPI.WeatherModel modelChoice;
         /// <summary>
         /// Contains model probability data for this session.
         /// </summary>
-        ModelDefinition weatherChances;
+        private ModelDefinition weatherChances;
         /// <summary>
         /// Handles all messages to SMAPI.
         /// </summary>
@@ -70,21 +77,24 @@ namespace IWClimateControl
             eventLogger.Send += AlertSMAPI;
 
             // -----------
+            // DATA MODELS
+            // -----------
+            // At launch, SMAPI repeats the below process for each of the weather models.
+            // Read files
+            standardModel = this.Helper.Data.ReadJsonFile<StandardModel>("models/standard.json") ?? new StandardModel();
+            customModel = this.Helper.Data.ReadJsonFile<StandardModel>("models/custom.json") ?? new StandardModel();
+            // Save files (if needed)
+            this.Helper.Data.WriteJsonFile("models/standard.json", standardModel);
+            this.Helper.Data.WriteJsonFile("models/custom.json", customModel);
+            this.Monitor.Log("Loaded weather templates.", LogLevel.Trace);
+
+            // -----------
             // CONFIG FILE
             // -----------
             // At launch, SMAPI creates Config, copies values from config.json and updates any empty values,
             // or if config.json is missing, creates a new one using values from Config.
+            // 3 paths: New config (just load), saved changes (leave, copy into models), reset (new models, copy into config)
             this.Config = this.Helper.ReadConfig<ModConfig>();
-
-            // -----------
-            // DATA MODELS
-            // -----------
-            // At launch, SMAPI repeats the above process for each of the weather models.
-            // Read files
-            standardModel = this.Helper.Data.ReadJsonFile<StandardModel>("models/standard.json") ?? new StandardModel();
-            // Save files (if needed)
-            this.Helper.Data.WriteJsonFile("models/standard.json", standardModel);
-            this.Monitor.Log("Loaded weather templates.", LogLevel.Trace);
 
             // ----------
             // API IMPORT
@@ -118,6 +128,9 @@ namespace IWClimateControl
         {
             this.iWAPI = this.Helper.ModRegistry.GetApi<IWAPI>("MsBontle.ImmersiveWeathers");
             this.Monitor.Log("ClimateControl enabled!", LogLevel.Trace);
+            this.gMCM = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+            this.Monitor.Log("GenericModConfigMenu detected. Registering config options.", LogLevel.Trace);
+            GMCMHelper.Register(Config, gMCM, this.ModManifest, this.Helper);
         }
 
 
