@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.6.0...HEAD)
 
-### Added
-
-- GMCM integration
-
 ### Planned
 
 - Different daily probabilities
