@@ -11,6 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:          
+      - name: Checkout Develop
+        uses: actions/checkout@v3
+        with:
+          ref: 'develop'
+          token: ${{ secrets.ImaanBontleRepoActionToken }}
+    
       - name: Checkout Main
         uses: actions/checkout@v3
         with:
