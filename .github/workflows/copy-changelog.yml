@@ -33,6 +33,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
           
+      - name: Prepare for Commit
+        run: git config user.name "GitHub Commit Bot" && git config user.email "<>"
+        env:
+          GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
+          
       - name: Commit Updated Changelog
         run: git commit -a -m "doc(changelog) grabbed updated changelog"
         env:
