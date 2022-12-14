@@ -11,8 +11,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 
-// TODO: Add multiple season values <----- v0.6.0
-// TODO: Add mod config menu (make sure to reload any changes from player) <----- v0.7.0
 // TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
 // TODO: Add more than one template <----- ???
 
