@@ -80,25 +80,3 @@ Granular seasons and bugfixes!
 ## v0.1.0
 
 - Initial release for purposes of generating GitHub keys. Demonstrates rudimentary fixing of weather to a certain day of the week.
-
-## [v0.6.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.5.1...v0.6.0) - 2022-12-13
-
-### What Changed 🚀
-
-Granular seasons and bugfixes!
-
-*(NB: Make sure to delete the old config.json and model files when updating.)*
-
-### ✨ New Features
-
-- Seasons are now granular (players can adjust early, mid and late probabilities per season) (#23)
-
-### 🐛 Bug Fixes
-
-- Winter 14, 15 and 16 are always sunny and will be ignored when changing the weather (#24)
-
-### 📄 Documentation
-
-- Switched to an improved changelog system (#21)
-
-**Full Changelog**: https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.5.1...v0.6.0
