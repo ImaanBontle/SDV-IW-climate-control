@@ -5,11 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.6.0...HEAD)
+## [Unreleased](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.7.0...HEAD)
 
 ### Planned
 
 - Different daily probabilities
+
+## [v0.7.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.6.0...v0.7.0) - 2022-12-14
+
+### What Changed 🚀
+
+Generic Mod Config Menu added!
+
+### ⚠️ Changes
+
+- Tweaked rain probabilities in the standard model for a smoother Summer and Fall (#36)
+
+### 👽️ Integrations
+
+- Generic Mod Config Menu now supported (#29)
+
+**Full Changelog**: https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.6.0...v0.7.0
 
 ## [v0.6.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/0.5.1...v0.6.0) - 2022-12-13
 
