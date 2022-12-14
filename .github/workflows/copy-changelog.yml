@@ -28,7 +28,7 @@ jobs:
           GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
           
       - name: Commit Updated Changelog
-        run: git commit -a -m "doc(changelog): grabbed updated changelog"
+        run: git commit -a -m "doc(changelog) grabbed updated changelog"
         env:
           GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
         
