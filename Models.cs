@@ -42,29 +42,29 @@ namespace IW_ClimateControl
             Summer.Wind.Early = 5;
             Summer.Snow.Early = 0;
 
-            Summer.Rain.Mid = 10;
+            Summer.Rain.Mid = 12;
             Summer.Storm.Mid = 20;
             Summer.Wind.Mid = 5;
             Summer.Snow.Mid = 0;
 
-            Summer.Rain.Late = 5;
+            Summer.Rain.Late = 10;
             Summer.Storm.Late = 10;
             Summer.Wind.Late = 10;
             Summer.Snow.Late = 0;
 
             // Fall:
             // Very dry and windy Fall, small chance of snow
-            Fall.Rain.Early = 10;
+            Fall.Rain.Early = 8;
             Fall.Storm.Early = 5;
             Fall.Wind.Early = 20;
             Fall.Snow.Early = 0;
 
-            Fall.Rain.Mid = 8;
+            Fall.Rain.Mid = 6;
             Fall.Storm.Mid = 4;
             Fall.Wind.Mid = 40;
             Fall.Snow.Mid = 2;
 
-            Fall.Rain.Late = 5;
+            Fall.Rain.Late = 4;
             Fall.Storm.Late = 0;
             Fall.Wind.Late = 30;
             Fall.Snow.Late = 10;
