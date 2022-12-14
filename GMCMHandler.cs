@@ -25,7 +25,7 @@ namespace IW_ClimateControl
             gMCM.AddSectionTitle(
                 mod: ModManifest,
                 text: () => "Weather Models",
-                tooltip: () => "The weather models determine the likelihood of weather on each day (e.g. rain, snow, thunderstorm etc.)."
+                tooltip: () => "The weather model determines the likelihood of weather changes for each day of the year (e.g. the chance of rain, snow, thunderstorms etc.). You can make your own custom model or use one of the provided templates."
             );
 
             // Add model choices
@@ -40,7 +40,7 @@ namespace IW_ClimateControl
             // Add description
             gMCM.AddParagraph(
                 mod: ModManifest,
-                text: () => "Each morning, the mod will choose a weather for tomorrow based on the probabilities below. You can create your own custom model or you can use the templates provided (currently includes only the standard model, others will be added in the future.). \n\nNOTE: You will need to sleep or reload before changes will have an effect."
+                text: () => "Each morning, the mod will choose a weather for tomorrow based on the probabilities below. You can either use these models exactly as provided, customize their values separately, or create your own custom model.\n\nNOTE: When editing these values, you must FIRST (!) select the model you want to edit and then \"Save & Close\" the config BEFORE making any changes. Otherwise, changes will apply to the previous model.\n\n(The 'custom' model is always preserved when resetting to \"Default\". If you want to reset this too, you can either delete the 'custom.json' file in your mod folder and relaunch the game, or, after clicking \"Default\", switch from 'standard' to 'custom' and then \"Save\" twice and close the config. This will copy the standard model across to the custom model.)"
             );
 
             // Add seasons
