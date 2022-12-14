@@ -29,7 +29,7 @@ jobs:
           GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
           
       - name: Grab Updated Changelog
-        run: git fetch && git checkout develop CHANGELOG.md
+        run: git fetch && git checkout refs/remotes/origin/develop CHANGELOG.md
         env:
           GH_TOKEN: ${{ secrets.ImaanBontleRepoActionToken }}
           
