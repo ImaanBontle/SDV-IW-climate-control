@@ -133,40 +133,6 @@ namespace IWClimateControl
             this.gMCM = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             this.Monitor.Log("GenericModConfigMenu detected. Registering config options.", LogLevel.Trace);
             GMCMHelper.Register(Config, gMCM, this.ModManifest, this.Helper);
-
-
-
-            // Test
-            this.Monitor.Log($"After a reload (of entire game): {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            Config.Spring.Rain.Early = 67;
-            this.Monitor.Log($"After a change: {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            ModConfig.ResetModel(Config, Helper);
-            this.Monitor.Log($"After a hard reset (resetting memory and storage): {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            Config.Spring.Rain.Early = 42;
-            this.Monitor.Log($"After another change: {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            ModConfig.LoadModel(Config);
-            this.Monitor.Log($"After a soft reset (loading from memory): {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            Config.Spring.Rain.Early = 19;
-            this.Monitor.Log($"After a third change: {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            ModConfig.ChangeModel(Config, this.Helper);
-            this.Monitor.Log($"After a model refresh (writing change to memory and storage): {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            Config.Spring.Rain.Early = 84;
-            this.Monitor.Log($"After a fourth change: {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            ModConfig.LoadModel(Config);
-            this.Monitor.Log($"After a soft reset (loading from memory): {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            Config.Spring.Rain.Early = 27;
-            this.Monitor.Log($"After a fifth change: {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            ModConfig.ResetModel(Config, Helper);
-            this.Monitor.Log($"After a hard reset (resetting memory and storage): {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            Config.Spring.Rain.Early = 13;
-            this.Monitor.Log($"After a sixth change: {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            Config.ModelChoice = "custom";
-            ModConfig.ChangeModel(Config, Helper);
-            this.Monitor.Log($"After a change in model type: {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            Config.Spring.Rain.Early = 76;
-            this.Monitor.Log($"After a seventh change: {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
-            ModConfig.ChangeModel(Config, this.Helper);
-            this.Monitor.Log($"After a model refresh (writing change to memory and storage): {Config.Spring.Rain.Early}, {standardModel.Spring.Rain.Early}", LogLevel.Info);
         }
 
 
