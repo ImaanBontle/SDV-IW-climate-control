@@ -55,7 +55,11 @@ namespace IWClimateControl
         /// <summary>
         /// Contains model probability data for this session.
         /// </summary>
-        private ModelDefinition _weatherChances;
+        internal static ModelDefinition s_weatherChances;
+        /// <summary>
+        /// Contains daily interpolated probabilities for this model.
+        /// </summary>
+        internal static WeatherArrays s_weatherArrays = new();
         /// <summary>
         /// Contains relevant weather changes for this save game.
         /// </summary>
@@ -109,14 +113,14 @@ namespace IWClimateControl
             // -----------
             // SAVE LOADED
             // -----------
-            // At save load, cache relevant weather model.
-            Helper.Events.GameLoop.SaveLoaded += SaveLoaded_CacheModel;
+            // At save load, load cached save-data.
             Helper.Events.GameLoop.SaveLoaded += SaveLoaded_LoadData;
 
             // ---------
             // DAY START
             // ---------
             // When day begins, set tomorrow's weather.
+            Helper.Events.GameLoop.DayStarted += DayStarted_CacheModel;
             Helper.Events.GameLoop.DayStarted += DayStarted_ChangeWeather;
 
             // -----------
@@ -141,17 +145,36 @@ namespace IWClimateControl
             GMCMHelper.Register(_config, _gMCM, ModManifest, Helper);
         }
 
+        // --------------
+        // LOAD SAVE DATA
+        // --------------
+        /// <summary>
+        /// Loads the save data for the main player.
+        /// </summary>
+        /// <remarks>Contains the weather for tomorrow and the day after. Allows consistency on game-load.</remarks>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private void SaveLoaded_LoadData(object sender, SaveLoadedEventArgs e)
+        {
+            // Only perform load if main player in multiplayer.
+            if (Context.IsMainPlayer)
+            {
+                // Load save data
+                Monitor.Log("Loading save data from file...", LogLevel.Trace);
+                _weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
+            }
+        }
 
         // -------------------
         // CACHE WEATHER MODEL
         // -------------------
         /// <summary>
-        /// Loads the necessary weather model when the save is loaded.
+        /// Loads the necessary weather model when the day starts.
         /// </summary>
         /// <remarks>Contacts the Framework first, to check which models need to be loaded, if any.</remarks>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
-        private void SaveLoaded_CacheModel(object sender, SaveLoadedEventArgs e)
+        private void DayStarted_CacheModel(object sender, DayStartedEventArgs e)
         {
             Monitor.Log("Checking if weather model needs (re-)caching...", LogLevel.Trace);
 
@@ -174,42 +197,26 @@ namespace IWClimateControl
                 if (_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
                 {
                     // Custom model created by player.
-                    _weatherChances = _config;
+                    s_weatherChances = _config;
                     s_modelChoice = IIWAPI.WeatherModel.custom;
                     Monitor.Log("Loading custom model...", LogLevel.Trace);
+                    s_weatherArrays = Helper.Data.ReadJsonFile<WeatherArrays>("data/custom.json") ?? Interpolator.InterpolateWeather();
+                    Helper.Data.WriteJsonFile("data/custom.json", s_weatherArrays);
                 }
                 else
                 {
                     // Standard model for generic climate.
-                    _weatherChances = s_standardModel;
+                    s_weatherChances = s_standardModel;
                     s_modelChoice = IIWAPI.WeatherModel.standard;
                     Monitor.Log("Loading standard model...", LogLevel.Trace);
+                    s_weatherArrays = Helper.Data.ReadJsonFile<WeatherArrays>("data/standard.json") ?? Interpolator.InterpolateWeather();
+                    Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
                 }
             }
             else
             {
                 // If not, note this.
                 Monitor.Log("No changes made.", LogLevel.Trace);
-            }
-        }
-
-        // --------------
-        // LOAD SAVE DATA
-        // --------------
-        /// <summary>
-        /// Loads the save data for the main player.
-        /// </summary>
-        /// <remarks>Contains the weather for tomorrow and the day after. Allows consistency on game-load.</remarks>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private void SaveLoaded_LoadData(object sender, EventArgs e)
-        {
-            // Only perform load if main player in multiplayer.
-            if (Context.IsMainPlayer)
-            {
-                // Load save data
-                Monitor.Log("Loading save data from file...", LogLevel.Trace);
-                _weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
             }
         }
 
@@ -236,7 +243,7 @@ namespace IWClimateControl
                 weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IIWAPI.SisterMods.ClimateControl;
 
                 // Attempt to change weather
-                WeatherSlotMachine.AttemptChange(currentDate, _weatherChanges, _weatherChances, _iWAPI);
+                WeatherSlotMachine.AttemptChange(currentDate, _weatherChanges, s_weatherChances, _iWAPI);
 
                 // Can weather be changed?
                 weatherWasChanged.Message.CouldChange = _weatherChanges.ChangeTomorrow;
@@ -290,7 +297,7 @@ namespace IWClimateControl
         /// </summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
-        private void Saving_SaveWeather(object sender, EventArgs e)
+        private void Saving_SaveWeather(object sender, SavingEventArgs e)
         {
             // Only perform save if main player in multiplayer.
             if (Context.IsMainPlayer)
