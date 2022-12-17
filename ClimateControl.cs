@@ -224,21 +224,8 @@ namespace IWClimateControl
         /// <param name="e">The event data.</param>
         private void DayStarted_ChangeWeather(object sender, DayStartedEventArgs e)
         {
-            Monitor.Log("Attempting to change weather...", LogLevel.Trace);
-
-            // Grab relevant info for calculation
-            WorldDate currentDate = Game1.Date;
-            ImmersiveWeathers.MessageContainer weatherWasChanged = new();
-            weatherWasChanged.Message.MessageType = ImmersiveWeathers.IWAPI.MessageTypes.dayStarted;
-            weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IWAPI.SisterMods.ClimateControl;
-
-            // Attempt to change weather
-            _weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
-            WeatherSlotMachine.AttemptChange(currentDate, _weatherChanges, _weatherChances, _iWAPI);
-            weatherWasChanged.Message.CouldChange = _weatherChanges.ChangeTomorrow;
-            // Can weather be changed?
-            weatherWasChanged.Message.CouldChange = _weatherChanges.ChangeTomorrow;
-            if (weatherWasChanged.Message.CouldChange)
+            // Only perform change if main player in multiplayer.
+            if (Context.IsMainPlayer)
             {
                 Monitor.Log("Attempting to change weather...", LogLevel.Trace);
 
@@ -273,14 +260,14 @@ namespace IWClimateControl
                     // Store information for the Framework.
                     weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IWAPI.WeatherType)(int)_weatherChanges.WeatherTomorrow;
                 }
-                else if (weatherJackpot == IIWAPI.WeatherType.sunny)
+                else
                 {
-                    // No. Weather will remain Sunny.
-                    Monitor.Log($"No weather types passed the dice roll. Weather changed to {weatherJackpot}. Updating framework...", LogLevel.Trace);
+                    // If not, note this.
+                    Monitor.Log($"Weather could not be changed because {_weatherChanges.TomorrowReason} Updating framework...", LogLevel.Trace);
                 }
 
-                // Change tomorrow's weather.
-                Game1.weatherForTomorrow = (int)_weatherChanges.WeatherTomorrow;
+                // Tell the Framework about the change.
+                _iWAPI.ProcessMessage(weatherWasChanged);
 
                 // Check message was received by Framework.
                 if (!weatherWasChanged.Response.Acknowledged)
@@ -291,21 +278,7 @@ namespace IWClimateControl
             }
             else
             {
-                // If not, note this.
-                Monitor.Log($"Weather could not be changed because {reason} Updating framework...", LogLevel.Trace);
-            }
-
-            // Tell the Framework about the change.
-            _iWAPI.ProcessMessage(weatherWasChanged);
-
-            // Check message was received by Framework.
-            if (weatherWasChanged.Response.Acknowledged)
-                // Received.
-                Monitor.Log("Acknowledgement received.", LogLevel.Trace);
-            else
-            {
-                // Not received. Log an error for SMAPI.
-                Monitor.Log("Error: No acknowledgement received from framework. WHAT DO I DO??", LogLevel.Error);
+                Monitor.Log("This is not the main player. Not attempting weather change...", LogLevel.Trace);
             }
         }
 
