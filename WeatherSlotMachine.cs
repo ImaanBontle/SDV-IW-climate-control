@@ -45,10 +45,10 @@ namespace IW_ClimateControl
             else
             {
                 // Otherwise, grab predicted changes from day after tomorrow (shift day forward).
-                ClimateControl.s_eventLogger.SendToSMAPI("Weather already calculated for tomorrow. Skipping", EventType.trace);
                 weatherChanges.WeatherTomorrow = weatherChanges.WeatherDayAfter;
                 weatherChanges.ChangeTomorrow = weatherChanges.ChangeDayAfter;
                 weatherChanges.TomorrowReason = weatherChanges.DayAfterReason;
+                ClimateControl.s_eventLogger.SendToSMAPI($"Weather already calculated for tomorrow: {weatherChanges.WeatherTomorrow}.", EventType.trace);
             }
 
             // Now perform checks for day after tomorrow.
