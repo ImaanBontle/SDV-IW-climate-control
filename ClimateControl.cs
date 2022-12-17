@@ -157,14 +157,14 @@ namespace IWClimateControl
 
             // Check if model needs to be reloaded
             ImmersiveWeathers.MessageContainer shouldUpdateModel = new();
-            shouldUpdateModel.Message.MessageType = ImmersiveWeathers.IWAPI.MessageTypes.saveLoaded;
-            shouldUpdateModel.Message.SisterMod = ImmersiveWeathers.IWAPI.SisterMods.ClimateControl;
+            shouldUpdateModel.Message.MessageType = ImmersiveWeathers.IIWAPI.MessageTypes.saveLoaded;
+            shouldUpdateModel.Message.SisterMod = ImmersiveWeathers.IIWAPI.SisterMods.ClimateControl;
             if (_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
-                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.custom;
+                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IIWAPI.WeatherModel.custom;
             else if (_config.ModelChoice == IIWAPI.WeatherModel.standard.ToString())
-                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.standard;
+                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IIWAPI.WeatherModel.standard;
             else
-                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IWAPI.WeatherModel.none;
+                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IIWAPI.WeatherModel.none;
             _iWAPI.ProcessMessage(shouldUpdateModel);
 
             // Does model need to change
@@ -232,8 +232,8 @@ namespace IWClimateControl
                 // Grab relevant info for calculation
                 WorldDate currentDate = Game1.Date;
                 ImmersiveWeathers.MessageContainer weatherWasChanged = new();
-                weatherWasChanged.Message.MessageType = ImmersiveWeathers.IWAPI.MessageTypes.dayStarted;
-                weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IWAPI.SisterMods.ClimateControl;
+                weatherWasChanged.Message.MessageType = ImmersiveWeathers.IIWAPI.MessageTypes.dayStarted;
+                weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IIWAPI.SisterMods.ClimateControl;
 
                 // Attempt to change weather
                 WeatherSlotMachine.AttemptChange(currentDate, _weatherChanges, _weatherChances, _iWAPI);
@@ -258,7 +258,7 @@ namespace IWClimateControl
                     Game1.weatherForTomorrow = (int)_weatherChanges.WeatherTomorrow;
 
                     // Store information for the Framework.
-                    weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IWAPI.WeatherType)(int)_weatherChanges.WeatherTomorrow;
+                    weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IIWAPI.WeatherType)(int)_weatherChanges.WeatherTomorrow;
                 }
                 else
                 {
