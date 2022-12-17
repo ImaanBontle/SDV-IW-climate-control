@@ -205,38 +205,36 @@ namespace IWClimateControl
             weatherWasChanged.Message.MessageType = ImmersiveWeathers.IWAPI.MessageTypes.dayStarted;
             weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IWAPI.SisterMods.ClimateControl;
 
-            // Check if weather is allowed to be changed
-            WeatherSlotMachine.CheckCanChange(currentDate, out bool canChange, out string reason);
-            weatherWasChanged.Message.CouldChange = canChange;
+            // Attempt to change weather
+            SaveData weatherChanges = this.Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
+            WeatherSlotMachine.AttemptChange(currentDate, weatherChanges, weatherChances, iWAPI);
 
             // Can weather be changed?
-            if (canChange)
+            weatherWasChanged.Message.CouldChange = _weatherChanges.ChangeTomorrow;
+            if (weatherWasChanged.Message.CouldChange)
             {
-                // If so, roll a die for each weather type.
-                IWAPI.WeatherType weatherJackpot = WeatherSlotMachine.GenerateWeather(currentDate, weatherChances, iWAPI);
-
                 // Did any weather types pass the dice roll?
-                if (weatherJackpot != IWAPI.WeatherType.sunny)
+                if (_weatherChanges.WeatherTomorrow != IIWAPI.WeatherType.sunny)
                 {
                     // Yes. Weather will change to winner.
-                    this.Monitor.Log($"Weather changed to {weatherJackpot}. Updating framework...", LogLevel.Trace);
+                    Monitor.Log($"Weather changed to {_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Trace);
                 }
-                else if (weatherJackpot == IWAPI.WeatherType.sunny)
+                else if (_weatherChanges.WeatherTomorrow == IIWAPI.WeatherType.sunny)
                 {
                     // No. Weather will remain Sunny.
-                    this.Monitor.Log($"No weather types passed the dice roll. Weather changed to {weatherJackpot}. Updating framework...", LogLevel.Trace);
+                    Monitor.Log($"No weather types passed the dice roll. Weather changed to {_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Trace);
                 }
 
                 // Change tomorrow's weather.
-                Game1.weatherForTomorrow = (int)weatherJackpot;
+                Game1.weatherForTomorrow = (int)_weatherChanges.WeatherTomorrow;
 
                 // Store information for the Framework.
-                weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IWAPI.WeatherType)(int)weatherJackpot;
+                weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IWAPI.WeatherType)(int)_weatherChanges.WeatherTomorrow;
             }
             else
             {
                 // If not, note this.
-                this.Monitor.Log($"Weather could not be changed because {reason} Updating framework...", LogLevel.Trace);
+                Monitor.Log($"Weather could not be changed because {_weatherChanges.TomorrowReason} Updating framework...", LogLevel.Trace);
             }
 
             // Tell the Framework about the change.

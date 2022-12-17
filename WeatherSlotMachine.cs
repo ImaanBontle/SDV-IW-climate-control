@@ -1,4 +1,5 @@
 ﻿using IWClimateControl;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
 using System.Collections.Generic;
@@ -14,12 +15,146 @@ namespace IW_ClimateControl
     internal class WeatherSlotMachine
     {
         /// <summary>
+        /// Attempt weather changes for saved game.
+        /// </summary>
+        /// <param name="currentDate">The current game date.</param>
+        /// <param name="weatherChanges">The relevant object to store results for this save.</param>
+        /// <param name="weatherChances">Relevant model data for this save.</param>
+        /// <param name="_iWAPI">ImmersiveWeathers API.</param>
+        internal static void AttemptChange(WorldDate currentDate, SaveData weatherChanges, ModelDefinition weatherChances, IIWAPI _iWAPI)
+        {
+            // Check if tomorrow has already been checked.
+            if (weatherChanges.TomorrowReason == null)
+            {
+                // If not, can it change?
+                ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...", EventType.trace);
+                PerformCheck(currentDate, out bool canChangeTomorrow, out string reasonTomorrow, out IIWAPI.WeatherType defaultTomorrow);
+                weatherChanges.ChangeTomorrow = canChangeTomorrow;
+                weatherChanges.TomorrowReason = reasonTomorrow;
+                if (canChangeTomorrow)
+                {
+                    // If can change, grab changes.
+                    weatherChanges.WeatherTomorrow = GenerateWeather(currentDate, weatherChances, _iWAPI);
+                }
+                else
+                {
+                    // If can't change, save default weather.
+                    weatherChanges.WeatherTomorrow = defaultTomorrow;
+                }
+            }
+            else
+            {
+                // Otherwise, grab predicted changes from day after tomorrow (shift day forward).
+                ClimateControl.s_eventLogger.SendToSMAPI("Weather already calculated for tomorrow. Skipping", EventType.trace);
+                weatherChanges.WeatherTomorrow = weatherChanges.WeatherDayAfter;
+                weatherChanges.ChangeTomorrow = weatherChanges.ChangeDayAfter;
+                weatherChanges.TomorrowReason = weatherChanges.DayAfterReason;
+            }
+
+            // Now perform checks for day after tomorrow.
+            ClimateControl.s_eventLogger.SendToSMAPI("Calculating weather for the day after tomorrow...", EventType.trace);
+            WorldDate tomorrowDate = SDate.From(currentDate).AddDays(1).ToWorldDate();
+            PerformCheck(tomorrowDate, out bool canChangeDayAfter, out string reasonDayAfter, out IIWAPI.WeatherType defaultDayAfter);
+            weatherChanges.ChangeDayAfter = canChangeDayAfter;
+            weatherChanges.DayAfterReason = reasonDayAfter;
+
+            // Can day after be changed?
+            if (weatherChanges.ChangeDayAfter)
+            {
+                // If yes, grab changes.
+                weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate, weatherChances, _iWAPI);
+            }
+            else
+            {
+                // If not, grab defaults.
+                weatherChanges.WeatherDayAfter = defaultDayAfter;
+            }
+            ClimateControl.s_eventLogger.SendToSMAPI("Done.", EventType.trace);
+        }
+
+        /// <summary>
+        /// Performs check if weather can be changed.
+        /// </summary>
+        /// <param name="thisDate">The date to check.</param>
+        /// <param name="canChange">Can the weather be changed?</param>
+        /// <param name="reason">If not, why not?</param>
+        private static void PerformCheck(WorldDate thisDate, out bool canChange, out string reason, out IIWAPI.WeatherType weatherType)
+        {
+            // Initialize.
+            canChange = true;
+            reason = "";
+            weatherType = IIWAPI.WeatherType.sunny;
+
+            // Check possibilities
+            switch (thisDate.TotalDays)
+            {
+                case 0:
+                case 1:
+                case 2:
+                    // Too early in game.
+                    canChange = false;
+                    reason = "the player has played too few days on this save.";
+                    // Spring 3
+                    if (thisDate.TotalDays == 1)
+                        weatherType = IIWAPI.WeatherType.raining;
+                    break;
+                default:
+                    switch (Game1.weatherForTomorrow)
+                    {
+                        case (int)IIWAPI.WeatherType.festival:
+                            // Festival tomorrow.
+                            canChange = false;
+                            reason = "tomorrow is a festival.";
+                            break;
+                        case (int)IIWAPI.WeatherType.wedding:
+                            // Wedding tomorrow.
+                            canChange = false;
+                            reason = "tomorrow is your wedding. Congratulations!";
+                            break;
+                        default:
+                            switch (thisDate.DayOfMonth)
+                            {
+                                case 28:
+                                    // First day of a season is always Sunny.
+                                    canChange = false;
+                                    reason = "tomorrow is the first day of the season and it is always sunny.";
+                                    break;
+                                default:
+                                    switch (Enum.Parse<IIWAPI.SeasonType>(thisDate.Season))
+                                    {
+                                        case IIWAPI.SeasonType.summer:
+                                            if ((thisDate.DayOfMonth + 1) % 13 == 0)
+                                            {
+                                                // Summer 13 and 26 always storm.
+                                                canChange = false;
+                                                reason = "tomorrow is a Summer day and is hardcoded to storm.";
+                                                weatherType = IIWAPI.WeatherType.storming;
+                                            }
+                                            break;
+                                        case IIWAPI.SeasonType.winter:
+                                            if ((thisDate.DayOfMonth + 1) is >= 14 and <= 16)
+                                            {
+                                                // Winter 14, 15 and 16 are always sunny
+                                                canChange = false;
+                                                reason = "tomorrow is a Winter day and is hardcoded to be sunny.";
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Generates weather based on config values.
         /// </summary>
         /// <param name="currentDate">Generated by Stardew Valley.</param>
         /// <param name="weatherChances">This model's probability profile.</param>
         /// <param name="api">Framework API.</param>
-        public static IWAPI.WeatherType GenerateWeather(WorldDate currentDate, ModelDefinition weatherChances, IWAPI api)
+        internal static IIWAPI.WeatherType GenerateWeather(WorldDate currentDate, ModelDefinition weatherChances, IIWAPI api)
         {
             // Initialize
             Season modelSeason = new();
@@ -144,77 +279,6 @@ namespace IW_ClimateControl
             if ((0.01 * chance) >= diceRoll)
                 weatherBool = true;
             return new Tuple<bool, double, double>(weatherBool, diceRoll, chance);
-        }
-
-        /// <summary>
-        /// Check if tomorrow's weather is allowed to change.
-        /// </summary>
-        /// <param name="currentDate">Generated by Stardew Valley.</param>
-        /// <param name="canChange">Can the weather be changed?</param>
-        /// <param name="reason">If not, why not?</param>
-        public static void CheckCanChange(WorldDate currentDate, out bool canChange, out string reason)
-        {
-            // Initialize.
-            canChange = true;
-            reason = "";
-
-            // Check possibilities
-            switch (currentDate.TotalDays)
-            {
-                case 0:
-                case 1:
-                case 2:
-                    // Too early in game.
-                    canChange = false;
-                    reason = "the player has played too few days on this save.";
-                    break;
-                default:
-                    switch (Game1.weatherForTomorrow)
-                    {
-                        case (int)IWAPI.WeatherType.festival:
-                            // Festival tomorrow.
-                            canChange = false;
-                            reason = "tomorrow is a festival.";
-                            break;
-                        case (int)IWAPI.WeatherType.wedding:
-                            // Wedding tomorrow.
-                            canChange = false;
-                            reason = "tomorrow is your wedding. Congratulations!";
-                            break;
-                        default:
-                            switch (currentDate.DayOfMonth)
-                            {
-                                case 28:
-                                    // First day of a season is always Sunny.
-                                    canChange = false;
-                                    reason = "tomorrow is the first day of the season and it is always sunny.";
-                                    break;
-                                default:
-                                    switch (Enum.Parse<IWAPI.SeasonType>(currentDate.Season))
-                                    {
-                                        case IWAPI.SeasonType.summer:
-                                            if ((currentDate.DayOfMonth + 1) % 13 == 0)
-                                            {
-                                                // Summer 13 and 26 always storm.
-                                                canChange = false;
-                                                reason = "tomorrow is a Summer day and is hardcoded to storm.";
-                                            }
-                                            break;
-                                        case IWAPI.SeasonType.winter:
-                                            if ((currentDate.DayOfMonth +1) is >=14 and <= 16)
-                                            {
-                                                // Winter 14, 15 and 16 are always sunny
-                                                canChange = false;
-                                                reason = "tomorrow is a Winter day and is hardcoded to be sunny.";
-                                            }
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-            }
         }
     }
 }
