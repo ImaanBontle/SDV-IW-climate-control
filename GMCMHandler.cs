@@ -12,7 +12,7 @@ namespace IW_ClimateControl
 {
     internal class GMCMHelper
     {
-        internal static void Register(ModConfig Config, IGenericModConfigMenuApi gMCM, StardewModdingAPI.IManifest ModManifest, IModHelper Helper)
+        internal static void Register(ModConfig Config, IGenericModConfigMenuApi gMCM, IManifest ModManifest, IModHelper Helper)
         {
             // Register mod
             gMCM.Register(

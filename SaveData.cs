@@ -22,7 +22,7 @@ namespace IW_ClimateControl
         /// <summary>
         /// What should the weather be tomorrow? Defaults to sunny.
         /// </summary>
-        public IWAPI.WeatherType WeatherTomorrow { get; set; } = IWAPI.WeatherType.sunny;
+        public IIWAPI.WeatherType WeatherTomorrow { get; set; } = IIWAPI.WeatherType.sunny;
         /// <summary>
         /// Could the weather be changed the day after tomorrow?
         /// </summary>
@@ -34,6 +34,6 @@ namespace IW_ClimateControl
         /// <summary>
         /// What should the weather be the day after tomorrow? Defaults to sunny.
         /// </summary>
-        public IWAPI.WeatherType WeatherDayAfter { get; set; } = IWAPI.WeatherType.sunny;
+        public IIWAPI.WeatherType WeatherDayAfter { get; set; } = IIWAPI.WeatherType.sunny;
     }
 }
