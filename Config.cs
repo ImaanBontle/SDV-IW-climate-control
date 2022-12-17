@@ -61,6 +61,7 @@ namespace IW_ClimateControl
             ClimateControl.s_modelChoice = (IIWAPI.WeatherModel)Enum.Parse(typeof(IIWAPI.WeatherModel), Config.ModelChoice);
             LoadModel(Config);
             Helper.WriteConfig(Config);
+            ClimateControl.InterpolateModel(Helper);
         }
 
         public static void ChangeModel(ModConfig Config, IModHelper Helper)
@@ -85,6 +86,7 @@ namespace IW_ClimateControl
             LoadModel(Config);
             Helper.WriteConfig(Config);
             ClimateControl.s_modelChoice = (IIWAPI.WeatherModel)Enum.Parse(typeof(IIWAPI.WeatherModel), Config.ModelChoice);
+            ClimateControl.InterpolateModel(Helper);
         }
     }
 

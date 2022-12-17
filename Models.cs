@@ -174,4 +174,27 @@ namespace IW_ClimateControl
         /// </summary>
         public double Late { get; set; }
     }
+
+    /// <summary>
+    /// Stores the most recent interpolated probability arrays.
+    /// </summary>
+    public class WeatherArrays
+    {
+        /// <summary>
+        /// Probability of rain on each day of the year.
+        /// </summary>
+        public double[] rainArray { get; set; }
+        /// <summary>
+        /// Probability of thunderstorms on each day of the year.
+        /// </summary>
+        public double[] stormArray { get; set; }
+        /// <summary>
+        /// Probability of wind on each day of the year.
+        /// </summary>
+        public double[] windArray { get; set; }
+        /// <summary>
+        /// Probability of snow on each day of the year.
+        /// </summary>
+        public double[] snowArray { get; set; }
+    }
 }
