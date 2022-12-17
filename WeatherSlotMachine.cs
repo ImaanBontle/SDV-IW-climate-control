@@ -24,7 +24,7 @@ namespace IW_ClimateControl
             if (ClimateControl.s_weatherChanges.TomorrowReason == null)
             {
                 // If not, can it change?
-                ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...", EventType.trace);
+                ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...", EventType.info);
                 PerformCheck(currentDate, out bool canChangeTomorrow, out string reasonTomorrow, out IIWAPI.WeatherType defaultTomorrow);
                 ClimateControl.s_weatherChanges.ChangeTomorrow = canChangeTomorrow;
                 ClimateControl.s_weatherChanges.TomorrowReason = reasonTomorrow;
@@ -46,11 +46,11 @@ namespace IW_ClimateControl
                 ClimateControl.s_weatherChanges.WeatherTomorrow = ClimateControl.s_weatherChanges.WeatherDayAfter;
                 ClimateControl.s_weatherChanges.ChangeTomorrow = ClimateControl.s_weatherChanges.ChangeDayAfter;
                 ClimateControl.s_weatherChanges.TomorrowReason = ClimateControl.s_weatherChanges.DayAfterReason;
-                ClimateControl.s_eventLogger.SendToSMAPI($"Weather already calculated for tomorrow: {ClimateControl.s_weatherChanges.WeatherTomorrow}.", EventType.trace);
+                ClimateControl.s_eventLogger.SendToSMAPI($"Weather already calculated for tomorrow: {ClimateControl.s_weatherChanges.WeatherTomorrow}.", EventType.info);
             }
 
             // Now perform checks for day after tomorrow.
-            ClimateControl.s_eventLogger.SendToSMAPI("Calculating weather for the day after tomorrow...", EventType.trace);
+            ClimateControl.s_eventLogger.SendToSMAPI("Calculating weather for the day after tomorrow...", EventType.info);
             WorldDate tomorrowDate = SDate.From(currentDate).AddDays(1).ToWorldDate();
             PerformCheck(tomorrowDate, out bool canChangeDayAfter, out string reasonDayAfter, out IIWAPI.WeatherType defaultDayAfter);
             ClimateControl.s_weatherChanges.ChangeDayAfter = canChangeDayAfter;
@@ -69,7 +69,7 @@ namespace IW_ClimateControl
                 // If not, grab defaults.
                 ClimateControl.s_weatherChanges.WeatherDayAfter = defaultDayAfter;
             }
-            ClimateControl.s_eventLogger.SendToSMAPI("Done.", EventType.trace);
+            ClimateControl.s_eventLogger.SendToSMAPI("Done.", EventType.info);
         }
 
         /// <summary>

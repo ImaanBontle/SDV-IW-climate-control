@@ -12,6 +12,9 @@ using StardewValley;
 using StardewValley.Monsters;
 
 // TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
+// TODO: Fix bug where reference types means tomorrow's weather identical to day after
+// TODO: Add config for enabling/disabling interpolation.
+// TODO: Add config for debug logging.
 // TODO: Add more than one template <----- ???
 
 namespace IWClimateControl
@@ -252,12 +255,12 @@ namespace IWClimateControl
                     if (s_weatherChanges.WeatherTomorrow != IIWAPI.WeatherType.sunny)
                     {
                         // Yes. Weather will change to winner.
-                        Monitor.Log($"Weather tomorrow changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Trace);
+                        Monitor.Log($"Weather tomorrow changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Info);
                     }
-                    else if (   s_weatherChanges.WeatherTomorrow == IIWAPI.WeatherType.sunny)
+                    else if (s_weatherChanges.WeatherTomorrow == IIWAPI.WeatherType.sunny)
                     {
                         // No. Weather will remain Sunny.
-                        Monitor.Log($"No weather types passed the dice roll for tomorrow. Weather changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Trace);
+                        Monitor.Log($"No weather types passed the dice roll for tomorrow. Weather changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Info);
                     }
 
                     // Change tomorrow's weather.
@@ -269,7 +272,7 @@ namespace IWClimateControl
                 else
                 {
                     // If not, note this.
-                    Monitor.Log($"Weather could not be changed because {s_weatherChanges.TomorrowReason} Updating framework...", LogLevel.Trace);
+                    Monitor.Log($"Weather could not be changed because {s_weatherChanges.TomorrowReason} Updating framework...", LogLevel.Info);
                 }
 
                 // Tell the Framework about the change.
