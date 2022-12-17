@@ -55,8 +55,6 @@ namespace IW_ClimateControl
             // Reset all models, except custom
             ClimateControl.s_standardModel = new();
             Helper.Data.WriteJsonFile("models/standard.json", ClimateControl.s_standardModel);
-            //ClimateControl.customModel = new();
-            //Helper.Data.WriteJsonFile("models/standard.json", ClimateControl.customModel);
 
             // Copy reset values into Config
             Config.ModelChoice = "standard";
