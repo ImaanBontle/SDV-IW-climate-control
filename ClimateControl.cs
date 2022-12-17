@@ -31,15 +31,15 @@ namespace IWClimateControl
         /// <summary>
         /// The configuration data for this session.
         /// </summary>
-        private ModConfig _config;
+        private static ModConfig s_config;
         /// <summary>
         /// The Framework API.
         /// </summary>
-        private IIWAPI _iWAPI;
+        internal static IIWAPI s_iWAPI;
         /// <summary>
         /// The GMCM API.
         /// </summary>
-        private IGenericModConfigMenuApi _gMCM;
+        private static IGenericModConfigMenuApi s_gMCM;
         /// <summary>
         /// Cache of the standard model configuration data.
         /// </summary>
@@ -63,7 +63,7 @@ namespace IWClimateControl
         /// <summary>
         /// Contains relevant weather changes for this save game.
         /// </summary>
-        private SaveData _weatherChanges;
+        internal static SaveData s_weatherChanges;
         /// <summary>
         /// Handles all messages to SMAPI.
         /// </summary>
@@ -102,7 +102,7 @@ namespace IWClimateControl
             // At launch, SMAPI creates Config, copies values from config.json and updates any empty values,
             // or if config.json is missing, creates a new one using values from Config.
             // 3 paths: New config (just load), saved changes (leave, copy into models), reset (new models, copy into config)
-            _config = Helper.ReadConfig<ModConfig>();
+            s_config = Helper.ReadConfig<ModConfig>();
 
             // ----------
             // API IMPORT
@@ -113,14 +113,14 @@ namespace IWClimateControl
             // -----------
             // SAVE LOADED
             // -----------
-            // At save load, load cached save-data.
+            // At save load, load cached data.
             Helper.Events.GameLoop.SaveLoaded += SaveLoaded_LoadData;
+            Helper.Events.GameLoop.SaveLoaded += SaveLoaded_CacheModel;
 
             // ---------
             // DAY START
             // ---------
-            // When day begins, set tomorrow's weather.
-            Helper.Events.GameLoop.DayStarted += DayStarted_CacheModel;
+            // When day begins, interpolate model and set tomorrow's weather.
             Helper.Events.GameLoop.DayStarted += DayStarted_ChangeWeather;
 
             // -----------
@@ -140,9 +140,9 @@ namespace IWClimateControl
         /// <param name="e">The event data.</param>
         private void GameLoop_GameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            _iWAPI = Helper.ModRegistry.GetApi<IIWAPI>("MsBontle.ImmersiveWeathers");
-            _gMCM = Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
-            GMCMHelper.Register(_config, _gMCM, ModManifest, Helper);
+            s_iWAPI = Helper.ModRegistry.GetApi<IIWAPI>("MsBontle.ImmersiveWeathers");
+            s_gMCM = Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+            GMCMHelper.Register(s_config, s_gMCM, ModManifest, Helper);
         }
 
         // --------------
@@ -161,7 +161,7 @@ namespace IWClimateControl
             {
                 // Load save data
                 Monitor.Log("Loading save data from file...", LogLevel.Trace);
-                _weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
+                s_weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
             }
         }
 
@@ -169,55 +169,54 @@ namespace IWClimateControl
         // CACHE WEATHER MODEL
         // -------------------
         /// <summary>
-        /// Loads the necessary weather model when the day starts.
+        /// Loads the necessary weather model when the save is loaded.
         /// </summary>
-        /// <remarks>Contacts the Framework first, to check which models need to be loaded, if any.</remarks>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
-        private void DayStarted_CacheModel(object sender, DayStartedEventArgs e)
+        private void SaveLoaded_CacheModel(object sender, SaveLoadedEventArgs e)
         {
-            Monitor.Log("Checking if weather model needs (re-)caching...", LogLevel.Trace);
-
-            // Check if model needs to be reloaded
-            ImmersiveWeathers.MessageContainer shouldUpdateModel = new();
-            shouldUpdateModel.Message.MessageType = ImmersiveWeathers.IIWAPI.MessageTypes.saveLoaded;
-            shouldUpdateModel.Message.SisterMod = ImmersiveWeathers.IIWAPI.SisterMods.ClimateControl;
-            if (_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
-                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IIWAPI.WeatherModel.custom;
-            else if (_config.ModelChoice == IIWAPI.WeatherModel.standard.ToString())
-                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IIWAPI.WeatherModel.standard;
-            else
-                shouldUpdateModel.Message.ModelType = ImmersiveWeathers.IIWAPI.WeatherModel.none;
-            _iWAPI.ProcessMessage(shouldUpdateModel);
-
-            // Does model need to change
-            if (shouldUpdateModel.Response.GoAheadToLoad)
+            if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
             {
-                // If so, which model?
-                if (_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
-                {
-                    // Custom model created by player.
-                    s_weatherChances = _config;
-                    s_modelChoice = IIWAPI.WeatherModel.custom;
-                    Monitor.Log("Loading custom model...", LogLevel.Trace);
-                    s_weatherArrays = Helper.Data.ReadJsonFile<WeatherArrays>("data/custom.json") ?? Interpolator.InterpolateWeather();
-                    Helper.Data.WriteJsonFile("data/custom.json", s_weatherArrays);
-                }
-                else
-                {
-                    // Standard model for generic climate.
-                    s_weatherChances = s_standardModel;
-                    s_modelChoice = IIWAPI.WeatherModel.standard;
-                    Monitor.Log("Loading standard model...", LogLevel.Trace);
-                    s_weatherArrays = Helper.Data.ReadJsonFile<WeatherArrays>("data/standard.json") ?? Interpolator.InterpolateWeather();
-                    Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
-                }
+                // Custom model created by player.
+                s_weatherChances = s_config;
+                s_modelChoice = IIWAPI.WeatherModel.custom;
+                Monitor.Log("Loading custom model...", LogLevel.Trace);
+                s_weatherArrays = Interpolator.InterpolateWeather();
+                Helper.Data.WriteJsonFile("data/custom.json", s_weatherArrays);
             }
             else
             {
-                // If not, note this.
-                Monitor.Log("No changes made.", LogLevel.Trace);
+                // Standard model for generic climate.
+                s_weatherChances = s_standardModel;
+                s_modelChoice = IIWAPI.WeatherModel.standard;
+                Monitor.Log("Loading standard model...", LogLevel.Trace);
+                s_weatherArrays = Interpolator.InterpolateWeather();
+                Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
             }
+        }
+
+        // -----------------
+        // INTERPOLATE MODEL
+        // -----------------
+        /// <summary>
+        /// Interpolates the probabilities onto a daily grid.
+        /// </summary>
+        internal static void InterpolateModel(IModHelper Helper)
+        {
+            s_eventLogger.SendToSMAPI("Model needs to be re-interpolated. Interpolating...", EventType.trace);
+            if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
+            {
+                s_weatherChances = s_config;
+                s_weatherArrays = Interpolator.InterpolateWeather();
+                Helper.Data.WriteJsonFile("data/custom.json", s_weatherArrays);
+            }
+            else if (s_config.ModelChoice == IIWAPI.WeatherModel.standard.ToString())
+            {
+                s_weatherChances = s_standardModel;
+                s_weatherArrays = Interpolator.InterpolateWeather();
+                Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
+            }
+            s_eventLogger.SendToSMAPI("Done.", EventType.trace);
         }
 
         // --------------
@@ -243,38 +242,38 @@ namespace IWClimateControl
                 weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IIWAPI.SisterMods.ClimateControl;
 
                 // Attempt to change weather
-                WeatherSlotMachine.AttemptChange(currentDate, _weatherChanges, s_weatherChances, _iWAPI);
+                WeatherSlotMachine.AttemptChange(currentDate);
 
                 // Can weather be changed?
-                weatherWasChanged.Message.CouldChange = _weatherChanges.ChangeTomorrow;
+                weatherWasChanged.Message.CouldChange = s_weatherChanges.ChangeTomorrow;
                 if (weatherWasChanged.Message.CouldChange)
                 {
                     // Did any weather types pass the dice roll?
-                    if (_weatherChanges.WeatherTomorrow != IIWAPI.WeatherType.sunny)
+                    if (s_weatherChanges.WeatherTomorrow != IIWAPI.WeatherType.sunny)
                     {
                         // Yes. Weather will change to winner.
-                        Monitor.Log($"Weather tomorrow changed to {_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Trace);
+                        Monitor.Log($"Weather tomorrow changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Trace);
                     }
-                    else if (_weatherChanges.WeatherTomorrow == IIWAPI.WeatherType.sunny)
+                    else if (   s_weatherChanges.WeatherTomorrow == IIWAPI.WeatherType.sunny)
                     {
                         // No. Weather will remain Sunny.
-                        Monitor.Log($"No weather types passed the dice roll for tomorrow. Weather changed to {_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Trace);
+                        Monitor.Log($"No weather types passed the dice roll for tomorrow. Weather changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Trace);
                     }
 
                     // Change tomorrow's weather.
-                    Game1.weatherForTomorrow = (int)_weatherChanges.WeatherTomorrow;
+                    Game1.weatherForTomorrow = (int)s_weatherChanges.WeatherTomorrow;
 
                     // Store information for the Framework.
-                    weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IIWAPI.WeatherType)(int)_weatherChanges.WeatherTomorrow;
+                    weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IIWAPI.WeatherType)(int)s_weatherChanges.WeatherTomorrow;
                 }
                 else
                 {
                     // If not, note this.
-                    Monitor.Log($"Weather could not be changed because {_weatherChanges.TomorrowReason} Updating framework...", LogLevel.Trace);
+                    Monitor.Log($"Weather could not be changed because {s_weatherChanges.TomorrowReason} Updating framework...", LogLevel.Trace);
                 }
 
                 // Tell the Framework about the change.
-                _iWAPI.ProcessMessage(weatherWasChanged);
+                s_iWAPI.ProcessMessage(weatherWasChanged);
 
                 // Check message was received by Framework.
                 if (!weatherWasChanged.Response.Acknowledged)
@@ -304,7 +303,7 @@ namespace IWClimateControl
             {
                 // Save data to file.
                 Monitor.Log("Saving weather data to file...", LogLevel.Trace);
-                Helper.Data.WriteSaveData("ClimateControl-WeatherData", _weatherChanges);
+                Helper.Data.WriteSaveData("ClimateControl-WeatherData", s_weatherChanges);
             }
         }
 
