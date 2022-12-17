@@ -161,10 +161,9 @@ namespace IW_ClimateControl
             // Check possibilities
             switch (currentDate.TotalDays)
             {
+                case 0:
                 case 1:
                 case 2:
-                case 3:
-                case 4:
                     // Too early in game.
                     canChange = false;
                     reason = "the player has played too few days on this save.";
