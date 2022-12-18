@@ -108,8 +108,6 @@ namespace IW_ClimateControl
             int lateDay = 24;
             // Mid-winter previous year should start on Day 0.
             int startDay = midDay - 28;
-            // Day to include at end after interpolation (to get full year).
-            int extraDays = 28 - lateDay;
             // Mid-winter previous year.
             daysToInterpolate[0] = midDay - 28 - startDay;
             // Late-winter previous year.

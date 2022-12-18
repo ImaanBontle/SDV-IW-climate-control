@@ -24,7 +24,7 @@ namespace IW_ClimateControl
             if (ClimateControl.s_weatherChanges.TomorrowReason == null)
             {
                 // If not, can it change?
-                ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...", EventType.info);
+                ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...");
                 PerformCheck(currentDate, out bool canChangeTomorrow, out string reasonTomorrow, out IIWAPI.WeatherType defaultTomorrow);
                 ClimateControl.s_weatherChanges.ChangeTomorrow = canChangeTomorrow;
                 ClimateControl.s_weatherChanges.TomorrowReason = reasonTomorrow;
@@ -52,11 +52,11 @@ namespace IW_ClimateControl
                 ClimateControl.s_weatherChanges.WeatherTomorrow = ClimateControl.s_weatherChanges.WeatherDayAfter;
                 ClimateControl.s_weatherChanges.ChangeTomorrow = ClimateControl.s_weatherChanges.ChangeDayAfter;
                 ClimateControl.s_weatherChanges.TomorrowReason = ClimateControl.s_weatherChanges.DayAfterReason;
-                ClimateControl.s_eventLogger.SendToSMAPI($"Weather already calculated for tomorrow: {ClimateControl.s_weatherChanges.WeatherTomorrow}.", EventType.info);
+                ClimateControl.s_eventLogger.SendToSMAPI($"Weather already calculated for tomorrow: {ClimateControl.s_weatherChanges.WeatherTomorrow}.");
             }
 
             // Now perform checks for day after tomorrow.
-            ClimateControl.s_eventLogger.SendToSMAPI("Calculating weather for the day after tomorrow...", EventType.info);
+            ClimateControl.s_eventLogger.SendToSMAPI("Calculating weather for the day after tomorrow...");
             WorldDate tomorrowDate = SDate.From(currentDate).AddDays(1).ToWorldDate();
             PerformCheck(tomorrowDate, out bool canChangeDayAfter, out string reasonDayAfter, out IIWAPI.WeatherType defaultDayAfter);
             ClimateControl.s_weatherChanges.ChangeDayAfter = canChangeDayAfter;
@@ -80,7 +80,7 @@ namespace IW_ClimateControl
                 // If not, grab defaults.
                 ClimateControl.s_weatherChanges.WeatherDayAfter = defaultDayAfter;
             }
-            ClimateControl.s_eventLogger.SendToSMAPI("Done.", EventType.info);
+            ClimateControl.s_eventLogger.SendToSMAPI("Done.");
         }
 
         /// <summary>
@@ -286,7 +286,7 @@ namespace IW_ClimateControl
         private static IIWAPI.WeatherType ChooseWeather(int currentDate)
         {
             // List of <success,dicerolls,odds> for each weather type.
-            List<Tuple<bool, double, double>> weatherRolls = new();
+            List<Tuple<bool, double, double>> weatherRolls;
 
             // Grab the appropriate values for that day
             // and flip a coin for each weather type.
@@ -343,19 +343,19 @@ namespace IW_ClimateControl
                     {
                         case 0:
                             weatherJackpot = IIWAPI.WeatherType.raining;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Rain was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}", EventType.info);
+                            ClimateControl.s_eventLogger.SendToSMAPI($"Rain was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                         case 1:
                             weatherJackpot = IIWAPI.WeatherType.storming;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Thunderstorm was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}", EventType.info);
+                            ClimateControl.s_eventLogger.SendToSMAPI($"Thunderstorm was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                         case 2:
                             weatherJackpot = IIWAPI.WeatherType.windy;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Wind was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}", EventType.info);
+                            ClimateControl.s_eventLogger.SendToSMAPI($"Wind was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                         case 3:
                             weatherJackpot = IIWAPI.WeatherType.snowing;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Snow was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}", EventType.info);
+                            ClimateControl.s_eventLogger.SendToSMAPI($"Snow was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                     }
                 }

@@ -30,6 +30,11 @@ namespace IW_ClimateControl
         public bool EnableInterpolation { get; set; } = true;
 
         /// <summary>
+        /// Whether debug logs should be sent to the terminal.
+        /// </summary>
+        public bool EnableDebugLogging { get; set; } = false;
+
+        /// <summary>
         /// Generates the user configuration and inherits from the chosen model.
         /// </summary>
         public ModConfig()
@@ -53,11 +58,21 @@ namespace IW_ClimateControl
                 PropertyMatcher<StandardModel, ModConfig>.GenerateMatchedObject(ClimateControl.s_customModel, Config);
                 ClimateControl.s_customModel = ClimateControl.s_customModel.DeepClone();
             }
+
+            // Set SMAPI log levels
+            if (Config.EnableDebugLogging)
+            {
+                ClimateControl.s_logLevel = LogLevel.Info;
+            }
+            else
+            {
+                ClimateControl.s_logLevel = LogLevel.Trace;
+            }
         }
 
         public static void ResetModel(ModConfig Config, IModHelper Helper)
         {
-            ClimateControl.s_eventLogger.SendToSMAPI("I was asked to reset all models", EventType.info);
+            ClimateControl.s_eventLogger.SendToSMAPI("I was asked to reset all models");
             // Reset all models, except custom
             ClimateControl.s_standardModel = new();
             Helper.Data.WriteJsonFile("models/standard.json", ClimateControl.s_standardModel);
@@ -75,9 +90,9 @@ namespace IW_ClimateControl
 
         public static void ChangeModel(ModConfig Config, IModHelper Helper)
         {
-            ClimateControl.s_eventLogger.SendToSMAPI("I was asked to refresh all models", EventType.info);
+            ClimateControl.s_eventLogger.SendToSMAPI("I was asked to refresh all models");
             // Refresh relevant models
-            ClimateControl.s_eventLogger.SendToSMAPI($"Model was changed from {ClimateControl.s_modelChoice} to {Config.ModelChoice}. Changes will be applied to {ClimateControl.s_modelChoice}", EventType.info);
+            ClimateControl.s_eventLogger.SendToSMAPI($"Model was changed from {ClimateControl.s_modelChoice} to {Config.ModelChoice}. Changes will be applied to {ClimateControl.s_modelChoice}");
             // Save changes to old model.
             if (ClimateControl.s_modelChoice == IIWAPI.WeatherModel.standard)
             {
