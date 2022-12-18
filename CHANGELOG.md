@@ -12,14 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consistent weathers on save-load
 - Different daily probabilities
 - Config option for enabling/disabling interpolation
+- Config option for debug logging
 
 ### Fixed
 
 - Incorrect logic for weather checks in Spring 1-4
 
 ### Planned
-
-- More config options
 
 ## [v0.7.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.6.0...v0.7.0) - 2022-12-14
 
