@@ -17,7 +17,7 @@ namespace IW_ClimateControl
             // Register mod
             ClimateControl.s_gMCM.Register(
                 mod: ModManifest,
-                reset: () => ModConfig.ResetModel(ClimateControl.s_config, Helper),
+                reset: () => ModConfig.ResetModel(Helper),
                 save: () => ModConfig.ChangeModel(ClimateControl.s_config, Helper)
             );
 

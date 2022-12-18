@@ -11,8 +11,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 
-// TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
-// TODO: Add config for debug logging.
 // TODO: Add more than one template <----- ???
 
 namespace IWClimateControl
