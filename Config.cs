@@ -24,6 +24,12 @@ namespace IW_ClimateControl
         public string ModelChoice { get; set; } = "standard";
 
         /// <summary>
+        /// Whether to enable interpolation of probabilities onto a daily grid.
+        /// </summary>
+        /// <remarks>Defaults to <see langword="true"/>.</remarks>
+        public bool EnableInterpolation { get; set; } = true;
+
+        /// <summary>
         /// Generates the user configuration and inherits from the chosen model.
         /// </summary>
         public ModConfig()
@@ -61,7 +67,10 @@ namespace IW_ClimateControl
             ClimateControl.s_modelChoice = (IIWAPI.WeatherModel)Enum.Parse(typeof(IIWAPI.WeatherModel), Config.ModelChoice);
             LoadModel(Config);
             Helper.WriteConfig(Config);
-            ClimateControl.InterpolateModel(Helper);
+            if (Config.EnableInterpolation)
+            {
+                ClimateControl.InterpolateModel(Helper);
+            }
         }
 
         public static void ChangeModel(ModConfig Config, IModHelper Helper)
@@ -86,7 +95,10 @@ namespace IW_ClimateControl
             LoadModel(Config);
             Helper.WriteConfig(Config);
             ClimateControl.s_modelChoice = (IIWAPI.WeatherModel)Enum.Parse(typeof(IIWAPI.WeatherModel), Config.ModelChoice);
-            ClimateControl.InterpolateModel(Helper);
+            if (Config.EnableInterpolation)
+            {
+                ClimateControl.InterpolateModel(Helper);
+            }
         }
     }
 
