@@ -12,42 +12,53 @@ namespace IW_ClimateControl
 {
     internal class GMCMHelper
     {
-        internal static void Register(ModConfig Config, IGenericModConfigMenuApi gMCM, StardewModdingAPI.IManifest ModManifest, IModHelper Helper)
+        internal static void Register(IManifest ModManifest, IModHelper Helper)
         {
             // Register mod
-            gMCM.Register(
+            ClimateControl.s_gMCM.Register(
                 mod: ModManifest,
-                reset: () => ModConfig.ResetModel(Config, Helper),
-                save: () => ModConfig.ChangeModel(Config, Helper)
+                reset: () => ModConfig.ResetModel(Helper),
+                save: () => ModConfig.ChangeModel(ClimateControl.s_config, Helper)
             );
 
             // ---------
             // MAIN PAGE
             // ---------
             // Add Weather Model title
-            gMCM.AddSectionTitle(
+            ClimateControl.s_gMCM.AddSectionTitle(
                 mod: ModManifest,
-                text: () => "Weather Models",
+                text: () => "Weather Models:",
                 tooltip: () => "The weather model determines the likelihood of weather changes for each day of the year (e.g. the chance of rain, snow, thunderstorms etc.). You can make your own custom model or use one of the provided templates."
             );
 
             // Add model choices
-            gMCM.AddTextOption(
+            ClimateControl.s_gMCM.AddTextOption(
                 mod: ModManifest,
-                getValue: () => Config.ModelChoice,
-                setValue: value => Config.ModelChoice = value,
-                name: () => "Model Choice:",
-                allowedValues: new string[] { "standard", "custom" }
+                getValue: () => ClimateControl.s_config.ModelChoice,
+                setValue: value => ClimateControl.s_config.ModelChoice = value,
+                name: () => "Model Choice",
+                allowedValues: new string[] { "standard", "custom" },
+                tooltip: () => "The 'custom' model is always preserved when resetting to \"Default\". If you want to reset this too, you can either delete the 'custom.json' file in your mod folder and relaunch the game, or, after clicking \"Default\", switch from 'standard' to 'custom', open the values page, then click \"Save\" followed by \"Save & Close\". This will copy the standard model across to the custom model. You can also use this to copy between models if you like."
             );
 
-            // Add description
-            gMCM.AddParagraph(
+            // Add model interpolation
+            ClimateControl.s_gMCM.AddBoolOption(
                 mod: ModManifest,
-                text: () => "Each morning, the mod will choose a weather for tomorrow based on the probabilities below. You can either use these models exactly as provided, customize their values separately, or create your own custom model.\n\nNOTE: When editing these values, you must FIRST (!) select the model you want to edit and then \"Save\" the config BEFORE making any changes. Otherwise, changes will apply to the previous model.\n\n(The 'custom' model is always preserved when resetting to \"Default\". If you want to reset this too, you can either delete the 'custom.json' file in your mod folder and relaunch the game, or, after clicking \"Default\", switch from 'standard' to 'custom', open the values page, then click \"Save\" followed by \"Save & Close\". This will copy the standard model across to the custom model. You can also use this to copy between models if you like.)"
+                getValue: () => ClimateControl.s_config.EnableInterpolation,
+                setValue: value => ClimateControl.s_config.EnableInterpolation = value,
+                name: () => "Enable Daily Odds",
+                tooltip: () => "If enabled, this mod will try to guess the daily odds of each weather type by using 'cubic spline interpolation'. This fits a smooth line through the probabilities, resulting in gradual changes during the year and a more immersive experience (e.g. you might see increasing chances of snow towards the end of Fall). For a simpler approach, disable this and the mod will treat the config values as fixed for each date range. This is closer to how Stardew Valley treats the weather but might result in more abrupt changes."
+            );
+
+            // Add Probabilities title
+            ClimateControl.s_gMCM.AddSectionTitle(
+                mod: ModManifest,
+                text: () => "Weather Probabilities:",
+                tooltip: () => "These values determine the likelihood of the weather changing to different types, either by using interpolation to guess the daily odds or by using the values as fixed probabilities for each date range."
             );
 
             // Add season page
-            gMCM.AddPageLink(
+            ClimateControl.s_gMCM.AddPageLink(
                 mod: ModManifest,
                 pageId: "IWConfig-EditSeasons",
                 text: () => "Edit values (by season)",
@@ -55,11 +66,26 @@ namespace IW_ClimateControl
             );
 
             // Add type page
-            gMCM.AddPageLink(
+            ClimateControl.s_gMCM.AddPageLink(
                 mod: ModManifest,
                 pageId: "IWConfig-EditTypes",
                 text: () => "Edit values (by type)",
                 tooltip: () => "Change the weather probabilities, grouped by weather type."
+            );
+
+            // Add Other section
+            ClimateControl.s_gMCM.AddSectionTitle(
+                mod: ModManifest,
+                text: () => "Other:"
+            );
+
+            // Add debug logging
+            ClimateControl.s_gMCM.AddBoolOption(
+                mod: ModManifest,
+                getValue: () => ClimateControl.s_config.EnableDebugLogging,
+                setValue: value => ClimateControl.s_config.EnableDebugLogging = value,
+                name: () => "Debug Logging",
+                tooltip: () => "If enabled, SMAPI logs will be printed to the terminal for easier debugging. This allows for seeing the successful dicerolls and other relevant information."
             );
 
             // ---------------
@@ -67,50 +93,63 @@ namespace IW_ClimateControl
             // ---------------
             {
                 // Add probabilities page (by season)
-                gMCM.AddPage(
+                ClimateControl.s_gMCM.AddPage(
                     mod: ModManifest,
                     pageId: "IWConfig-EditSeasons",
                     pageTitle: () => "Probabilities, By Season"
                 );
 
+                // Add season title
+                ClimateControl.s_gMCM.AddSectionTitle(
+                    mod: ModManifest,
+                    text: () => "Probabilities, By Season",
+                    tooltip: () => "Weather probabilities, grouped by season."
+                );
+
+                // Add description
+                ClimateControl.s_gMCM.AddParagraph(
+                    mod: ModManifest,
+                    text: () => "Each morning, the mod will choose a weather for tomorrow based on the probabilities below. You can either use these models exactly as provided, customize their values separately, or create your own custom model.\n\nNOTE: When editing these values, you must FIRST (!) select the model you want to edit and then \"Save\" the config BEFORE making any changes. Otherwise, changes will apply to the previous model."
+                );
+
                 // ****Spring*****
                 {
-                    gMCM.AddSectionTitle(
+                    ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
-                        text: () => "Spring"
+                        text: () => "Spring:"
                     );
 
                     // Rain
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Rainfall:",
                         tooltip: () => "The chance that it will rain tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Rain.Early,
-                        setValue: value => Config.Spring.Rain.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Rain.Early,
+                        setValue: value => ClimateControl.s_config.Spring.Rain.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Rain.Mid,
-                        setValue: value => Config.Spring.Rain.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Rain.Mid,
+                        setValue: value => ClimateControl.s_config.Spring.Rain.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Rain.Late,
-                        setValue: value => Config.Spring.Rain.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Rain.Late,
+                        setValue: value => ClimateControl.s_config.Spring.Rain.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -118,36 +157,36 @@ namespace IW_ClimateControl
                     );
 
                     // Storms
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Thunderstorms:",
                         tooltip: () => "The chance that it will storm tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Storm.Early,
-                        setValue: value => Config.Spring.Storm.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Storm.Early,
+                        setValue: value => ClimateControl.s_config.Spring.Storm.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Storm.Mid,
-                        setValue: value => Config.Spring.Storm.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Storm.Mid,
+                        setValue: value => ClimateControl.s_config.Spring.Storm.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Storm.Late,
-                        setValue: value => Config.Spring.Storm.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Storm.Late,
+                        setValue: value => ClimateControl.s_config.Spring.Storm.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -155,36 +194,36 @@ namespace IW_ClimateControl
                     );
 
                     // Wind
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Windy Weather:",
                         tooltip: () => "The chance that it will be windy tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Wind.Early,
-                        setValue: value => Config.Spring.Wind.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Wind.Early,
+                        setValue: value => ClimateControl.s_config.Spring.Wind.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Wind.Mid,
-                        setValue: value => Config.Spring.Wind.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Wind.Mid,
+                        setValue: value => ClimateControl.s_config.Spring.Wind.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Wind.Late,
-                        setValue: value => Config.Spring.Wind.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Wind.Late,
+                        setValue: value => ClimateControl.s_config.Spring.Wind.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -192,36 +231,36 @@ namespace IW_ClimateControl
                     );
 
                     // Snow
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Snowfall:",
                         tooltip: () => "The chance that it will snow tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Snow.Early,
-                        setValue: value => Config.Spring.Snow.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Snow.Early,
+                        setValue: value => ClimateControl.s_config.Spring.Snow.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Snow.Mid,
-                        setValue: value => Config.Spring.Snow.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Snow.Mid,
+                        setValue: value => ClimateControl.s_config.Spring.Snow.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Snow.Late,
-                        setValue: value => Config.Spring.Snow.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Snow.Late,
+                        setValue: value => ClimateControl.s_config.Spring.Snow.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -231,42 +270,42 @@ namespace IW_ClimateControl
 
                 // ****Summer*****
                 {
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
-                        text: () => "Summer"
+                        text: () => "Summer:"
                     );
 
                     // Rain
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Rainfall:",
                         tooltip: () => "The chance that it will rain tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Rain.Early,
-                        setValue: value => Config.Summer.Rain.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Rain.Early,
+                        setValue: value => ClimateControl.s_config.Summer.Rain.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Rain.Mid,
-                        setValue: value => Config.Summer.Rain.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Rain.Mid,
+                        setValue: value => ClimateControl.s_config.Summer.Rain.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Rain.Late,
-                        setValue: value => Config.Summer.Rain.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Rain.Late,
+                        setValue: value => ClimateControl.s_config.Summer.Rain.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -274,36 +313,36 @@ namespace IW_ClimateControl
                     );
 
                     // Storms
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Thunderstorms:",
                         tooltip: () => "The chance that it will storm tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Storm.Early,
-                        setValue: value => Config.Summer.Storm.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Storm.Early,
+                        setValue: value => ClimateControl.s_config.Summer.Storm.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Storm.Mid,
-                        setValue: value => Config.Summer.Storm.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Storm.Mid,
+                        setValue: value => ClimateControl.s_config.Summer.Storm.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Storm.Late,
-                        setValue: value => Config.Summer.Storm.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Storm.Late,
+                        setValue: value => ClimateControl.s_config.Summer.Storm.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -311,36 +350,36 @@ namespace IW_ClimateControl
                     );
 
                     // Wind
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Windy Weather:",
                         tooltip: () => "The chance that it will be windy tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Wind.Early,
-                        setValue: value => Config.Summer.Wind.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Wind.Early,
+                        setValue: value => ClimateControl.s_config.Summer.Wind.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Wind.Mid,
-                        setValue: value => Config.Summer.Wind.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Wind.Mid,
+                        setValue: value => ClimateControl.s_config.Summer.Wind.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Wind.Late,
-                        setValue: value => Config.Summer.Wind.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Wind.Late,
+                        setValue: value => ClimateControl.s_config.Summer.Wind.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -348,36 +387,36 @@ namespace IW_ClimateControl
                     );
 
                     // Snow
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Snowfall:",
                         tooltip: () => "The chance that it will snow tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Snow.Early,
-                        setValue: value => Config.Summer.Snow.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Snow.Early,
+                        setValue: value => ClimateControl.s_config.Summer.Snow.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Snow.Mid,
-                        setValue: value => Config.Summer.Snow.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Snow.Mid,
+                        setValue: value => ClimateControl.s_config.Summer.Snow.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Snow.Late,
-                        setValue: value => Config.Summer.Snow.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Snow.Late,
+                        setValue: value => ClimateControl.s_config.Summer.Snow.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -387,42 +426,42 @@ namespace IW_ClimateControl
 
                 // ****Fall*****
                 {
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
-                        text: () => "Fall"
+                        text: () => "Fall:"
                     );
 
                     // Rain
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Rainfall:",
                         tooltip: () => "The chance that it will rain tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Rain.Early,
-                        setValue: value => Config.Fall.Rain.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Rain.Early,
+                        setValue: value => ClimateControl.s_config.Fall.Rain.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Rain.Mid,
-                        setValue: value => Config.Fall.Rain.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Rain.Mid,
+                        setValue: value => ClimateControl.s_config.Fall.Rain.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Rain.Late,
-                        setValue: value => Config.Fall.Rain.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Rain.Late,
+                        setValue: value => ClimateControl.s_config.Fall.Rain.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -430,36 +469,36 @@ namespace IW_ClimateControl
                     );
 
                     // Storms
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Thunderstorms:",
                         tooltip: () => "The chance that it will storm tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Storm.Early,
-                        setValue: value => Config.Fall.Storm.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Storm.Early,
+                        setValue: value => ClimateControl.s_config.Fall.Storm.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Storm.Mid,
-                        setValue: value => Config.Fall.Storm.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Storm.Mid,
+                        setValue: value => ClimateControl.s_config.Fall.Storm.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Storm.Late,
-                        setValue: value => Config.Fall.Storm.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Storm.Late,
+                        setValue: value => ClimateControl.s_config.Fall.Storm.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -467,36 +506,36 @@ namespace IW_ClimateControl
                     );
 
                     // Wind
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Windy Weather:",
                         tooltip: () => "The chance that it will be windy tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Wind.Early,
-                        setValue: value => Config.Fall.Wind.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Wind.Early,
+                        setValue: value => ClimateControl.s_config.Fall.Wind.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Wind.Mid,
-                        setValue: value => Config.Fall.Wind.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Wind.Mid,
+                        setValue: value => ClimateControl.s_config.Fall.Wind.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Wind.Late,
-                        setValue: value => Config.Fall.Wind.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Wind.Late,
+                        setValue: value => ClimateControl.s_config.Fall.Wind.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -504,36 +543,36 @@ namespace IW_ClimateControl
                     );
 
                     // Snow
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Snowfall:",
                         tooltip: () => "The chance that it will snow tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Snow.Early,
-                        setValue: value => Config.Fall.Snow.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Snow.Early,
+                        setValue: value => ClimateControl.s_config.Fall.Snow.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Snow.Mid,
-                        setValue: value => Config.Fall.Snow.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Snow.Mid,
+                        setValue: value => ClimateControl.s_config.Fall.Snow.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Snow.Late,
-                        setValue: value => Config.Fall.Snow.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Snow.Late,
+                        setValue: value => ClimateControl.s_config.Fall.Snow.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -543,42 +582,42 @@ namespace IW_ClimateControl
 
                 // ****Winter*****
                 {
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
-                        text: () => "Winter"
+                        text: () => "Winter:"
                     );
 
                     // Rain
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Rainfall:",
                         tooltip: () => "The chance that it will rain tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Rain.Early,
-                        setValue: value => Config.Winter.Rain.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Rain.Early,
+                        setValue: value => ClimateControl.s_config.Winter.Rain.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Rain.Mid,
-                        setValue: value => Config.Winter.Rain.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Rain.Mid,
+                        setValue: value => ClimateControl.s_config.Winter.Rain.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Rain.Late,
-                        setValue: value => Config.Winter.Rain.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Rain.Late,
+                        setValue: value => ClimateControl.s_config.Winter.Rain.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -586,36 +625,36 @@ namespace IW_ClimateControl
                     );
 
                     // Storms
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Thunderstorms:",
                         tooltip: () => "The chance that it will storm tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Storm.Early,
-                        setValue: value => Config.Winter.Storm.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Storm.Early,
+                        setValue: value => ClimateControl.s_config.Winter.Storm.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Storm.Mid,
-                        setValue: value => Config.Winter.Storm.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Storm.Mid,
+                        setValue: value => ClimateControl.s_config.Winter.Storm.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Storm.Late,
-                        setValue: value => Config.Winter.Storm.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Storm.Late,
+                        setValue: value => ClimateControl.s_config.Winter.Storm.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -623,36 +662,36 @@ namespace IW_ClimateControl
                     );
 
                     // Wind
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Windy Weather:",
                         tooltip: () => "The chance that it will be windy tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Wind.Early,
-                        setValue: value => Config.Winter.Wind.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Wind.Early,
+                        setValue: value => ClimateControl.s_config.Winter.Wind.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Wind.Mid,
-                        setValue: value => Config.Winter.Wind.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Wind.Mid,
+                        setValue: value => ClimateControl.s_config.Winter.Wind.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Wind.Late,
-                        setValue: value => Config.Winter.Wind.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Wind.Late,
+                        setValue: value => ClimateControl.s_config.Winter.Wind.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -660,36 +699,36 @@ namespace IW_ClimateControl
                     );
 
                     // Snow
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Snowfall:",
                         tooltip: () => "The chance that it will snow tomorrow."
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Snow.Early,
-                        setValue: value => Config.Winter.Snow.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Snow.Early,
+                        setValue: value => ClimateControl.s_config.Winter.Snow.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Snow.Mid,
-                        setValue: value => Config.Winter.Snow.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Snow.Mid,
+                        setValue: value => ClimateControl.s_config.Winter.Snow.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Snow.Late,
-                        setValue: value => Config.Winter.Snow.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Snow.Late,
+                        setValue: value => ClimateControl.s_config.Winter.Snow.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -703,50 +742,63 @@ namespace IW_ClimateControl
             // --------------
             {
                 // Add probabilities page (by weather type)
-                gMCM.AddPage(
+               ClimateControl.s_gMCM.AddPage(
                     mod: ModManifest,
                     pageId: "IWConfig-EditTypes",
                     pageTitle: () => "Probabilities, By Type"
                 );
 
+                // Add type page
+                ClimateControl.s_gMCM.AddSectionTitle(
+                    mod: ModManifest,
+                    text: () => "Probabilities, By Type",
+                    tooltip: () => "Weather probabilities, grouped by weather type."
+                );
+
+                // Add description
+                ClimateControl.s_gMCM.AddParagraph(
+                    mod: ModManifest,
+                    text: () => "Each morning, the mod will choose a weather for tomorrow based on the probabilities below. You can either use these models exactly as provided, customize their values separately, or create your own custom model.\n\nNOTE: When editing these values, you must FIRST (!) select the model you want to edit and then \"Save\" the config BEFORE making any changes. Otherwise, changes will apply to the previous model."
+                );
+
                 // ****Rainfall*****
                 {
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
-                        text: () => "Rainfall",
+                        text: () => "Rainfall:",
                         tooltip: () => "The chance that it will rain tomorrow."
                     );
 
                     // Spring
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Spring:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Rain.Early,
-                        setValue: value => Config.Spring.Rain.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Rain.Early,
+                        setValue: value => ClimateControl.s_config.Spring.Rain.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Rain.Mid,
-                        setValue: value => Config.Spring.Rain.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Rain.Mid,
+                        setValue: value => ClimateControl.s_config.Spring.Rain.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Rain.Late,
-                        setValue: value => Config.Spring.Rain.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Rain.Late,
+                        setValue: value => ClimateControl.s_config.Spring.Rain.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -754,35 +806,35 @@ namespace IW_ClimateControl
                     );
 
                     // Summer
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Summer:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Rain.Early,
-                        setValue: value => Config.Summer.Rain.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Rain.Early,
+                        setValue: value => ClimateControl.s_config.Summer.Rain.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Rain.Mid,
-                        setValue: value => Config.Summer.Rain.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Rain.Mid,
+                        setValue: value => ClimateControl.s_config.Summer.Rain.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Rain.Late,
-                        setValue: value => Config.Summer.Rain.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Rain.Late,
+                        setValue: value => ClimateControl.s_config.Summer.Rain.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -790,35 +842,35 @@ namespace IW_ClimateControl
                     );
 
                     // Fall
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Fall:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Rain.Early,
-                        setValue: value => Config.Fall.Rain.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Rain.Early,
+                        setValue: value => ClimateControl.s_config.Fall.Rain.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Rain.Mid,
-                        setValue: value => Config.Fall.Rain.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Rain.Mid,
+                        setValue: value => ClimateControl.s_config.Fall.Rain.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Rain.Late,
-                        setValue: value => Config.Fall.Rain.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Rain.Late,
+                        setValue: value => ClimateControl.s_config.Fall.Rain.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -826,35 +878,35 @@ namespace IW_ClimateControl
                     );
 
                     // Winter
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Winter:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Rain.Early,
-                        setValue: value => Config.Winter.Rain.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Rain.Early,
+                        setValue: value => ClimateControl.s_config.Winter.Rain.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Rain.Mid,
-                        setValue: value => Config.Winter.Rain.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Rain.Mid,
+                        setValue: value => ClimateControl.s_config.Winter.Rain.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Rain.Late,
-                        setValue: value => Config.Winter.Rain.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Rain.Late,
+                        setValue: value => ClimateControl.s_config.Winter.Rain.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -864,42 +916,42 @@ namespace IW_ClimateControl
 
                 // ****Thunderstorms*****
                 {
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
-                        text: () => "Thunderstorms",
+                        text: () => "Thunderstorms:",
                         tooltip: () => "The chance that it will storm tomorrow."
                     );
 
                     // Spring
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Spring:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Storm.Early,
-                        setValue: value => Config.Spring.Storm.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Storm.Early,
+                        setValue: value => ClimateControl.s_config.Spring.Storm.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Storm.Mid,
-                        setValue: value => Config.Spring.Storm.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Storm.Mid,
+                        setValue: value => ClimateControl.s_config.Spring.Storm.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Storm.Late,
-                        setValue: value => Config.Spring.Storm.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Storm.Late,
+                        setValue: value => ClimateControl.s_config.Spring.Storm.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -907,35 +959,35 @@ namespace IW_ClimateControl
                     );
 
                     // Summer
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Summer:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Storm.Early,
-                        setValue: value => Config.Summer.Storm.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Storm.Early,
+                        setValue: value => ClimateControl.s_config.Summer.Storm.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Storm.Mid,
-                        setValue: value => Config.Summer.Storm.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Storm.Mid,
+                        setValue: value => ClimateControl.s_config.Summer.Storm.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Storm.Late,
-                        setValue: value => Config.Summer.Storm.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Storm.Late,
+                        setValue: value => ClimateControl.s_config.Summer.Storm.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -943,35 +995,35 @@ namespace IW_ClimateControl
                     );
 
                     // Fall
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Fall:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Storm.Early,
-                        setValue: value => Config.Fall.Storm.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Storm.Early,
+                        setValue: value => ClimateControl.s_config.Fall.Storm.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Storm.Mid,
-                        setValue: value => Config.Fall.Storm.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Storm.Mid,
+                        setValue: value => ClimateControl.s_config.Fall.Storm.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Storm.Late,
-                        setValue: value => Config.Fall.Storm.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Storm.Late,
+                        setValue: value => ClimateControl.s_config.Fall.Storm.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -979,35 +1031,35 @@ namespace IW_ClimateControl
                     );
 
                     // Winter
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Winter:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Storm.Early,
-                        setValue: value => Config.Winter.Storm.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Storm.Early,
+                        setValue: value => ClimateControl.s_config.Winter.Storm.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Storm.Mid,
-                        setValue: value => Config.Winter.Storm.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Storm.Mid,
+                        setValue: value => ClimateControl.s_config.Winter.Storm.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Storm.Late,
-                        setValue: value => Config.Winter.Storm.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Storm.Late,
+                        setValue: value => ClimateControl.s_config.Winter.Storm.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -1017,42 +1069,42 @@ namespace IW_ClimateControl
 
                 // ****Wind*****
                 {
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Windy Weather:",
                         tooltip: () => "The chance that it will be windy tomorrow."
                     );
 
                     // Spring
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Spring:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Wind.Early,
-                        setValue: value => Config.Spring.Wind.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Wind.Early,
+                        setValue: value => ClimateControl.s_config.Spring.Wind.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Wind.Mid,
-                        setValue: value => Config.Spring.Wind.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Wind.Mid,
+                        setValue: value => ClimateControl.s_config.Spring.Wind.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Wind.Late,
-                        setValue: value => Config.Spring.Wind.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Wind.Late,
+                        setValue: value => ClimateControl.s_config.Spring.Wind.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -1060,35 +1112,35 @@ namespace IW_ClimateControl
                     );
 
                     // Summer
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Summer:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Wind.Early,
-                        setValue: value => Config.Summer.Wind.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Wind.Early,
+                        setValue: value => ClimateControl.s_config.Summer.Wind.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Wind.Mid,
-                        setValue: value => Config.Summer.Wind.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Wind.Mid,
+                        setValue: value => ClimateControl.s_config.Summer.Wind.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Wind.Late,
-                        setValue: value => Config.Summer.Wind.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Wind.Late,
+                        setValue: value => ClimateControl.s_config.Summer.Wind.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -1096,35 +1148,35 @@ namespace IW_ClimateControl
                     );
 
                     // Fall
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Fall:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Wind.Early,
-                        setValue: value => Config.Fall.Wind.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Wind.Early,
+                        setValue: value => ClimateControl.s_config.Fall.Wind.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Wind.Mid,
-                        setValue: value => Config.Fall.Wind.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Wind.Mid,
+                        setValue: value => ClimateControl.s_config.Fall.Wind.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Wind.Late,
-                        setValue: value => Config.Fall.Wind.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Wind.Late,
+                        setValue: value => ClimateControl.s_config.Fall.Wind.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -1132,35 +1184,35 @@ namespace IW_ClimateControl
                     );
 
                     // Winter
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Winter:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Wind.Early,
-                        setValue: value => Config.Winter.Wind.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Wind.Early,
+                        setValue: value => ClimateControl.s_config.Winter.Wind.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Wind.Mid,
-                        setValue: value => Config.Winter.Wind.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Wind.Mid,
+                        setValue: value => ClimateControl.s_config.Winter.Wind.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Wind.Late,
-                        setValue: value => Config.Winter.Wind.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Wind.Late,
+                        setValue: value => ClimateControl.s_config.Winter.Wind.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -1170,42 +1222,42 @@ namespace IW_ClimateControl
 
                 // ****Snow*****
                 {
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
-                        text: () => "Snowfall",
+                        text: () => "Snowfall:",
                         tooltip: () => "The chance that it will snow tomorrow."
                     );
 
                     // Snow
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Spring:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Snow.Early,
-                        setValue: value => Config.Spring.Snow.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Snow.Early,
+                        setValue: value => ClimateControl.s_config.Spring.Snow.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Snow.Mid,
-                        setValue: value => Config.Spring.Snow.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Snow.Mid,
+                        setValue: value => ClimateControl.s_config.Spring.Snow.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Spring.Snow.Late,
-                        setValue: value => Config.Spring.Snow.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Spring.Snow.Late,
+                        setValue: value => ClimateControl.s_config.Spring.Snow.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -1213,35 +1265,35 @@ namespace IW_ClimateControl
                     );
 
                     // Summer
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Summer:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Snow.Early,
-                        setValue: value => Config.Summer.Snow.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Snow.Early,
+                        setValue: value => ClimateControl.s_config.Summer.Snow.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Snow.Mid,
-                        setValue: value => Config.Summer.Snow.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Snow.Mid,
+                        setValue: value => ClimateControl.s_config.Summer.Snow.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Summer.Snow.Late,
-                        setValue: value => Config.Summer.Snow.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Summer.Snow.Late,
+                        setValue: value => ClimateControl.s_config.Summer.Snow.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -1249,35 +1301,35 @@ namespace IW_ClimateControl
                     );
 
                     // Fall
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Fall:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Snow.Early,
-                        setValue: value => Config.Fall.Snow.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Snow.Early,
+                        setValue: value => ClimateControl.s_config.Fall.Snow.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Snow.Mid,
-                        setValue: value => Config.Fall.Snow.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Snow.Mid,
+                        setValue: value => ClimateControl.s_config.Fall.Snow.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Fall.Snow.Late,
-                        setValue: value => Config.Fall.Snow.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Fall.Snow.Late,
+                        setValue: value => ClimateControl.s_config.Fall.Snow.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,
@@ -1285,35 +1337,35 @@ namespace IW_ClimateControl
                     );
 
                     // Winter
-                    gMCM.AddSectionTitle(
+                   ClimateControl.s_gMCM.AddSectionTitle(
                         mod: ModManifest,
                         text: () => "Winter:"
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Snow.Early,
-                        setValue: value => Config.Winter.Snow.Early = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Snow.Early,
+                        setValue: value => ClimateControl.s_config.Winter.Snow.Early = (double)value,
                         name: () => "Early (Days 1-9)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Snow.Mid,
-                        setValue: value => Config.Winter.Snow.Mid = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Snow.Mid,
+                        setValue: value => ClimateControl.s_config.Winter.Snow.Mid = (double)value,
                         name: () => "Mid (Days 10-19)",
                         min: 0.0f,
                         max: 100.0f,
                         interval: 0.1f
                     );
 
-                    gMCM.AddNumberOption(
+                   ClimateControl.s_gMCM.AddNumberOption(
                         mod: ModManifest,
-                        getValue: () => (float)Config.Winter.Snow.Late,
-                        setValue: value => Config.Winter.Snow.Late = (double)value,
+                        getValue: () => (float)ClimateControl.s_config.Winter.Snow.Late,
+                        setValue: value => ClimateControl.s_config.Winter.Snow.Late = (double)value,
                         name: () => "Late (Days 20-28)",
                         min: 0.0f,
                         max: 100.0f,

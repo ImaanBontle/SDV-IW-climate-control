@@ -9,7 +9,7 @@ namespace IW_ClimateControl
     /// <summary>
     /// Internal API for ImmersiveWeathers.
     /// </summary>
-    public interface IWAPI
+    public interface IIWAPI
     { 
         /// <summary>
         /// All possible weathers recognised by Stardew Valley.
