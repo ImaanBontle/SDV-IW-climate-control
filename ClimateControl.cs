@@ -12,7 +12,6 @@ using StardewValley;
 using StardewValley.Monsters;
 
 // TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
-// TODO: Fix bug where reference types means tomorrow's weather identical to day after
 // TODO: Add config for enabling/disabling interpolation.
 // TODO: Add config for debug logging.
 // TODO: Add more than one template <----- ???
