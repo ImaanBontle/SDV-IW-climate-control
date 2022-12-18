@@ -10,7 +10,7 @@
   "Dependencies": [
     {
       "UniqueID": "MsBontle.ImmersiveWeathers",
-      "MinimumVersion": "0.6.0"
+      "MinimumVersion": "0.8.0"
     }
   ]
 }
