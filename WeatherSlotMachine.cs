@@ -62,7 +62,7 @@ namespace IW_ClimateControl
                 // If yes, grab changes.
                 //ClimateControl.s_weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate, ClimateControl.s_weatherChances);
 
-                ClimateControl.s_weatherChanges.WeatherTomorrow = GenerateWeather(tomorrowDate);
+                ClimateControl.s_weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate);
             }
             else
             {
