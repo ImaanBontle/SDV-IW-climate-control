@@ -5,12 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.7.0...HEAD)
+## [Unreleased](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v1.0.0...HEAD)
 
 ### Planned
 
 - Add more weather templates
 - Improve documentation
+
+## [v1.0.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.7.0...v1.0.0) - 2022-12-18
+
+### What Changed 🚀
+
+Daily weather probabilities and consistent predictions upon reload!
+
+### ✨ New Features
+
+- Tomorrow's weather is now consistent after loading a saved game (#45)
+- Weather odds are now calculated uniquely for every day of the year! (#48)
+
+### 🐛 Bug Fixes
+
+- Fixed incorrect weather check for Spring 1-4 (#42)
+
+### 🔧 Configs
+
+- Added option to enable/disable daily probabilities (#52)
+- Added option to enable debug logging (#54)
+
+**Full Changelog**: https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.7.0...v1.0.0
 
 ## [v0.7.0](https://github.com/ImaanBontle/SDV-IW-climate-control/compare/v0.6.0...v0.7.0) - 2022-12-14
 
