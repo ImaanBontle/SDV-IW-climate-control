@@ -12,7 +12,6 @@ using StardewValley;
 using StardewValley.Monsters;
 
 // TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
-// TODO: Add config for enabling/disabling interpolation.
 // TODO: Add config for debug logging.
 // TODO: Add more than one template <----- ???
 
@@ -33,7 +32,7 @@ namespace IWClimateControl
         /// <summary>
         /// The configuration data for this session.
         /// </summary>
-        private static ModConfig s_config;
+        internal static ModConfig s_config;
         /// <summary>
         /// The Framework API.
         /// </summary>
@@ -41,7 +40,7 @@ namespace IWClimateControl
         /// <summary>
         /// The GMCM API.
         /// </summary>
-        private static IGenericModConfigMenuApi s_gMCM;
+        internal static IGenericModConfigMenuApi s_gMCM;
         /// <summary>
         /// Cache of the standard model configuration data.
         /// </summary>
@@ -69,7 +68,7 @@ namespace IWClimateControl
         /// <summary>
         /// Handles all messages to SMAPI.
         /// </summary>
-        public static EventLogger s_eventLogger = new();
+        internal static EventLogger s_eventLogger = new();
 
         // -----------
         // MAIN METHOD 
@@ -144,7 +143,7 @@ namespace IWClimateControl
         {
             s_iWAPI = Helper.ModRegistry.GetApi<IIWAPI>("MsBontle.ImmersiveWeathers");
             s_gMCM = Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
-            GMCMHelper.Register(s_config, s_gMCM, ModManifest, Helper);
+            GMCMHelper.Register(ModManifest, Helper);
         }
 
         // --------------
@@ -180,20 +179,26 @@ namespace IWClimateControl
             if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
             {
                 // Custom model created by player.
+                Monitor.Log("Loading custom model...", LogLevel.Trace);
                 s_weatherChances = s_config;
                 s_modelChoice = IIWAPI.WeatherModel.custom;
-                Monitor.Log("Loading custom model...", LogLevel.Trace);
-                s_weatherArrays = Interpolator.InterpolateWeather();
-                Helper.Data.WriteJsonFile("data/custom.json", s_weatherArrays);
+                if (s_config.EnableInterpolation)
+                {
+                    s_weatherArrays = Interpolator.InterpolateWeather();
+                    Helper.Data.WriteJsonFile("data/custom.json", s_weatherArrays);
+                }
             }
             else
             {
                 // Standard model for generic climate.
+                Monitor.Log("Loading standard model...", LogLevel.Trace);
                 s_weatherChances = s_standardModel;
                 s_modelChoice = IIWAPI.WeatherModel.standard;
-                Monitor.Log("Loading standard model...", LogLevel.Trace);
-                s_weatherArrays = Interpolator.InterpolateWeather();
-                Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
+                if (s_config.EnableInterpolation)
+                {
+                    s_weatherArrays = Interpolator.InterpolateWeather();
+                    Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
+                }
             }
         }
 

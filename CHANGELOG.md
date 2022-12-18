@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Consistent weathers on save-load
 - Different daily probabilities
+- Config option for enabling/disabling interpolation
 
 ### Fixed
 

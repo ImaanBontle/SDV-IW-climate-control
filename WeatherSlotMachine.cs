@@ -31,8 +31,14 @@ namespace IW_ClimateControl
                 if (canChangeTomorrow)
                 {
                     // If can change, grab changes.
-                    //ClimateControl.s_weatherChanges.WeatherTomorrow = GenerateWeather(currentDate, ClimateControl.s_weatherChances);
-                    ClimateControl.s_weatherChanges.WeatherTomorrow = GenerateWeather(currentDate);
+                    if (ClimateControl.s_config.EnableInterpolation)
+                    {
+                        ClimateControl.s_weatherChanges.WeatherTomorrow = GenerateWeather(currentDate);
+                    }
+                    else
+                    {
+                        ClimateControl.s_weatherChanges.WeatherTomorrow = GenerateWeather(currentDate, ClimateControl.s_weatherChances);
+                    }
                 }
                 else
                 {
@@ -60,9 +66,14 @@ namespace IW_ClimateControl
             if (ClimateControl.s_weatherChanges.ChangeDayAfter)
             {
                 // If yes, grab changes.
-                //ClimateControl.s_weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate, ClimateControl.s_weatherChances);
-
-                ClimateControl.s_weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate);
+                if (ClimateControl.s_config.EnableInterpolation)
+                {
+                    ClimateControl.s_weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate);
+                }
+                else
+                {
+                    ClimateControl.s_weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate, ClimateControl.s_weatherChances);
+                }
             }
             else
             {
