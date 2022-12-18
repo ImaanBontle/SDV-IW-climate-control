@@ -21,21 +21,29 @@ namespace IW_ClimateControl
         /// The choice of inherited weather model.
         /// </summary>
         /// <remarks>Defaults to the 'standard' model for generic climates.</remarks>
-        public string ModelChoice { get; set; } = "standard";
+        public string ModelChoice { get; set; }
 
         /// <summary>
         /// Whether to enable interpolation of probabilities onto a daily grid.
         /// </summary>
         /// <remarks>Defaults to <see langword="true"/>.</remarks>
-        public bool EnableInterpolation { get; set; } = true;
+        public bool EnableInterpolation { get; set; }
+
+        /// <summary>
+        /// Whether debug logs should be sent to the terminal.
+        /// </summary>
+        public bool EnableDebugLogging { get; set; }
 
         /// <summary>
         /// Generates the user configuration and inherits from the chosen model.
         /// </summary>
         public ModConfig()
         {
-            LoadModel(this);
+            ModelChoice = "standard";
+            EnableInterpolation = true;
+            EnableDebugLogging = false;
             ClimateControl.s_modelChoice = (IIWAPI.WeatherModel)Enum.Parse(typeof(IIWAPI.WeatherModel), this.ModelChoice);
+            LoadModel(this);
         }
 
         public static void LoadModel(ModConfig Config)
@@ -53,21 +61,29 @@ namespace IW_ClimateControl
                 PropertyMatcher<StandardModel, ModConfig>.GenerateMatchedObject(ClimateControl.s_customModel, Config);
                 ClimateControl.s_customModel = ClimateControl.s_customModel.DeepClone();
             }
+
+            // Set SMAPI log levels
+            if (Config.EnableDebugLogging)
+            {
+                ClimateControl.s_logLevel = LogLevel.Info;
+            }
+            else
+            {
+                ClimateControl.s_logLevel = LogLevel.Trace;
+            }
         }
 
-        public static void ResetModel(ModConfig Config, IModHelper Helper)
+        public static void ResetModel(IModHelper Helper)
         {
-            ClimateControl.s_eventLogger.SendToSMAPI("I was asked to reset all models", EventType.info);
+            ClimateControl.s_eventLogger.SendToSMAPI("I was asked to reset all models");
             // Reset all models, except custom
             ClimateControl.s_standardModel = new();
             Helper.Data.WriteJsonFile("models/standard.json", ClimateControl.s_standardModel);
 
             // Copy reset values into Config
-            Config.ModelChoice = "standard";
-            ClimateControl.s_modelChoice = (IIWAPI.WeatherModel)Enum.Parse(typeof(IIWAPI.WeatherModel), Config.ModelChoice);
-            LoadModel(Config);
-            Helper.WriteConfig(Config);
-            if (Config.EnableInterpolation)
+            ClimateControl.s_config = new ModConfig();
+            Helper.WriteConfig(ClimateControl.s_config);
+            if (ClimateControl.s_config.EnableInterpolation)
             {
                 ClimateControl.InterpolateModel(Helper);
             }
@@ -75,9 +91,9 @@ namespace IW_ClimateControl
 
         public static void ChangeModel(ModConfig Config, IModHelper Helper)
         {
-            ClimateControl.s_eventLogger.SendToSMAPI("I was asked to refresh all models", EventType.info);
+            ClimateControl.s_eventLogger.SendToSMAPI("I was asked to refresh all models");
             // Refresh relevant models
-            ClimateControl.s_eventLogger.SendToSMAPI($"Model was changed from {ClimateControl.s_modelChoice} to {Config.ModelChoice}. Changes will be applied to {ClimateControl.s_modelChoice}", EventType.info);
+            ClimateControl.s_eventLogger.SendToSMAPI($"Model was changed from {ClimateControl.s_modelChoice} to {Config.ModelChoice}. Changes will be applied to {ClimateControl.s_modelChoice}");
             // Save changes to old model.
             if (ClimateControl.s_modelChoice == IIWAPI.WeatherModel.standard)
             {

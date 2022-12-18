@@ -11,8 +11,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 
-// TODO: Add interpolation between probabilities and cache the results <----- v1.0.0
-// TODO: Add config for debug logging.
 // TODO: Add more than one template <----- ???
 
 namespace IWClimateControl
@@ -69,6 +67,10 @@ namespace IWClimateControl
         /// Handles all messages to SMAPI.
         /// </summary>
         internal static EventLogger s_eventLogger = new();
+        /// <summary>
+        /// Determines where standard log messages go.
+        /// </summary>
+        internal static LogLevel s_logLevel;
 
         // -----------
         // MAIN METHOD 
@@ -95,7 +97,7 @@ namespace IWClimateControl
             // Save files (if needed)
             Helper.Data.WriteJsonFile("models/standard.json", s_standardModel);
             Helper.Data.WriteJsonFile("models/custom.json", s_customModel);
-            Monitor.Log("Loaded weather templates.", LogLevel.Trace);
+            Monitor.Log("Loaded weather templates.", s_logLevel);
 
             // -----------
             // CONFIG FILE
@@ -161,7 +163,7 @@ namespace IWClimateControl
             if (Context.IsMainPlayer)
             {
                 // Load save data
-                Monitor.Log("Loading save data from file...", LogLevel.Trace);
+                Monitor.Log("Loading save data from file...", s_logLevel);
                 s_weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
             }
         }
@@ -179,7 +181,7 @@ namespace IWClimateControl
             if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
             {
                 // Custom model created by player.
-                Monitor.Log("Loading custom model...", LogLevel.Trace);
+                Monitor.Log("Loading custom model...", s_logLevel);
                 s_weatherChances = s_config;
                 s_modelChoice = IIWAPI.WeatherModel.custom;
                 if (s_config.EnableInterpolation)
@@ -191,7 +193,7 @@ namespace IWClimateControl
             else
             {
                 // Standard model for generic climate.
-                Monitor.Log("Loading standard model...", LogLevel.Trace);
+                Monitor.Log("Loading standard model...", s_logLevel);
                 s_weatherChances = s_standardModel;
                 s_modelChoice = IIWAPI.WeatherModel.standard;
                 if (s_config.EnableInterpolation)
@@ -210,7 +212,7 @@ namespace IWClimateControl
         /// </summary>
         internal static void InterpolateModel(IModHelper Helper)
         {
-            s_eventLogger.SendToSMAPI("Model needs to be re-interpolated. Interpolating...", EventType.trace);
+            s_eventLogger.SendToSMAPI("Model needs to be re-interpolated. Interpolating...");
             if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
             {
                 s_weatherChances = s_config;
@@ -223,7 +225,7 @@ namespace IWClimateControl
                 s_weatherArrays = Interpolator.InterpolateWeather();
                 Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
             }
-            s_eventLogger.SendToSMAPI("Done.", EventType.trace);
+            s_eventLogger.SendToSMAPI("Done.");
         }
 
         // --------------
@@ -240,7 +242,7 @@ namespace IWClimateControl
             // Only perform change if main player in multiplayer.
             if (Context.IsMainPlayer)
             {
-                Monitor.Log("Attempting to change weather...", LogLevel.Trace);
+                Monitor.Log("Attempting to change weather...", s_logLevel);
 
                 // Grab relevant info for calculation
                 WorldDate currentDate = Game1.Date;
@@ -259,12 +261,12 @@ namespace IWClimateControl
                     if (s_weatherChanges.WeatherTomorrow != IIWAPI.WeatherType.sunny)
                     {
                         // Yes. Weather will change to winner.
-                        Monitor.Log($"Weather tomorrow changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Info);
+                        Monitor.Log($"Weather tomorrow changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", s_logLevel);
                     }
                     else if (s_weatherChanges.WeatherTomorrow == IIWAPI.WeatherType.sunny)
                     {
                         // No. Weather will remain Sunny.
-                        Monitor.Log($"No weather types passed the dice roll for tomorrow. Weather changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", LogLevel.Info);
+                        Monitor.Log($"No weather types passed the dice roll for tomorrow. Weather changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", s_logLevel);
                     }
 
                     // Change tomorrow's weather.
@@ -276,7 +278,7 @@ namespace IWClimateControl
                 else
                 {
                     // If not, note this.
-                    Monitor.Log($"Weather could not be changed because {s_weatherChanges.TomorrowReason} Updating framework...", LogLevel.Info);
+                    Monitor.Log($"Weather could not be changed because {s_weatherChanges.TomorrowReason} Updating framework...", s_logLevel);
                 }
 
                 // Tell the Framework about the change.
@@ -291,7 +293,7 @@ namespace IWClimateControl
             }
             else
             {
-                Monitor.Log("This is not the main player. Not attempting weather change...", LogLevel.Trace);
+                Monitor.Log("This is not the main player. Not attempting weather change...", s_logLevel);
             }
         }
 
@@ -309,7 +311,7 @@ namespace IWClimateControl
             if (Context.IsMainPlayer)
             {
                 // Save data to file.
-                Monitor.Log("Saving weather data to file...", LogLevel.Trace);
+                Monitor.Log("Saving weather data to file...", s_logLevel);
                 Helper.Data.WriteSaveData("ClimateControl-WeatherData", s_weatherChanges);
             }
         }
@@ -323,26 +325,7 @@ namespace IWClimateControl
         /// <param name="e">The message to send to the log/terminal.</param>
         internal void AlertSMAPI(object sender, EventMessage e)
         {
-            switch (e.Type)
-            {
-                case EventType.trace:
-                    Monitor.Log(e.Message, LogLevel.Trace);
-                    break;
-                case EventType.debug:
-                    Monitor.Log(e.Message, LogLevel.Debug);
-                    break;
-                case EventType.info:
-                    Monitor.Log(e.Message, LogLevel.Info);
-                    break;
-                case EventType.warn:
-                    Monitor.Log(e.Message, LogLevel.Warn);
-                    break;
-                case EventType.error:
-                    Monitor.Log(e.Message, LogLevel.Error);
-                    break;
-                default:
-                    break;
-            }
+            Monitor.Log(e.Message, s_logLevel);
         }
     }
 }
