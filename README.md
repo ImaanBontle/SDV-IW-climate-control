@@ -217,7 +217,25 @@ If you would like to suggest a feature for this project, please [submit a featur
 <!--Translations-->
 ### Translations <a id="translations"></a>
 
-For translation support, please see the [list of mod translations][translation-link].
+*Translation support will be added in the next minor release. In anticipation, I am adding the following table of translations.*
+
+***Please note that the associated `default.json` files are currently empty and should be ignored.***
+
+(❑ = untranslated, ↻ = partly translated, ✓ = fully translated)
+
+&nbsp;     | [ClimateControl][climatecontrol-translation] | [Framework][framework-translation]
+:--------- | :--------------------------------- | :----------------------------
+Chinese    | ❑                                  | ❑
+French     | ❑                                  | ❑
+German     | ❑                                  | ❑
+Hungarian  | ❑                                  | ❑
+Italian    | ❑                                  | ❑
+Japanese   | ❑                                  | ❑
+Korean     | ❑                                  | ❑
+Portuguese | ❑                                  | ❑
+Russian    | ❑                                  | ❑
+Spanish    | ❑                                  | ❑
+Turkish    | ❑                                  | ❑
 
 <div align="right">
 
@@ -278,7 +296,6 @@ REFERENCES FOR INSPIRATION LAYOUTS
 [main-mod-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers> "Main GitHub Page"
 [install-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers/blob/develop/README.md#getting-started> "Mod Installation"
 [main-doc-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers/blob/develop/README.md#docs> "Mod Documentation"
-[translation-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers/blob/develop/README.md#translations> "List of mod translations"
 
 <!--Repo Links-->
 [nexus-link]: <https://www.nexusmods.com/stardewvalley/mods/14659> "ClimateControl on NexusMods"
@@ -298,6 +315,10 @@ REFERENCES FOR INSPIRATION LAYOUTS
 
 <!--Documentation-->
 [changelog-link]: <https://github.com/ImaanBontle/SDV-IW-climate-control/blob/develop/CHANGELOG.md> "Latest CHANGELOG"
+
+<!--Translations-->
+[framework-translation]: <https://github.com/ImaanBontle/SDV-immersive-weathers/tree/develop/i18n> "Framework i18n folder"
+[climatecontrol-translation]: <https://github.com/ImaanBontle/SDV-IW-climate-control/tree/develop/i18n> "ClimateControl i18n folder"
 
 <!--Contact Links-->
 [nexus-profile]: <https://forums.nexusmods.com/index.php?showuser=54975162> "NexusMods Profile"
