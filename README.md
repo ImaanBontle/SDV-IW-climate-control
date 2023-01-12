@@ -162,7 +162,7 @@ When debug logging is enabled, SMAPI will output the dice rolls and other useful
 <!--Known Issues-->
 ## Known Issues <a id="issues"></a>
 
-*This section contains updates on any known issues. For mod-specific issues, see the [mod documentation](#docs).*
+*This section contains known issues with Climate Control. For other mods, see the [mod documentation](#docs).*
 
 - Existing storms may continue into the next day whenever it is supposed to rain. This is due to the way the game currently handles thunderstorms, but will resolve itself at the start of the next sunny/windy day.
 	- This will be patched in a coming update. 
@@ -207,7 +207,7 @@ Please be patient if I haven't responded immediately. I am likely busy with my s
 
 If you encounter any bugs, please first remove any [incompatible mods](#incompatible) and re-run SMAPI to check if the issue resolves itself. If the bug persists or you do not see your mod included in the list, you can [submit a bug report][bugs-link]. Please answer the prompts to the best of your ability and mention any suspected mod conflicts. You should provide a link to your [SMAPI log][smapi-log] in the report.
 
-If you would like submit a bugfix, you can do so by submitting a pull request using the https://github.com/ImaanBontle/SDV-IW-climate-control/labels/fix and https://github.com/ImaanBontle/SDV-IW-climate-control/labels/contribution labels. 
+If you would like submit a bugfix, you can do so by submitting a pull request using the https://github.com/ImaanBontle/SDV-IW-climate-control/labels/fix and https://github.com/ImaanBontle/SDV-IW-climate-control/labels/contribution labels.
 
 <!--Feature Suggestions-->
 ### Suggestions <a id="suggestions"></a>
@@ -217,25 +217,7 @@ If you would like to suggest a feature for this project, please [submit a featur
 <!--Translations-->
 ### Translations <a id="translations"></a>
 
-*Translation support will be added in the next minor release. In anticipation, I am adding the following table of translations.*
-
-***Please note that the associated `default.json` files are currently empty and should be ignored.***
-
-(❑ = untranslated, ↻ = partly translated, ✓ = fully translated)
-
-&nbsp;     | [ClimateControl][climatecontrol-translation] | [Framework][framework-translation]
-:--------- | :--------------------------------- | :----------------------------
-Chinese    | ❑                                  | ❑
-French     | ❑                                  | ❑
-German     | ❑                                  | ❑
-Hungarian  | ❑                                  | ❑
-Italian    | ❑                                  | ❑
-Japanese   | ❑                                  | ❑
-Korean     | ❑                                  | ❑
-Portuguese | ❑                                  | ❑
-Russian    | ❑                                  | ❑
-Spanish    | ❑                                  | ❑
-Turkish    | ❑                                  | ❑
+For translation support, please see the [list of mod translations][translation-link].
 
 <div align="right">
 
@@ -258,28 +240,6 @@ If you would like to support my work, you can [buy me a coffee][ko-fi-link]. How
 ## License <a id="license"></a>
 
 The source code for this mod is available under the [MIT license][license-link]. Please do not host my official releases without my written consent.
-
-<div align="right">
-
-[[Back to top](#return-to-top)]
-
-</div>
-
-<!--Acknowledgements-->
-## Special Thanks <a id="acknowledgements"></a>
-
-I'd like to extend a **huge thanks** to [ConcernedApe][concernedape] for creating this masterpiece. Without your imagination, generosity and dedication, we wouldn't be here. You deserve all of your success and more. Thank you from the bottom of my heart.
-
-I'd additionally like to thank [Pathoschild][pathoschild] for creating SMAPI and, through it, enabling the modding commmunity to thrive. I am very grateful to the modders who contributed to its success, who built this community, and who collectively curated the [amazing resources][stardew-modding-wiki] that taught me how to mod in C#.
-
-I would like to thank the following individuals by name:
-
-- [spacechase0][spacechase0] for creating the [Generic Mod Config Menu][gmcm-link] and its API.
-- [Pepoluan][Pepoluan] for providing the API for [Even Better RNG][even-better-rng-link].
-
-I would also like to thank my loving family and friends, for believing in my project and for your encouragement since its inception. Your love means the world to me.
-
-To all the players who have downloaded and enjoyed my mods: Thank you. I am eternally grateful for your support. May you have many happy years in the Valley.
 
 <div align="right">
 
@@ -318,6 +278,7 @@ REFERENCES FOR INSPIRATION LAYOUTS
 [main-mod-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers> "Main GitHub Page"
 [install-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers/blob/develop/README.md#getting-started> "Mod Installation"
 [main-doc-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers/blob/develop/README.md#docs> "Mod Documentation"
+[translation-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers/blob/develop/README.md#translations> "List of mod translations"
 
 <!--Repo Links-->
 [nexus-link]: <https://www.nexusmods.com/stardewvalley/mods/14659> "ClimateControl on NexusMods"
@@ -338,54 +299,6 @@ REFERENCES FOR INSPIRATION LAYOUTS
 <!--Documentation-->
 [changelog-link]: <https://github.com/ImaanBontle/SDV-IW-climate-control/blob/develop/CHANGELOG.md> "Latest CHANGELOG"
 
-<!--Compatibility Links-->
-[custom-music-link]: <https://www.nexusmods.com/stardewvalley/mods/3043?tab=files&BH=2> "Custom Music on NexusMods"
-[content-patcher-link]: <https://www.nexusmods.com/stardewvalley/mods/1915> "Content Patcher on NexusMods"
-
-<!--Supported Mods-->
-[gmcm-link]: <https://www.nexusmods.com/stardewvalley/mods/5098> "Generic Mod Config Menu on NexusMods"
-[even-better-rng-link]: <https://www.nexusmods.com/stardewvalley/mods/8680> "Even Better RNG on NexusMods"
-
-<!--Recommended Mods-->
-[thunder-frog-link]: <https://www.nexusmods.com/stardewvalley/mods/7450> "Thunder and Frog Sounds on NexusMods"
-[survival-link]: <https://www.nexusmods.com/stardewvalley/mods/14183> "Stardew Survival Project on NexusMods"
-
-<!--Incompatible Mods-->
-[more-rain-link]: <https://www.nexusmods.com/stardewvalley/mods/441> "More Rain on NexusMods"
-[rain-plus-link]: <https://www.nexusmods.com/stardewvalley/mods/441> "Rain Plus on NexusMods"
-[winter-rain-link]: <https://www.nexusmods.com/stardewvalley/mods/13767> "Winter Rain on NexusMods"
-[weather-machine-link]: <https://www.nexusmods.com/stardewvalley/mods/3203> "Weather Machine on NexusMods"
-[real-weather-link]: <https://www.nexusmods.com/stardewvalley/mods/5773> "Real Weather on NexusMods"
-[extreme-weather-link]: <https://www.nexusmods.com/stardewvalley/mods/12334> "Extreme Weather on NexusMods"
-[climates-ferngill-link]: <https://www.moddrop.com/stardew-valley/mods/664033-climates-of-ferngill> "Climates of Ferngill on ModDrop"
-
-<!--Translations-->
-[framework-translation]: <https://github.com/ImaanBontle/SDV-immersive-weathers/tree/develop/i18n> "Framework i18n folder"
-[climatecontrol-translation]: <https://github.com/ImaanBontle/SDV-IW-climate-control/tree/develop/i18n> "ClimateControl i18n folder"
-
 <!--Contact Links-->
 [nexus-profile]: <https://forums.nexusmods.com/index.php?showuser=54975162> "NexusMods Profile"
 [ko-fi-link]: <https://ko-fi.com/msbontle> "Donate"
-
-<!--Acknowledgements-->
-[concernedape]: <https://twitter.com/ConcernedApe> "ConcernedApe on Twitter"
-[pathoschild]: <https://www.nexusmods.com/stardewvalley/users/1552317> "Pathoschild on NexusMods"
-[stardew-modding-wiki]: <https://stardewvalleywiki.com/Modding:Index> "Stardew Valley Wiki"
-[spacechase0]: <https://www.nexusmods.com/stardewvalley/users/34250790> "spacechase0 on NexusMods"
-[Pepoluan]: <https://www.nexusmods.com/stardewvalley/users/27024274> "Pepoluan on NexusMods"
-
-
-
-# Climate Control
-
-
-
-## Support for other mods
-
-Unfortunately, I am not currently planning any integrations with Weathers of Ferngill.
-
-While I am aware of the mod and it was part of my inspiration for making this mod, Weathers of Ferngill hasn't been properly updated in quite a while. It is also currently sitting in a very incomplete state. This makes it very difficult to provide long-term support while I add and expand on IW features, so it is highly unlikely an integration will ever occur. But who knows, maybe IW will one day implement similar features? It really depends on whether I have enough good ideas to justify doing this.
-
-That said, if Weathers of Ferngill did start receiving regular updates again, I may reconsider my stance...
-
-But let's not get ahead of ourselves. One step at a time...
