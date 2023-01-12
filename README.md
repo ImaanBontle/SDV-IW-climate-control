@@ -33,91 +33,76 @@ Did someone say 'snow in Fall?'
 # Table of Contents
 
 - [About](#about)
-	- [Framework](#about-framework)
-	- [Climate Control](#about-climate-control)
-- [Getting Started](#getting-started)
-	- [Prerequisites](#requirements)
-	- [Installation](#installation)
-- [Documentation](#docs)
+	- [Daily Weather](#about-weather)
+	- [Climate Templates](#about-templates)
+	- [Upcoming Features](#upcoming)
 - [Configuration](#config)
-    - [Framework](#framework-config)
-	- [Climate Control](#climate-control-config)
+	- [Weather](#config-models)
+	- [Debug](#config-debug)
 - [Known Issues](#issues)
 - [Compatibility](#compatibility)
 	- [Supported](#supported)
 	- [Recommended](#recommended)
 	- [Incompatible](#incompatible)
-- [Future Plans](#future)
 - [Contributing](#contribute)
 	- [Bug Reports](#bugs)
 	- [Feature Suggestions](#suggestions)
 	- [Translations](#translations)
 - [Support](#support)
 - [License](#license)
-- [Thanks](#thanks)
 
-<details><summary><strong>Readme TODO List:</strong></summary>
+<!--About ClimateControl-->
+## About Climate Control <a id="about"></a>
 
-- [x] Flesh out mod overviews
-- [x] Proofread Getting Started
-- [x] Draft Future Plans checklist
-- [x] Draft Contributions policy
-- [x] Draft Bug Report process
-- [x] Draft Feature Suggestion process
-- [x] Draft Translations placeholder
-- [x] Add Placeholder Translation Table
-- [x] Add Support My Work links
-- [x] Add License description
-- [x] Add Acknowledgements
-- [ ] Check all links
-- [ ] Prepare README for Climate Control
-- [ ] Prepare Supp Docs for Climate Control
+*To get started, see [installation][install-link].*
 
-</details>
+Climate Control allows you to define unique weather odds for each day of the year.
 
-<!--About the Mods-->
-## About Immersive Weathers <a id="about"></a>
+Since every day is unique, the weather changes gradually alongside the seasons. This might mean small chances of snow in late Fall or some light rain in mid-Winter, the choice is yours! Either use one of the provided climates* for an easier setup or craft your own for complete creative freedom.
 
-*[Skip to installation](#getting-started) or [share your feedback][discussions-tab].*
+Read below for feature overviews.
 
-Have you ever yearned for some way to add nuance or realism to Stardew's' weather? Or felt saddened at the general lack of weather mods for Stardew? Well, the dry spell is finally over!
+**Currently, the mod includes only the 'standard' and 'custom' climates. More templates will be added in the future. See [upcoming features](#upcoming) for more information.*
 
-**Introducing: Immersive Weathers!**
+### Daily Weather <a id="about-weather"></a>
 
-With this series, I will slowly be adding more depth and variety to the in-game weather with the end goal of creating a realistic, fully-customisable weather experience. Some of the planned features include custom climates, dynamic weather, realistic forecasts and optional gameplay challenges. Each mod will also allow you to tweak the settings individually, or to use one of several pre-defined weather templates for an easier, streamlined setup. 
+In the vanilla game, each type of weather (rain, thunderstorms, snow, wind, sun) follows fixed rules within each season. These rules determine the likelihood that that weather type will occur on the following day. With very few exceptions, these rules change only when the next season begins.
 
-**The first mod in the series, [Climate Control](#about-climate-control), has just been released (did someone say 'Snow in Fall'?). Stay tuned for more updates!**
+While this gives each season a unique identity, it also keeps them unrealistically distinct from each other. For example, in-game, you go to sleep on Fall 28 and on Winter 1, everything's suddenly covered in snow! Meanwhile, in the real world, you likely would have seen some warning that Winter Is Coming, such as light snowfall. This abrupt change is what Climate Control attempts to address.
 
-This project follows a modular design, so you can pick-and-choose which mods to use. Read below for a summary of each mod.
+First, the mod assigns fixed probabilities to the start, middle and end of each season. These values can either be provided by the player or grabbed from a pre-existing template. After the values are assigned, the mod then performs cubic spline interpolation for all of the days in-between. This produces unique odds for every day of the year, meaning they change gradually as the days pass, rather than all at once.
 
-<!--Framework-->
-### Framework (REQUIRED) ([Nexus][nexus-link]|[ModDrop][moddrop-link]|[GitHub][github-link]) <a id="about-framework"></a>
+There are two major advantages to this:
 
-*See the [README][climate-control-github].*
+1. No two days will have the same odds, so each week feels slightly different to the one before.
+2. Weather now 'bleeds over' from season to season, allowing for things like snow at the end of Fall, all while keeping each season's identity intact.
 
-***For players:*** *This mod must be installed.*
+If you would prefer a simpler approach, the interpolation can be disabled. In this case, the mod will treat the config values as fixed probabilities for each 1/3rd of the season. This means the same rules apply for roughly ten days at a time. While this is less realistic than using the interpolation, it is still more realistic and varied than in vanilla.
 
-***For modders:*** *All integrations should go through this mod. An API will be released soon.*
+### Climate Templates <a id="about-templates"></a>
 
-This mod is the central framework containing common functionality needed for the other mods in the series. If no mods in the series are installed, the Framework will only print daily weather updates. The Framework also handles internal cross-compatibility features and external mod integrations *(see the [list of supported mods](#supported))*.
+*For details on each of the templates, check out the [model breakdowns][models-link].*
 
-<!--Climate Control-->
-### Climate Control ([Nexus][climate-control-nexus]|[ModDrop][climate-control-moddrop]|[GitHub][climate-control-github]) <a id="about-climate-control"></a>
+By default, this mod uses a pre-defined *standard* climate. This is most similar to vanilla, featuring gentle Spring rain, brief thunderstorms in early Summer, a dry and windy in Fall, and plenty of snowfall in Winter. When combined with cubic spline interpolation, this produces a smoother weather profile than the basegame with more gradual season changes.
 
-***For players:** This mod will not work properly with other mods that change the weather ([see incompatible mods](#incompatible)).*
+There also exists a *custom* climate, to allow players to design their own template. This climate is kept completely safe from resets with [Generic Mod Config Menu][gmcm-link], meaning players can safely restore their defaults without losing their creations. Further, each of the existing templates can be tweaked, should players wish to change some of the values.
 
-The first of the mods, Climate Control allows you to define custom weather probabilities for each day of the year. Yup, gone are the days where weather was unrealistically confined to particular seasons! Now, you can experience more frequent thunderstorms in Summer, or increasing snowfall in late Fall. Finally, an excuse to dress up as Ned Stark for Spirit's Eve!
+In the future, I am planning on adding more templates beyond the *standard*, each based on a biome found on Earth. These climates will be inspired by real-world data so they reproduce the correct proportions of rain, snow, wind, and storms.
 
-**Key features:**
+Players can also [submit their templates for future inclusion][discussion-template-link] (no promises, though!).
 
-- Unique daily weather odds:
-	- Experience snow in Fall or rain in Winter, thanks to cubic spline interpolation.
-	- For a more predictable experience, use fixed rules in the early-, mid- and late-season instead.
-- Pre-defined climates:
-	- Choose one of the pre-defined templates. Or, make your own!
-	- Inspired by the vanilla game, the default *standard* climate retains each season's identity but with more gradual weather changes.
-	- Meanwhile, the *custom* climate allows you to design your own personalised weather.
-	- More templates coming soon!
+### Upcoming Features <a id="upcoming"></a>
+
+*All upcoming features will be documented here. For feature progress, see [the latest changelog][changelog-link].*
+
+#### Upcoming:
+
+- Translation support.
+- Bug fixes.
+
+#### Planned:
+
+- Add more templates.
 
 <div align="right">
 
@@ -247,9 +232,6 @@ The following is a list of all mods which are not supported or are incompatible 
 [[Back to top](#return-to-top)]
 
 </div>
-
-<!--Future Plans-->
-## Planned Features <a id="future"></a>
 
 *To suggest/contribute a feature, [see contributions](#contribute). For upcoming releases, [see the latest changelog][framework-changelog].*
 
@@ -424,8 +406,11 @@ REFERENCES FOR INSPIRATION LAYOUTS
 [pulls-link]: <https://github.com/ImaanBontle/SDV-IW-climate-control/pulls> "Open pull requests"
 [last-commit-shield]: <https://img.shields.io/github/last-commit/ImaanBontle/SDV-IW-climate-control>
 
-<!--Repo Links-->
+<!--Immersive Weathers-->
 [main-mod-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers> "Main GitHub Page"
+[install-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers/blob/develop/README.md#getting-started> "Mod Installation"
+
+<!--Repo Links-->
 [nexus-link]: <https://www.nexusmods.com/stardewvalley/mods/14659> "ClimateControl on NexusMods"
 [moddrop-link]: <> "ClimateControl on ModDrop"
 [github-link]: <https://github.com/ImaanBontle/SDV-IW-climate-control> "ClimateControl on GitHub"
@@ -442,7 +427,7 @@ REFERENCES FOR INSPIRATION LAYOUTS
 [smapi-instructions]: <https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Getting_started> "SMAPI Installation Guide"
 
 <!--Documentation-->
-[framework-changelog]: <https://github.com/ImaanBontle/SDV-IW-climate-control/blob/develop/CHANGELOG.md> "Latest CHANGELOG"
+[changelog-link]: <https://github.com/ImaanBontle/SDV-IW-climate-control/blob/develop/CHANGELOG.md> "Latest CHANGELOG"
 
 <!--Compatibility Links-->
 [custom-music-link]: <https://www.nexusmods.com/stardewvalley/mods/3043?tab=files&BH=2> "Custom Music on NexusMods"
@@ -479,20 +464,6 @@ REFERENCES FOR INSPIRATION LAYOUTS
 [stardew-modding-wiki]: <https://stardewvalleywiki.com/Modding:Index> "Stardew Valley Wiki"
 [spacechase0]: <https://www.nexusmods.com/stardewvalley/users/34250790> "spacechase0 on NexusMods"
 [Pepoluan]: <https://www.nexusmods.com/stardewvalley/users/27024274> "Pepoluan on NexusMods"
-
-**Daily Weather:**
-
-The mod achieves this behaviour by taking a set of player-defined weather probabilities for the start, middle and end of each season. It then performs cubic spline interpolation for all the days in-between those time periods, essentially producing a "guess" for how easily the weather can change based on the numbers given.
-
-There are two major advantage to this approach: 1) No two days have the same odds for all weather types, so that each day 'feels' slightly different 2) Weather can also seem to 'bleed over' from one period to the next, resulting in cool effects like witnessing snow at the end of Fall, similar to real-life!
-
-If you would prefer a simpler weather approach, interpolation can also be disabled and the mod will treat the config values as fixed probabilities for each 1/3rd of its season. This is less realistic than using the interpolation but will still produce more varied weather than in the base game.
-
-**Climate Templates:**
-
-By default, the mod uses a pre-defined 'standard climate'. This is the climate most similar to vanilla, featuring gentle rain showers in Spring, brief thunderstorms in early Summer, dry, windy weather in Fall, and continous snowfall in Winter. However, when combined with cubic spline interpolation, this produces a smoother weather profile and more gradual season changes.
-
-In the settings menu, you can define your own custom template or tweak the existing one. In future updates, you can expect more templates themed around various real-world biomes, each allowing for similar customisation.
 
 #### Weather Models:
 
@@ -536,19 +507,7 @@ When debug logging is enabled, SMAPI will output the dice rolls and other useful
 
 # Climate Control
 
-This mod allows you to influence the weather throughout the year by customising the probabilities of each type of weather found in the game (rain, thunderstorms, snow, wind, sun), depending on the current season and the time of year.
 
-This mod is part of a larger framework called ImmersiveWeathers (IW), which aims to create immersive experiences for players in Stardew Valley. Climate Control (CC) is the first mod in this framework and there are plans to expand this framework to a set of sister mods which each influence the weather/environment/ambience in different ways.
-
-*NB: Right now, Climate Control is in very early (but active!) development. Currently, I am working on a rudimentary control of the weather probabilities before implementing more detailed features. Please be patient as I gradually flesh out the mod.*
-
-## Feature plans
-
-In the future, I am planning to add multiple different templates you can choose from. Each template will simulate a biome normally found on Earth (or at least, those that would make sense within the Valley!) and the different proportions of rain, snow, wind, thunderstorms found throughout the year. The richness of these templates will grow as features are added to this mod and as sister mods are integrated. The player can adjust these values manually if they so desire, but the templates provide a pre-built, hand-customised configuration which you can use as a starting point..
-
-Over time, Climate Control's' weather system will also be expanded to become more complex, allowing for gradually-varying probabilities each day/week (to simulate the gradual passing of the seasons). For example, this might mean having more rainfall at the start of Summer, before it tapers off as Fall approaches. Or as Winter approaches, you might experience a higher likelihood of snow. Not only would this be customised for each biome, but the player will also be able to customise the behaviour of this variation (although, I haven't yet figured out how to make it completely intuitive!).
-
-Ideally, this would make the climates feel more realistic and immersive and less 'modular' than they do right now. Especially when this is combined with planned features like random fluctuations (stochasticity) in the weather probabilities or slightly (!) inaccurate weather forecasts.
 
 ## Support for other mods
 
