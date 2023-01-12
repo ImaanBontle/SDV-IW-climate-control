@@ -38,10 +38,6 @@ Snow in Fall? If you say so...
 - [Configuration](#config)
 	- [Weather Models](#config-models)
 	- [Debug Logging](#config-debug)
-- [Compatibility](#compatibility)
-	- [Supported](#supported)
-	- [Recommended](#recommended)
-	- [Incompatible](#incompatible)
 - [Known Issues](#issues)
 - [Upcoming Features](#upcoming)
 - [Contributing](#contribute)
@@ -168,47 +164,9 @@ When debug logging is enabled, SMAPI will output the dice rolls and other useful
 
 *This section contains updates on any known issues. For mod-specific issues, see the [mod documentation](#docs).*
 
-- Due to the way the game currently handles thunderstorms, an existing storm might continue whenever it is supposed to rain tomorrow. The issue will resolve itself at the start of the next sunny/windy day. This will be patched in a coming update. 
-- The TV will misreport windy weather as snow in Summer and Winter, because it is not expecting it in these seasons. A patch will be investigated for this.
-
-<div align="right">
-
-[[Back to top](#return-to-top)]
-
-</div>
-
-<!--Compatibility-->
-## Mod Compatibility <a id="compatibility"></a>
-
-*The following is a list of all supported, recommended and incompatible mods.*
-
-<!--Supported-->
-### Supported Mods <a id="supported"></a>
-
-The following mods are officially supported by Immersive Weathers. When used in-game, you will see special functionality.
-
-- **[Generic Mod Config Menu][gmcm-link]** - allows editing of the configuration in-game.
-- **[Even Better RNG][even-better-rng-link]** - enables more accurate dice rolls for tomorrow's weather.
-
-<!--Recommended-->
-### Recommended Mods <a id="recommended"></a>
-
-The following mods are entirely optional. You don't need these to enjoy Immersive Weathers but they may enhance your experience. I don't use them all myself, so please only install those which sound interesting to you.
-
-- **[Thunder and Frog Sounds][thunder-frog-link]** (requires [Custom Music][custom-music-link]) - for a more relaxing, cozy thunderstorm ambience.
-- **[Stardew Survival Project][survival-link]** - for those who enjoy survival gameplay and like the idea of micro-managing the farmer's body temperature.
-
-<!--Incompatible-->
-### Incompatible Mods <a id="incompatible"></a>
-
-The following is a list of all mods which are not supported or are incompatible with *one or more* mods in the series. For mod-specific compatibility, see the [mod documentation](#docs). In general, any mod which alters the weather is going to cause unpredictable behaviour. You should be cautious when using these. However, [Content Patcher packs][content-patcher-link] should still be fine.
-
-- **[More Rain][more-rain-link]** - *incompatible*. Alters the weather probabilities.
-- **[Rain Plus][rain-plus-link]** - *incompatible*. Forces rain on certain days of the week.
-- **[Winter Rain][winter-rain-link]** - *incompatible*. Changes the winter weather probabilities.
-- **[Climates of Ferngill][climates-ferngill-link]** - *use with caution*. No problems yet, but this will break in the future.
-- **[Weather Machine][weather-machine-link] / [Real Weather][real-weather-link]** - *incompatible*. Changes the way weather is calculated and adds new weather types. Use this if you prefer using live weather data rather than generated weather.
-- **[Extreme Weather][extreme-weather-link]** - *incompatible*. Hilarious mod. But lol, why would you use these together?
+- Existing storms may continue into the next day whenever it is supposed to rain. This is due to the way the game currently handles thunderstorms, but will resolve itself at the start of the next sunny/windy day.
+	- This will be patched in a coming update. 
+- The TV will misreport windy weather as snow in Summer and Winter, because it is not expecting it during these seasons. A patch is being investigated.
 
 <div align="right">
 
@@ -240,7 +198,7 @@ The following is a list of all mods which are not supported or are incompatible 
 
 This project is open-source and contributions are welcome, particularly in the form of [bug fixes](#bugs), [feature suggestions](#suggestions) and [translation support](#translations).
 
-For more substantial contributions, please fork the develop repo and submit a pull request using the https://github.com/ImaanBontle/SDV-immersive-weathers/labels/contribution label. You can also attempt to contact me via [NexusMods][nexus-profile] or by [opening an issue][issues-link].
+For more substantial contributions, please fork the develop repo and submit a pull request using the https://github.com/ImaanBontle/SDV-IW-climate-control/labels/contribution label. You can also attempt to contact me via [NexusMods][nexus-profile] or by [opening an issue][issues-link].
 
 Please be patient if I haven't responded immediately. I am likely busy with my studies.
 
@@ -249,14 +207,12 @@ Please be patient if I haven't responded immediately. I am likely busy with my s
 
 If you encounter any bugs, please first remove any [incompatible mods](#incompatible) and re-run SMAPI to check if the issue resolves itself. If the bug persists or you do not see your mod included in the list, you can [submit a bug report][bugs-link]. Please answer the prompts to the best of your ability and mention any suspected mod conflicts. You should provide a link to your [SMAPI log][smapi-log] in the report.
 
-If you would like submit a bugfix, you can do so by submitting a pull request using the https://github.com/ImaanBontle/SDV-immersive-weathers/labels/fix and https://github.com/ImaanBontle/SDV-immersive-weathers/labels/contribution labels.
+If you would like submit a bugfix, you can do so by submitting a pull request using the https://github.com/ImaanBontle/SDV-IW-climate-control/labels/fix and https://github.com/ImaanBontle/SDV-IW-climate-control/labels/contribution labels. 
 
 <!--Feature Suggestions-->
 ### Suggestions <a id="suggestions"></a>
 
-If you would like to suggest a feature for this project, please [submit a feature request][request-features-link]. While I can't guarantee these will be included in future releases, I would love to hear from you!
-
-You will be credited for any suggestions that get implemented.
+If you would like to suggest a feature for this project, please [submit a feature request][request-features-link]. While I can't guarantee these will be included in future releases, I would still love to hear from you. You will be credited for any suggestions that get implemented.
 
 <!--Translations-->
 ### Translations <a id="translations"></a>
