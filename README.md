@@ -2,7 +2,7 @@
 
 # Climate Control <a id="return-to-top"></a>
 
-Did someone say 'snow in Fall?'
+Snow in Fall? If you say so...
 
 <!--Badges-->
 [![License][license-shield]][license-link]
@@ -35,15 +35,15 @@ Did someone say 'snow in Fall?'
 - [About](#about)
 	- [Daily Weather](#about-weather)
 	- [Climate Templates](#about-templates)
-	- [Upcoming Features](#upcoming)
 - [Configuration](#config)
-	- [Weather](#config-models)
-	- [Debug](#config-debug)
-- [Known Issues](#issues)
+	- [Weather Models](#config-models)
+	- [Debug Logging](#config-debug)
 - [Compatibility](#compatibility)
 	- [Supported](#supported)
 	- [Recommended](#recommended)
 	- [Incompatible](#incompatible)
+- [Known Issues](#issues)
+- [Upcoming Features](#upcoming)
 - [Contributing](#contribute)
 	- [Bug Reports](#bugs)
 	- [Feature Suggestions](#suggestions)
@@ -91,66 +91,6 @@ In the future, I am planning on adding more templates beyond the *standard*, eac
 
 Players can also [submit their templates for future inclusion][discussion-template-link] (no promises, though!).
 
-### Upcoming Features <a id="upcoming"></a>
-
-*All upcoming features will be documented here. For feature progress, see [the latest changelog][changelog-link].*
-
-#### Upcoming:
-
-- Translation support.
-- Bug fixes.
-
-#### Planned:
-
-- Add more templates.
-
-<div align="right">
-
-[[Back to top](#return-to-top)]
-
-</div>
-
-<!--Getting Started-->
-## Getting Started <a id="getting-started"></a>
-
-*This section covers the installation process for Immersive Weathers.*
-
-<!--Requirements-->
-### Requirements: <a id="requirements"></a>
-
-To use this mod series, you must:
-
-- Own [Stardew Valley v1.5.6][stardew-link] for Windows/MacOS/Linux.
-- [Install SMAPI][smapi-link] (see [instructions][smapi-instructions]).
-- Decide [which mods to use](#about).
-   - *So far, only Climate Control is released.*
-
-<!--Installation-->
-### Installation <a id="installation"></a>
-
-Ensure that you have carefully read the requirements, then:
-
-1. Download the [latest version of the Framework][nexus-link] and [each of your chosen mods](#about).
-2. For each mod, extract the ZIP file to your `Mods` folder (see [wiki guide][smapi-mod-wiki]).
-3. Install [any of the supported mods](#supported).
-4. Launch SMAPI once, to generate each mod's `config.json`.
-5. Enjoy!
-
-Consider leaving a :thumbsup: on each mod's [Nexus page][nexus-link]! This makes it easier for other players to find!
-
-<div align="right">
-
-[[Back to top](#return-to-top)]
-
-</div>
-
-<!--Documentation-->
-## Documentation <a id="docs"></a>
-
-*This section contains the README links and other documentation.*
-
-- Climate Control ([README][climate-control-readme])
-
 <div align="right">
 
 [[Back to top](#return-to-top)]
@@ -162,18 +102,60 @@ Consider leaving a :thumbsup: on each mod's [Nexus page][nexus-link]! This makes
 
 *This section covers the available config options. **Default values are shown in bold**.*
 
-*For other mods in the series, see the [mod documentation](#docs).*
+*For other mods in the series, see the [mod documentation][main-doc-link].*
 
-You can change these options in-game using [Generic Mod Config Menu][gmcm-link] or by manually editing the `config.json` in each mod's folder (generated after running SMAPI at least once).
+You can change these options in-game using [Generic Mod Config Menu][gmcm-link] or by manually editing the `config.json` in the mod's folder (generated after running SMAPI at least once).
 
-### Weather Reports:
+### Weather Models:
 
-Each morning, you can choose to receive a forecast for the weather today and tomorrow. The following options determine whether you will receive these messages and how.
+The weather model determines the likelihood of weather changes for each day of the year (e.g. the chance of rain, snow, thunderstorms etc.). You can make your own custom model or use one of the provided templates.
 
 | Name | Value | Description |
 |:---|:---|:---|
-| **SMAPI Terminal** | ***true**, false* | *If *true*, weather predictions are printed to the SMAPI terminal.* |
-| **In-Game HUD** | *true, **false*** | *If *true*, weather predictions are printed using the in-game HUD.* |
+| **Model Choice** | ***standard**, custom* | *Determines the choice of weather model.* |
+| **Daily Odds** | ***true**, false* | *If *true*, interpolation will be used to estimate the daily weather odds.* |
+
+In addition to selecting one of the model templates above, you can also manually edit the probabilities. If using [Generic Mod Config Menu][gmcm-link], then this can be done via the in-game menu, sorted by weather or by season. Otherwise, this can be done by manually editing the JSON files in the `models` folder.
+
+<details><summary><i>Editing models</i></summary>
+<p>
+
+Each season is broken up into three time periods, covering days 1-9, days 10-19 and days 20-28. Each period may be assigned a unique probability for each type of weather. The probabilities must be decimal values between 0 and 100, and the allowed weather types are rain, storm, wind and snow. When no other weather occurs, Sunny weather happens by default.
+
+When interpolation is enabled, the values for each time period are assigned to the middlemost day in that period. This corresponds to day 5, day 15 and day 24 respectively. Every other day in that period will then be given a value (determined by the interpolation) so that the overall change is smooth and gradual from one time period to the next. In contrast, when interpolation is disabled, every day in that time period will take on the same value (or put differently, the probability for that time period will be held fixed until that time period comes to an end).
+
+The values for each time period can be edited with the [Generic Mod Config Menu][gmcm-link] or by manually editing the files in the `models` folder. If you are comfortable with data arrays, you can also see the real-time effect on the interpolation after you've changed the settings by looking at the files in the `data` folder.
+
+</p>
+</details>
+
+<details><summary><i>Copying models</i></summary>
+<p>
+
+Using [Generic Mod Config Menu][gmcm-link], it is possible to copy the values from *model A* directly into *model B* by
+
+1. Switching from *model A* to *model B*,
+2. Opening the values page,
+3. Clicking "Save", then clicking "Save & Close".
+
+This can also be a handy way of creating a base for another model by using a pre-existing template.
+
+</p>
+</details>
+
+<details><summary><i>Resetting models</i></summary>
+<p>
+
+Models can be reset at any time with the [Generic Mod Config Menu][gmcm-link]. You can also find and delete the files named after each model in the `models` folder. These files will be automatically generated with the default values the next time you launch SMAPI.
+
+***NOTE:** Custom models must be deleted manually. By design, they are always preserved during a reset.*
+
+</p>
+</details>
+
+### Debug Logging:
+
+When debug logging is enabled, SMAPI will output the dice rolls and other useful information to the terminal.
 
 <div align="right">
 
@@ -186,7 +168,8 @@ Each morning, you can choose to receive a forecast for the weather today and tom
 
 *This section contains updates on any known issues. For mod-specific issues, see the [mod documentation](#docs).*
 
-No known issues.
+- Due to the way the game currently handles thunderstorms, an existing storm might continue whenever it is supposed to rain tomorrow. The issue will resolve itself at the start of the next sunny/windy day. This will be patched in a coming update. 
+- The TV will misreport windy weather as snow in Summer and Winter, because it is not expecting it in these seasons. A patch will be investigated for this.
 
 <div align="right">
 
@@ -233,49 +216,18 @@ The following is a list of all mods which are not supported or are incompatible 
 
 </div>
 
-*To suggest/contribute a feature, [see contributions](#contribute). For upcoming releases, [see the latest changelog][framework-changelog].*
+## Upcoming Features <a id="upcoming"></a>
 
-This list contains some future ideas for this mod project. Please note that this is not a guaranteed plan. It's more of an inspiration source than a roadmap.
+*All upcoming features will be documented here. For feature progress, see [the latest changelog][changelog-link].*
 
-<details><summary>List of ideas</summary>
+### Upcoming:
 
-- [x] Daily weather odds
-	- [ ] Add more climate templates
-- [ ] Dynamic weather transitions
-    - [ ] Varying weather intensities
-	- [ ] Early/late (non-day-start) weather changes (is this even possible?)
-- [ ] Custom weather effects
-    - [ ] Dynamic wind directions/intensities
-	- [ ] Custom sprites (doable)
-    - [ ] Dynamic daylight (e.g. overcast, partly cloudy)
-	- [ ] Audio/ambience? Maybe
-- [ ] Custom weather types
-	- [ ] Sandstorm (desert)
-	- [ ] Sleet
-	- [ ] Fog
-	- [ ] Hail
-	- [ ] Cloudy/overcast
-	- [ ] Drizzle
-	- [ ] Monkey's wedding (if you know, you know)
-	- [ ] More fantastical weather? Cats & dogs lol
-- [ ] Daylight savings time
-    - [ ] Likely conflicts with dynamic nighttime
-	- [ ] Would require custom implementation
-- [ ] Temperature and humidity simulations
-    - [ ] Effects on weather forecasts
-	- [ ] Optional gameplay challenges (crops, stamina etc)
-	- [ ] Support for survival mods
-- [ ] Realistic weather forecasts
-    - [ ] Stochastic variation
-	- [ ] Worse predictions farther in future
-	- [ ] In-game mail
-	- [ ] Almanac integration
-- [ ] Random weather events
-    - [ ] Heat waves, droughts, frosts, gales, blizzards
-	- [ ] Difficulty modes
-	- [ ] Villager reactions (Schedules? Major headache)
+- Translation support.
+- Bug fixes.
 
-</details>
+### Planned:
+
+- Add more templates.
 
 <div align="right">
 
@@ -409,6 +361,7 @@ REFERENCES FOR INSPIRATION LAYOUTS
 <!--Immersive Weathers-->
 [main-mod-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers> "Main GitHub Page"
 [install-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers/blob/develop/README.md#getting-started> "Mod Installation"
+[main-doc-link]: <https://github.com/ImaanBontle/SDV-immersive-weathers/blob/develop/README.md#docs> "Mod Documentation"
 
 <!--Repo Links-->
 [nexus-link]: <https://www.nexusmods.com/stardewvalley/mods/14659> "ClimateControl on NexusMods"
@@ -465,45 +418,7 @@ REFERENCES FOR INSPIRATION LAYOUTS
 [spacechase0]: <https://www.nexusmods.com/stardewvalley/users/34250790> "spacechase0 on NexusMods"
 [Pepoluan]: <https://www.nexusmods.com/stardewvalley/users/27024274> "Pepoluan on NexusMods"
 
-#### Weather Models:
 
-The weather model determines the likelihood of weather changes for each day of the year (e.g. the chance of rain, snow, thunderstorms etc.). You can make your own custom model or use one of the provided templates.
-
-| Name | Value | Description |
-|:---|:---|:---|
-| **Model Choice** | ***standard**, custom* | *Determines the choice of weather model.* |
-| **Daily Odds** | ***true**, false* | *If *true*, interpolation will be used to estimate the daily weather odds.* |
-
-- Due to the way the game currently handles thunderstorms, an existing storm might continue whenever it is supposed to rain tomorrow. The issue will resolve itself at the start of the next sunny/windy day. This will be patched in a coming update. 
-- The TV will misreport windy weather as snow in Summer and Winter, because it is not expecting it in these seasons. A patch will be investigated for this.
-
-<details><summary>Editing weather models</summary>
-<p>
-
-In addition to selecting one of the model templates above, you can also manually edit the probabilities. If using [Generic Mod Config Menu][gmcm-link], then this can be done via the in-game menu, sorted by weather or by season. Otherwise, this can be done by manually editing the JSON files in the `models` folder.
-
-You may assign any decimal value between 0 and 100 to days 1-9, 10-19 and 20-28 within each season for each type of weather (rain, storm, snow, wind). If interpolation is enabled, these numbers will be held fixed for days 5, 15 and 24 respectively. Otherwise, they will be treated as fixed for the entirety of each time period.
-
-***For the curious:** You can see the effects of changing the settings by looking at the daily weather probabilities in the `data` folder. These will update in real-time when using [Generic Mod Config Menu][gmcm-link].*
-
-</p>
-</details>
-
-<details><summary>Resetting custom models</summary>
-<p>
-
-Custom models are preserved when resetting with [Generic Mod Config Menu][gmcm-link]. If you want to reset any changes, you must delete `models/custom.json`. Alternatively, you can copy the *standard* values into the *custom* model by
-
-1. Switching from *standard* to *custom*
-2. Opening the values page
-3. Clicking "Save" followed by "Save & Close"
-
-</p>
-</details>
-
-#### Debug Logging:
-
-When debug logging is enabled, SMAPI will output the dice rolls and other useful information to the terminal.
 
 # Climate Control
 
