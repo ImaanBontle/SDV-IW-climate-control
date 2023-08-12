@@ -169,14 +169,14 @@ When debug logging is enabled, SMAPI will provide terminal outputs of dice rolls
 <!--Known Issues-->
 ## Known Issues <a id="issues"></a>
 
-*This section contains known issues with Climate Control. For other mods, see the [mod documentation](#docs).*
+*This section highlights known issues related to ClimateControl. For information on other mods, refer to the [mod documentation](#docs).*
 
-- Existing thunderstorms will continue into the next day whenever it is supposed to rain instead. This is due to the way the game currently handles weather flags. Thankfully, the issue will resolve itself automatically at the start of the next sunny/windy day.
-	- This bug will be patched in a coming update.
-- The TV will misreport windy weather as snow in Summer, because it is not expecting this weather type during that season.
-	- A patch is being investigated, but no ETA.
-- Weather odds seem to be calculated one day sooner than anticipated, resulting in the incorrect predictions for festival days and weddings.
-	- This is being fixed imminently.
+- In the current version, existing thunderstorms persist into the next day when rain is expected. This behavior is due to the way the game handles weather flags. Fortunately, the issue resolves itself automatically at the start of the next sunny or windy day.
+	- This bug will be addressed in an upcoming update.
+- During Summer, the TV incorrectly reports windy weather as snow. This discrepancy arises because the game doesn't anticipate this weather type during that season.
+	- I'm investigating a patch for this issue, though no estimated time of arrival is available.
+- There's an issue with weather odds being calculated a day sooner than expected, leading to inaccurate predictions for festival days and weddings.
+	- I am in the process of fixing this, and the solution will be implemented shortly.
 
 <div align="right">
 
