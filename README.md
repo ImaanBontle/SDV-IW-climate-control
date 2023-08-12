@@ -221,7 +221,7 @@ If you encounter any bugs, please remove any [incompatible mods](#incompatible) 
 Alternatively, f you would like submit a bugfix, you can do so by submitting a pull request using the https://github.com/ImaanBontle/SDV-IW-climate-control/labels/fix and https://github.com/ImaanBontle/SDV-IW-climate-control/labels/contribution labels.
 
 <!--Feature Suggestions-->
-### Suggestions <a id="suggestions"></a>
+### Feature Suggestions <a id="suggestions"></a>
 
 If you would like to suggest a feature for this project, please [submit a feature request][request-features-link]. I do my best to read these and I would love to hear from you. While I can't guarantee that these suggestions will be included in future releases, you will be credited for any features that do get implemented.
 
