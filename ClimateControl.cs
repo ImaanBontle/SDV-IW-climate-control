@@ -2,7 +2,6 @@
 using IW_ClimateControl;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Utilities;
 using StardewValley;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -184,8 +183,6 @@ namespace IWClimateControl
                         {
                             string festivalName = festivalData.Groups[1].Value;
                             int festivalDate = int.Parse(festivalData.Groups[2].Value);
-                            SDate festivalInfo = new(festivalDate, festivalName);
-                            Monitor.Log($"{festivalInfo}", LogLevel.Info);
                             if (!s_festivalDates.ContainsKey(festivalName))
                             {
                                 s_festivalDates[festivalName] = new List<int>() { festivalDate };
