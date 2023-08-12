@@ -3,9 +3,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IW_ClimateControl
 {
@@ -110,51 +107,52 @@ namespace IW_ClimateControl
                         weatherType = IIWAPI.WeatherType.raining;
                     break;
                 default:
-                    switch (Game1.weatherForTomorrow)
+                    if (ClimateControl.s_festivalDates[thisDate.Season].Contains(thisDate.DayOfMonth))
                     {
-                        case (int)IIWAPI.WeatherType.festival:
-                            // Festival tomorrow.
-                            canChange = false;
-                            reason = "tomorrow is a festival.";
-                            break;
-                        case (int)IIWAPI.WeatherType.wedding:
-                            // Wedding tomorrow.
-                            canChange = false;
-                            reason = "tomorrow is your wedding. Congratulations!";
-                            break;
-                        default:
-                            switch (thisDate.DayOfMonth)
-                            {
-                                case 28:
-                                    // First day of a season is always Sunny.
-                                    canChange = false;
-                                    reason = "tomorrow is the first day of the season and it is always sunny.";
-                                    break;
-                                default:
-                                    switch (Enum.Parse<IIWAPI.SeasonType>(thisDate.Season))
-                                    {
-                                        case IIWAPI.SeasonType.summer:
-                                            if ((thisDate.DayOfMonth + 1) % 13 == 0)
-                                            {
-                                                // Summer 13 and 26 always storm.
-                                                canChange = false;
-                                                reason = "tomorrow is a Summer day and is hardcoded to storm.";
-                                                weatherType = IIWAPI.WeatherType.storming;
-                                            }
-                                            break;
-                                        case IIWAPI.SeasonType.winter:
-                                            if ((thisDate.DayOfMonth + 1) is >= 14 and <= 16)
-                                            {
-                                                // Winter 14, 15 and 16 are always sunny
-                                                canChange = false;
-                                                reason = "tomorrow is a Winter day and is hardcoded to be sunny.";
-                                            }
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
+                        // Festival tomorrow.
+                        canChange = false;
+                        reason = "tomorrow is a festival.";
                     }
+                    else switch (Game1.weatherForTomorrow)
+                        {
+                            case (int)IIWAPI.WeatherType.wedding:
+                                // Wedding tomorrow.
+                                canChange = false;
+                                reason = "tomorrow is your wedding. Congratulations!";
+                                break;
+                            default:
+                                switch (thisDate.DayOfMonth)
+                                {
+                                    case 28:
+                                        // First day of a season is always Sunny.
+                                        canChange = false;
+                                        reason = "tomorrow is the first day of the season and it is always sunny.";
+                                        break;
+                                    default:
+                                        switch (Enum.Parse<IIWAPI.SeasonType>(thisDate.Season))
+                                        {
+                                            case IIWAPI.SeasonType.summer:
+                                                if ((thisDate.DayOfMonth + 1) % 13 == 0)
+                                                {
+                                                    // Summer 13 and 26 always storm.
+                                                    canChange = false;
+                                                    reason = "tomorrow is a Summer day and is hardcoded to storm.";
+                                                    weatherType = IIWAPI.WeatherType.storming;
+                                                }
+                                                break;
+                                            case IIWAPI.SeasonType.winter:
+                                                if ((thisDate.DayOfMonth + 1) is >= 14 and <= 16)
+                                                {
+                                                    // Winter 14, 15 and 16 are always sunny
+                                                    canChange = false;
+                                                    reason = "tomorrow is a Winter day and is hardcoded to be sunny.";
+                                                }
+                                                break;
+                                        }
+                                        break;
+                                }
+                                break;
+                        }
                     break;
             }
         }
@@ -216,10 +214,10 @@ namespace IW_ClimateControl
                     dayToCheck = currentDate.DayOfMonth + 28;
                     break;
                 case IIWAPI.SeasonType.fall:
-                    dayToCheck = currentDate.DayOfMonth + 2*28;
+                    dayToCheck = currentDate.DayOfMonth + 2 * 28;
                     break;
                 case IIWAPI.SeasonType.winter:
-                    dayToCheck = currentDate.DayOfMonth + 3*28;
+                    dayToCheck = currentDate.DayOfMonth + 3 * 28;
                     break;
             }
             return ChooseWeather(dayToCheck);
@@ -240,7 +238,7 @@ namespace IW_ClimateControl
 
             // Grab the appropriate values based on time of season
             // and flip a coin for each weather type.
-            if (currentDate.DayOfMonth%28 is >=0 and <= 8)
+            if (currentDate.DayOfMonth % 28 is >= 0 and <= 8)
             {
                 // Tomorrow is day 1-9.
                 weatherRolls = new()
@@ -251,7 +249,7 @@ namespace IW_ClimateControl
                     FlipCoin(modelSeason.Snow.Early)
                 };
             }
-            else if (currentDate.DayOfMonth%28 is >= 9 and <= 18)
+            else if (currentDate.DayOfMonth % 28 is >= 9 and <= 18)
             {
                 // Tomorrow is day 10-19.
                 weatherRolls = new()
@@ -262,7 +260,7 @@ namespace IW_ClimateControl
                     FlipCoin(modelSeason.Snow.Mid)
                 };
             }
-            else if (currentDate.DayOfMonth%28 is >= 19 and <= 27)
+            else if (currentDate.DayOfMonth % 28 is >= 19 and <= 27)
             {
                 // Tomorrow is day 20-28.
                 weatherRolls = new()
