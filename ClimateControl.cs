@@ -178,28 +178,32 @@ namespace IWClimateControl
         /// <param name="e">The event data.</param>
         private void SaveLoaded_CacheModel(object sender, SaveLoadedEventArgs e)
         {
-            if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
+            // Only perform load if main player in multiplater.
+            if (Context.IsMainPlayer)
             {
-                // Custom model created by player.
-                Monitor.Log("Loading custom model...", s_logLevel);
-                s_weatherChances = s_config;
-                s_modelChoice = IIWAPI.WeatherModel.custom;
-                if (s_config.EnableInterpolation)
+                if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
                 {
-                    s_weatherArrays = Interpolator.InterpolateWeather();
-                    Helper.Data.WriteJsonFile("data/custom.json", s_weatherArrays);
+                    // Custom model created by player.
+                    Monitor.Log("Loading custom model...", s_logLevel);
+                    s_weatherChances = s_config;
+                    s_modelChoice = IIWAPI.WeatherModel.custom;
+                    if (s_config.EnableInterpolation)
+                    {
+                        s_weatherArrays = Interpolator.InterpolateWeather();
+                        Helper.Data.WriteJsonFile("data/custom.json", s_weatherArrays);
+                    }
                 }
-            }
-            else
-            {
-                // Standard model for generic climate.
-                Monitor.Log("Loading standard model...", s_logLevel);
-                s_weatherChances = s_standardModel;
-                s_modelChoice = IIWAPI.WeatherModel.standard;
-                if (s_config.EnableInterpolation)
+                else
                 {
-                    s_weatherArrays = Interpolator.InterpolateWeather();
-                    Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
+                    // Standard model for generic climate.
+                    Monitor.Log("Loading standard model...", s_logLevel);
+                    s_weatherChances = s_standardModel;
+                    s_modelChoice = IIWAPI.WeatherModel.standard;
+                    if (s_config.EnableInterpolation)
+                    {
+                        s_weatherArrays = Interpolator.InterpolateWeather();
+                        Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
+                    }
                 }
             }
         }
