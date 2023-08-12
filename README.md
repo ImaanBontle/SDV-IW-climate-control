@@ -33,6 +33,7 @@ Snow in Fall? If you say so...
 # Table of Contents
 
 - [About ClimateControl](#about)
+- [Feature Overview](#features)
 	- [Daily Weather](#about-weather)
 	- [Climate Templates](#about-templates)
 - [Configuration](#config)
@@ -52,28 +53,28 @@ Snow in Fall? If you say so...
 
 *To get started, see [installation][install-link].*
 
-Climate Control allows you to define unique weather odds for each day of the year.
+Climate Control allows you to define unique weather odds for each day of the year. Since every day is unique, the weather now changes gradually alongside the seasons. This might mean small chances of snow in late Fall or even light rain in mid-Winter, depending on the exact configuration. Either craft your own climate for complete creative freedom or use one of the provided templates* for an easier setup, the choice is yours!
 
-Since every day is unique, the weather changes gradually alongside the seasons. This might mean small chances of snow in late Fall or some light rain in mid-Winter, the choice is yours! Either use one of the provided climates* for an easier setup or craft your own for complete creative freedom.
-
-Read below for feature overviews.
+Read below for a [detailed breakdown of each feature](#features).
 
 **Currently, the mod includes only the 'standard' and 'custom' climates. More templates will be added in the future. See [upcoming features](#upcoming) for more information.*
 
+## Feature Overview <a id="features"></a>
+
 ### Daily Weather <a id="about-weather"></a>
 
-In the vanilla game, each type of weather (rain, thunderstorms, snow, wind, sun) follows fixed rules within each season. These rules determine the likelihood that that weather type will occur on the following day. With very few exceptions, these rules change only when the next season begins.
+In the vanilla game, each type of weather (rain, thunderstorms, snow, wind, sunny) follows fixed rules for every day of the season. These rules determine the likelihood that the weather will occur on the following day and are applied each night after you go to sleep. Additionally, these rules only change when the next season begins, and with very few exceptions, are identical for all 28 days, which means the same logic applies every day.
 
-While this gives each season a unique identity, it also keeps them unrealistically distinct from each other. For example, in-game, you go to sleep on Fall 28 and on Winter 1, everything's suddenly covered in snow! Meanwhile, in the real world, you likely would have seen some warning that Winter Is Coming, such as light snowfall. This abrupt change is what Climate Control attempts to address.
+This approach gives each season a unique identity, which is great from a gameplay perspective. However, it also keeps them unrealistically distinct from each other, so that seasons seem to behave independently. For example, in-game, you wake up on Winter 1 to find that everything's suddenly covered in snow, even though it was completely dry and parched on Fall 28! In the real world, you probably would've seen some light snowfall before the land was blanketed in white!
 
-First, the mod assigns fixed probabilities to the start, middle and end of each season. These values can either be provided by the player or grabbed from a pre-existing template. After the values are assigned, the mod then performs cubic spline interpolation for all of the days in-between. This produces unique odds for every day of the year, meaning they change gradually as the days pass, rather than all at once.
+This abrupt change is what ClimateControl attempts to address. To do this, the mod first assigns some pre-defined, fixed probabilities to the start, middle and end of each season (respectively, the 5th, 15th and 24th day). These values can be provided by the player in the config or alternatively grabbed from a pre-existing template. Then, after these values are assigned, the mod performs cubic spline interpolation for all of the remaining days which do not have a probability (i.e. those that lie between the 'days-of-fixed-probability'), using the pre-defined odds as anchor points.
 
-There are two major advantages to this:
+What this ultimately means is that we get unique odds for every day of the year which change smoothly as the season progresses, and transition gradually from season to season, rather than all at once at day 1. There are two major advantages to this approach:
 
-1. No two days will have the same odds, so each week feels slightly different to the one before.
-2. Weather now 'bleeds over' from season to season, allowing for things like snow at the end of Fall, all while keeping each season's identity intact.
+1. No two days have the same combination of odds. This results in each week feeling slightly different to the one prior.
+2. Weather now 'bleeds over' from season to season. This allows for phenomena like increased snowfall in the last days of Fall, or impending thunderstorms as Summer approachs, all while ensuring each season's identity is kept intact.
 
-If you would prefer a simpler approach, the interpolation can be disabled. In this case, the mod will treat the config values as fixed probabilities for each 1/3rd of the season. This means the same rules apply for roughly ten days at a time. While this is less realistic than using the interpolation, it is still more realistic and varied than in vanilla.
+This should allow for a more realistic and immersive weather experience. However, if players would prefer a simpler approach to the weather, more akin to the basegame, then interpolation can be disabled in the config. In this case, the mod will instead default to treating the config values as fixed probabilities for each chunk of the season (roughly ten days at a time). This means the same rules will apply for each period, rather than shifting gradually over time. While this approach remains less realistic than simply using the interpolative method, it may approximate the style of the basegame but will still be more realistic and varied than in vanilla.
 
 ### Climate Templates <a id="about-templates"></a>
 
