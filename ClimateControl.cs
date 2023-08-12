@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 
 // TODO: Add more than one template <----- ???
 // TODO: Fix bug of incorrect day for calculations
-// TODO: Investigate dynamic festival check
 // TODO: Investigate accurate TV reporting
 // TODO: Separate weather update (flags) and weather odds (dice rolls) so that odds are only transferred at end of day (means mods can check today's data until end of day)
 // TODO: Update all flags directly when changing weather (prevents storm-rain bug)
