@@ -163,9 +163,12 @@ When debug logging is enabled, SMAPI will output the dice rolls and other useful
 
 *This section contains known issues with Climate Control. For other mods, see the [mod documentation](#docs).*
 
-- Existing storms may continue into the next day whenever it is supposed to rain. This is due to the way the game currently handles thunderstorms, but will resolve itself at the start of the next sunny/windy day.
-	- This will be patched in a coming update. 
-- The TV will misreport windy weather as snow in Summer and Winter, because it is not expecting it during these seasons. A patch is being investigated.
+- Existing thunderstorms will continue into the next day whenever it is supposed to rain instead. This is due to the way the game currently handles weather flags. Thankfully, the issue will resolve itself automatically at the start of the next sunny/windy day.
+	- This bug will be patched in a coming update.
+- The TV will misreport windy weather as snow in Summer, because it is not expecting this weather type during that season.
+	- A patch is being investigated, but no ETA.
+- Weather odds seem to be calculated one day sooner than anticipated, resulting in the incorrect predictions for festival days and weddings.
+	- This is being fixed imminently.
 
 <div align="right">
 
