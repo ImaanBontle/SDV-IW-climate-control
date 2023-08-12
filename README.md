@@ -1,6 +1,6 @@
 ﻿<div align="center">
 
-# Climate Control <a id="return-to-top"></a>
+# ClimateControl <a id="return-to-top"></a>
 
 Snow in Fall? If you say so...
 
@@ -32,7 +32,7 @@ Snow in Fall? If you say so...
 <!--Table of Contents-->
 # Table of Contents
 
-- [About](#about)
+- [About ClimateControl](#about)
 	- [Daily Weather](#about-weather)
 	- [Climate Templates](#about-templates)
 - [Configuration](#config)
@@ -48,7 +48,7 @@ Snow in Fall? If you say so...
 - [License](#license)
 
 <!--About ClimateControl-->
-## About Climate Control <a id="about"></a>
+## About ClimateControl <a id="about"></a>
 
 *To get started, see [installation][install-link].*
 
