@@ -78,15 +78,13 @@ This should allow for a more realistic and immersive weather experience. However
 
 ### Climate Templates <a id="about-templates"></a>
 
-*For details on each of the templates, check out the [model breakdowns][models-link].*
+<!--*For details on each of the templates, check out the [model breakdowns][models-link].*-->
 
-By default, this mod uses a pre-defined *standard* climate. This is most similar to vanilla, featuring gentle Spring rain, brief thunderstorms in early Summer, a dry and windy in Fall, and plenty of snowfall in Winter. When combined with cubic spline interpolation, this produces a smoother weather profile than the basegame with more gradual season changes.
+By default, this mod uses a pre-defined *standard climate*. This climate is most similar to vanilla, featuring gentle Spring rain, transitioning into brief but intense thunderstorms in early Summer, followed by a dry and windy in Fall, and then plenty of snowfall in Winter. When combined with cubic spline interpolation, this produces a smoother weather profile than the basegame with more gradual season changes, but retains the original seasons' identities.
 
-There also exists a *custom* climate, to allow players to design their own template. This climate is kept completely safe from resets with [Generic Mod Config Menu][gmcm-link], meaning players can safely restore their defaults without losing their creations. Further, each of the existing templates can be tweaked, should players wish to change some of the values.
+In the future, more templates will be added beyond the *standard climate*, each based around a biome found on Earth. These climates will be inspired by real-world data (unlike the *standard climate*), so they will reproduce the correct proportions of rain, snow, wind, and storms. As part of this, players can also [submit their own templates][discussion-template-link] for possible future inclusion (no promises, though!).
 
-In the future, I am planning on adding more templates beyond the *standard*, each based on a biome found on Earth. These climates will be inspired by real-world data so they reproduce the correct proportions of rain, snow, wind, and storms.
-
-Players can also [submit their templates for future inclusion][discussion-template-link] (no promises, though!).
+There also exists a *custom climate* in the config menu, which allows players to design their own templates. By design, this *custom climate* is kept completely separate from [Generic Mod Config Menu's][gmcm-link] *reset-to-default* feature, meaning players can safely restore their defaults without losing their custom creations. Furthermore, each of the existing templates can be tweaked manually should players wish to change only some of the values, rather than building an all-new climate.
 
 <div align="right">
 
