@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks.Dataflow;
-using GenericModConfigMenu;
+﻿using GenericModConfigMenu;
 using IW_ClimateControl;
-using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Utilities;
 using StardewValley;
-using StardewValley.Monsters;
 
 // TODO: Add more than one template <----- ???
+// TODO: Fix bug of incorrect day for calculations
+// TODO: Investigate dynamic festival check
+// TODO: Investigate accurate TV reporting
+// TODO: Separate weather update (flags) and weather odds (dice rolls) so that odds are only transferred at end of day (means mods can check today's data until end of day)
+// TODO: Update all flags directly when changing weather (prevents storm-rain bug)
 
 namespace IWClimateControl
 {
