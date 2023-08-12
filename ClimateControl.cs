@@ -115,9 +115,10 @@ namespace IWClimateControl
             // -----------
             // SAVE LOADED
             // -----------
-            // At save load, load cached data.
+            // At save load, load data.
             Helper.Events.GameLoop.SaveLoaded += SaveLoaded_LoadData;
             Helper.Events.GameLoop.SaveLoaded += SaveLoaded_CacheModel;
+            Helper.Events.GameLoop.SaveLoaded += SaveLoaded_MiscData;
 
             // ---------
             // DAY START
@@ -201,6 +202,19 @@ namespace IWClimateControl
                     Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
                 }
             }
+        }
+
+        // -----------------------
+        // GRAB MISCELLANEOUS DATA
+        // -----------------------
+        /// <summary>
+        /// Loads necessary supporting data when the save is loaded.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private void SaveLoaded_MiscData(object sender, SaveLoadedEventArgs e)
+        {
+
         }
 
         // -----------------
