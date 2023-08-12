@@ -47,6 +47,7 @@ Snow in Fall? C'est impossible!
 	- [Translations](#translations)
 - [Support My Work](#support)
 - [License](#license)
+- [Contributors](#contributors)
 
 <!--About ClimateControl-->
 ## About ClimateControl <a id="about"></a>
@@ -273,6 +274,19 @@ The source code for this mod is open-source and is released under the [MIT licen
 
 </div>
 
+<!--Contributors-->
+## Contributors <a id="contributors"></a>
+
+Thank you to all the contributors who helped with this project!
+
+[![Image of all contributors][contributors-image]][contributors-link]
+
+<div align="right">
+
+[[Back to top](#return-to-top)]
+
+</div>
+
 <!--Markdown Links, Images and Abbreviations-->
 <!--
 REFERENCES FOR INSPIRATION LAYOUTS
@@ -335,3 +349,7 @@ REFERENCES FOR INSPIRATION LAYOUTS
 <!--Contact Links-->
 [nexus-profile]: <https://forums.nexusmods.com/index.php?showuser=54975162> "NexusMods Profile"
 [ko-fi-link]: <https://ko-fi.com/msbontle> "Donate"
+
+<!--Contributor Links-->
+[contributors-graph]: <https://github.com/ImaanBontle/SDV-IW-climate-control/graphs/contributors> "List of contributors"
+[contributors-image]: <https://contrib.rocks/image?repo=ImaanBontle/SDV-IW-climate-control> "Thank you to all the contributors!"
