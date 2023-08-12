@@ -45,7 +45,7 @@ Snow in Fall? C'est impossible!
 	- [Bug Reports](#bugs)
 	- [Feature Suggestions](#suggestions)
 	- [Translations](#translations)
-- [Support](#support)
+- [Support My Work](#support)
 - [License](#license)
 
 <!--About ClimateControl-->
