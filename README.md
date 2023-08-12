@@ -95,31 +95,31 @@ There also exists a *custom climate* in the config menu, which allows players to
 <!--Config Options-->
 ## Configuration <a id="config"></a>
 
-*This section covers the available config options. **Default values are shown in bold**.*
+*This section covers the settings for ClimateControl. For other mods in the series, see the [mod documentation][main-doc-link].*
 
-*For other mods in the series, see the [mod documentation][main-doc-link].*
-
-You can change these options in-game using [Generic Mod Config Menu][gmcm-link] or by manually editing the `config.json` in the mod's folder (generated after running SMAPI at least once).
+The following configuration options exist for ClimateControl. You can change these options in-game using [Generic Mod Config Menu][gmcm-link] or by manually editing the `config.json` in the mod's folder (generated after running SMAPI at least once). **Default values are shown in bold**.
 
 ### Weather Models:
 
-The weather model determines the likelihood of weather changes for each day of the year (e.g. the chance of rain, snow, thunderstorms etc.). You can make your own custom model or use one of the provided templates.
+The weather model determines the likelihood of weather changes tomorrow for each day of the year (e.g. the chance of rain, snow, thunderstorms etc.). You can make your own custom model or use one of the provided templates, as well as change the way daily odds are calculated.
 
 | Name | Value | Description |
 |:---|:---|:---|
 | **Model Choice** | ***standard**, custom* | *Determines the choice of weather model.* |
 | **Daily Odds** | ***true**, false* | *If *true*, interpolation will be used to estimate the daily weather odds.* |
 
-In addition to selecting one of the model templates above, you can also manually edit the probabilities. If using [Generic Mod Config Menu][gmcm-link], then this can be done via the in-game menu, sorted by weather or by season. Otherwise, this can be done by manually editing the JSON files in the `models` folder.
+In addition to selecting one of the model templates above, you can also manually edit the input probabilities. If using [Generic Mod Config Menu][gmcm-link], then this can be done via the in-game menu, sorted by weather or by season. Otherwise, this can be done by manually editing the JSON files available in the `models` folder. See the dropdown menus below for more details on manipulating the models.
 
 <details><summary><i>Editing models</i></summary>
 <p>
 
-Each season is broken up into three time periods, covering days 1-9, days 10-19 and days 20-28. Each period may be assigned a unique probability for each type of weather. The probabilities must be decimal values between 0 and 100, and the allowed weather types are rain, storm, wind and snow. When no other weather occurs, Sunny weather happens by default.
+Each season is broken up into three time periods, covering days 1-9, days 10-19 and days 20-28. Each period may be assigned a unique probability for each type of weather. The probabilities must be decimal values between 0 and 100, and the allowed weather types are 'rain', 'storm', 'wind' and 'snow'. When none of these weather types occur, the game defaults to Sunny weather (this is also used for festival days and weddings).
 
-When interpolation is enabled, the values for each time period are assigned to the middlemost day in that period. This corresponds to day 5, day 15 and day 24 respectively. Every other day in that period will then be given a value (determined by the interpolation) so that the overall change is smooth and gradual from one time period to the next. In contrast, when interpolation is disabled, every day in that time period will take on the same value (or put differently, the probability for that time period will be held fixed until that time period comes to an end).
+When interpolation is enabled, the values for each time period are assigned to the middlemost day in that period (this corresponds to day 5, day 15 and day 24 respectively). Every other day in that period will then be given a value (determined by the interpolation), so that the overall change from period to period is smooth and gradual.
 
-The values for each time period can be edited with the [Generic Mod Config Menu][gmcm-link] or by manually editing the files in the `models` folder. If you are comfortable with data arrays, you can also see the real-time effect on the interpolation after you've changed the settings by looking at the files in the `data` folder.
+In contrast, when interpolation is disabled, every day in that time period will take on the same value (or put differently, the probability for that time period will be held fixed until that time period comes to an end).
+
+The values for each time period can be edited in-game with the [Generic Mod Config Menu][gmcm-link] or by manually editing the files in the `models` folder. If you are comfortable with data arrays, you can also see the real-time effect of the interpolation after changing the settings by looking at the JSON files found in the `data` folder.
 
 </p>
 </details>
@@ -127,13 +127,13 @@ The values for each time period can be edited with the [Generic Mod Config Menu]
 <details><summary><i>Copying models</i></summary>
 <p>
 
-Using [Generic Mod Config Menu][gmcm-link], it is possible to copy the values from *model A* directly into *model B* by
+Using [Generic Mod Config Menu][gmcm-link], it is possible to copy the values from *model A* directly into *model B*, by
 
 1. Switching from *model A* to *model B*,
 2. Opening the values page,
-3. Clicking "Save", then clicking "Save & Close".
+3. Then clicking "Save", followed by "Save & Close".
 
-This can also be a handy way of creating a base for another model by using a pre-existing template.
+This can also be a handy way of creating a base for a *custom climate* by using a pre-existing template as your starting point.
 
 </p>
 </details>
@@ -141,9 +141,9 @@ This can also be a handy way of creating a base for another model by using a pre
 <details><summary><i>Resetting models</i></summary>
 <p>
 
-Models can be reset at any time with the [Generic Mod Config Menu][gmcm-link]. You can also find and delete the files named after each model in the `models` folder. These files will be automatically generated with the default values the next time you launch SMAPI.
+Models can be reset at any time by using the [Generic Mod Config Menu][gmcm-link]. You can also find and delete the files manually. These files are found in the `models` folder and are named after each model. They will then be automatically regenerated and populated with the default values the next time you launch SMAPI.
 
-***NOTE:** Custom models must be deleted manually. By design, they are always preserved during a reset.*
+*NB: Custom models must be deleted manually. By design, they are always preserved during a GMCM reset.*
 
 </p>
 </details>
