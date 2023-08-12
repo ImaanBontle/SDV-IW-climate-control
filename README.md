@@ -244,9 +244,11 @@ Turkish    | ❑                                  | ❑
 </div>
 
 <!--Support-->
-## Support <a id="support"></a>
+## Support My Work <a id="support"></a>
 
-If you would like to support my work, you can [buy me a coffee][ko-fi-link]. However, this is entirely optional. My mods are available for free and without expectation.
+If you would like to support my work, you can always [buy me a coffee][ko-fi-link].
+
+However, please note that this is entirely optional. My mods are available for free and entirely without expectation!
 
 <div align="right">
 
@@ -257,7 +259,7 @@ If you would like to support my work, you can [buy me a coffee][ko-fi-link]. How
 <!--License-->
 ## License <a id="license"></a>
 
-The source code for this mod is available under the [MIT license][license-link]. Please do not host my official releases without my written consent.
+The source code for this mod is open-source and available under the [MIT license][license-link]. However, please do not host my official releases without my written consent.
 
 <div align="right">
 
