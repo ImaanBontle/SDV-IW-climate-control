@@ -2,7 +2,10 @@
 using IW_ClimateControl;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Utilities;
 using StardewValley;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 // TODO: Add more than one template <----- ???
 // TODO: Fix bug of incorrect day for calculations
@@ -63,6 +66,10 @@ namespace IWClimateControl
         /// </summary>
         internal static SaveData s_weatherChanges;
         /// <summary>
+        /// Contains list of festival dates for this game.
+        /// </summary>
+        internal static Dictionary<string, List<int>> s_festivalDates = new();
+        /// <summary>
         /// Handles all messages to SMAPI.
         /// </summary>
         internal static EventLogger s_eventLogger = new();
@@ -113,12 +120,17 @@ namespace IWClimateControl
             Helper.Events.GameLoop.GameLaunched += GameLoop_GameLaunched;
 
             // -----------
+            // GRAB ASSETS
+            // -----------
+            // When assets ready, check against existing data and update relevant fields.
+            Helper.Events.Content.AssetReady += Content_AssetReady;
+
+            // -----------
             // SAVE LOADED
             // -----------
             // At save load, load data.
             Helper.Events.GameLoop.SaveLoaded += SaveLoaded_LoadData;
             Helper.Events.GameLoop.SaveLoaded += SaveLoaded_CacheModel;
-            Helper.Events.GameLoop.SaveLoaded += SaveLoaded_MiscData;
 
             // ---------
             // DAY START
@@ -146,6 +158,47 @@ namespace IWClimateControl
             s_iWAPI = Helper.ModRegistry.GetApi<IIWAPI>("MsBontle.ImmersiveWeathers");
             s_gMCM = Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             GMCMHelper.Register(ModManifest, Helper);
+        }
+
+        // -----------------------
+        // GRAB MISCELLANEOUS DATA
+        // -----------------------
+        /// <summary>
+        /// Grabs supporting asset data from game files.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Content_AssetReady(object sender, AssetReadyEventArgs e)
+        {
+            // Only perform check if main player in multiplayer.
+            if (Context.IsMainPlayer)
+            {
+                // Check festival dates.
+                if (e.NameWithoutLocale.IsEquivalentTo("Data/Festivals/FestivalDates"))
+                {
+                    Monitor.Log("Adding festival data...", LogLevel.Trace);
+                    Regex festivalPattern = new(@"([a-zA-Z]+)(\d+)");
+                    foreach (string festival in Helper.GameContent.Load<Dictionary<string, string>>("Data/Festivals/FestivalDates").Keys)
+                    {
+                        Match festivalData = festivalPattern.Match(festival);
+                        if (festivalData.Success)
+                        {
+                            string festivalName = festivalData.Groups[1].Value;
+                            int festivalDate = int.Parse(festivalData.Groups[2].Value);
+                            SDate festivalInfo = new(festivalDate, festivalName);
+                            Monitor.Log($"{festivalInfo}", LogLevel.Info);
+                            if (!s_festivalDates.ContainsKey(festivalName))
+                            {
+                                s_festivalDates[festivalName] = new List<int>() { festivalDate };
+                            }
+                            else if (!s_festivalDates[festivalName].Contains(festivalDate))
+                            {
+                                s_festivalDates[festivalName].Add(festivalDate);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // --------------
@@ -206,19 +259,6 @@ namespace IWClimateControl
                     }
                 }
             }
-        }
-
-        // -----------------------
-        // GRAB MISCELLANEOUS DATA
-        // -----------------------
-        /// <summary>
-        /// Loads necessary supporting data when the save is loaded.
-        /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private void SaveLoaded_MiscData(object sender, SaveLoadedEventArgs e)
-        {
-
         }
 
         // -----------------
