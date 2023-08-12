@@ -30,7 +30,8 @@ Snow in Fall? C'est impossible!
 <br>
 
 <!--Table of Contents-->
-# Table of Contents
+<details open="open">
+<summary>Table of Contents</summary>
 
 - [About ClimateControl](#about)
 - [Feature Overview](#features)
@@ -48,6 +49,7 @@ Snow in Fall? C'est impossible!
 - [Support My Work](#support)
 - [License](#license)
 - [Contributors](#contributors)
+</details>
 
 <!--About ClimateControl-->
 ## About ClimateControl <a id="about"></a>
