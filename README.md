@@ -51,40 +51,48 @@ Snow in Fall? C'est impossible!
 <!--About ClimateControl-->
 ## About ClimateControl <a id="about"></a>
 
-*To get started, see [installation][install-link].*
+*To get started, refer to the [installation guide][install-link].*
 
-Climate Control allows you to define unique weather odds for each day of the year. Since every day is unique, the weather now changes gradually alongside the seasons. This might mean small chances of snow in late Fall or even light rain in mid-Winter, depending on the exact configuration. Either craft your own climate for complete creative freedom or use one of the provided templates* for an easier setup, the choice is yours!
+ClimateControl allows you to define unique weather odds for each day of the year. With this mod, the weather changes gradually in sync with the seasons. For example, this might mean a chance of light rain in mid-Winter or a touch of snow in late Fall, all depending on your specific configuration. Whether you want to craft your own climate for complete creative freedom or opt for one of the provided templates* for a simpler setup, the choice is yours!
 
 Read below for a [detailed breakdown of each feature](#features).
 
-**Currently, the mod includes only the 'standard' and 'custom' climates. More templates will be added in the future. See [upcoming features](#upcoming) for more information.*
+**At the moment, the mod includes 'standard' and 'custom' climates only. I'm actively working on adding more templates in the future. Find out more about the [upcoming features](#upcoming).*
+
+<div align="right">
+
+[[Back to top](#return-to-top)]
+
+</div>
 
 ## Feature Overview <a id="features"></a>
 
+*This section delves into the intricacies of ClimateControl's capabilities. If you're new to the mod, be sure to check out the [installation guide][install-link] to get started.*
+
 ### Daily Weather <a id="about-weather"></a>
 
-In the vanilla game, each type of weather (rain, thunderstorms, snow, wind, sunny) follows fixed rules for every day of the season. These rules determine the likelihood that the weather will occur on the following day and are applied each night after you go to sleep. Additionally, these rules only change when the next season begins, and with very few exceptions, are identical for all 28 days, which means the same logic applies every day.
+In the vanilla game, each type of weather (rain, thunderstorms, snow, wind, sunny) follows fixed rules for every day of the season. These rules determine the likelihood of weather occurring on the following day and are applied each night after you go to sleep. Moreover, these rules only change when the next season begins and, with very few exceptions, remain identical for all 28 days. This means that the same logic is applied every day.
 
-This approach gives each season a unique identity, which is great from a gameplay perspective. However, it also keeps them unrealistically distinct from each other, so that seasons seem to behave independently. For example, in-game, you wake up on Winter 1 to find that everything's suddenly covered in snow, even though it was completely dry and parched on Fall 28! In the real world, you probably would've seen some light snowfall before the land was blanketed in white!
+While this approach gives each season a unique gameplay identity, it also keeps them unrealistically distinct from each other. For instance, in the game, you wake up on Winter 1 to find everything suddenly covered in snow, even though it was dry and parched on Fall 28. In the real world, there would likely have been some light snowfall before the land was blanketed in white.
 
-This abrupt change is what ClimateControl attempts to address. To do this, the mod first assigns some pre-defined, fixed probabilities to the start, middle and end of each season (respectively, the 5th, 15th and 24th day). These values can be provided by the player in the config or alternatively grabbed from a pre-existing template. Then, after these values are assigned, the mod performs cubic spline interpolation for all of the remaining days which do not have a probability (i.e. those that lie between the 'days-of-fixed-probability'), using the pre-defined odds as anchor points.
+This abrupt change is what ClimateControl aims to address. The mod accomplishes this by initially assigning pre-defined fixed probabilities to the start, middle, and end of each season (on the 5th, 15th, and 24th days, respectively). Players can set these values in the config or use the values from a pre-existing template. Subsequently, the mod employs cubic spline interpolation for the days without assigned probabilities (those between the 'days-of-fixed-probability'), utilizing the pre-defined odds as anchor points.
 
-What this ultimately means is that we get unique odds for every day of the year which change smoothly as the season progresses, and transition gradually from season to season, rather than all at once at day 1. There are two major advantages to this approach:
+This approach results in unique odds for each day throughout the year, with gradual changes as the season progresses. It avoids the sudden shift of weather that occurs all at once on day 1 of a new season. This method offers two key advantages:
 
-1. No two days have the same combination of odds. This results in each week feeling slightly different to the one prior.
-2. Weather now 'bleeds over' from season to season. This allows for phenomena like increased snowfall in the last days of Fall, or impending thunderstorms as Summer approachs, all while ensuring each season's identity is kept intact.
+1. Each day presents a distinct combination of odds, creating a sense of weekly variety.
+2. Weather now transitions between seasons, allowing phenomena like increased snowfall in the last days of Fall or impending thunderstorms as Summer approaches, while preserving each season's unique identity.
 
-This should allow for a more realistic and immersive weather experience. However, if players would prefer a simpler approach to the weather, more akin to the basegame, then interpolation can be disabled in the config. In this case, the mod will instead default to treating the config values as fixed probabilities for each chunk of the season (roughly ten days at a time). This means the same rules will apply for each period, rather than shifting gradually over time. While this approach remains less realistic than simply using the interpolative method, it may approximate the style of the basegame but will still be more realistic and varied than in vanilla.
+This approach fosters a more immersive and realistic weather experience. However, players who prefer a simpler weather system more akin to the base game can disable interpolation in the config. In this case, the mod will treat the config values as fixed probabilities for each third of the season (approximately ten days at a time). This maintains a level of realism and variety greater than that of the vanilla game while still approximating the original game's flavour.
 
 ### Climate Templates <a id="about-templates"></a>
 
 <!--*For details on each of the templates, check out the [model breakdowns][models-link].*-->
 
-By default, this mod uses a pre-defined *standard climate*. This climate is most similar to vanilla, featuring gentle Spring rain, transitioning into brief but intense thunderstorms in early Summer, followed by a dry and windy in Fall, and then plenty of snowfall in Winter. When combined with cubic spline interpolation, this produces a smoother weather profile than the basegame with more gradual season changes, but retains the original seasons' identities.
+By default, this mod employs a pre-defined *standard climate*. This climate closely resembles the vanilla game's weather patterns, featuring gentle Spring rain, transitioning into brief but intense thunderstorms in early Summer, followed by dry and windy conditions in Fall, and finally, abundant snowfall in Winter. When used alongside cubic spline interpolation, this combination produces a smoother weather profile compared to the base game, with more gradual shifts between seasons while maintaining the original seasons' distinct identities.
 
-In the future, more templates will be added beyond the *standard climate*, each based around a biome found on Earth. These climates will be inspired by real-world data (unlike the *standard climate*), so they will reproduce the correct proportions of rain, snow, wind, and storms. As part of this, players can also [submit their own templates][discussion-template-link] for possible future inclusion (no promises, though!).
+Looking ahead, additional templates beyond the *standard climate* will be introduced. Each template will be based on Earth's biomes and inspired by real-world data. These climate presets will replicate the accurate proportions of rain, snow, wind, and storms for a specific biome. Players can also [submit their own templates][discussion-template-link] for potential future inclusion (though no promises are made).
 
-There also exists a *custom climate* in the config menu, which allows players to design their own templates. By design, this *custom climate* is kept completely separate from [Generic Mod Config Menu's][gmcm-link] *reset-to-default* feature, meaning players can safely restore their defaults without losing their custom creations. Furthermore, each of the existing templates can be tweaked manually should players wish to change only some of the values, rather than building an all-new climate.
+Additionally, the config menu includes a *custom climate* feature, allowing players to design their own weather templates. Notably, this *custom climate* remains independent from [Generic Mod Config Menu's][gmcm-link] *reset-to-default* function, ensuring players can restore defaults without losing their custom creations. Furthermore, each existing template can be manually adjusted if players prefer to modify only specific values rather than creating an entirely new climate.
 
 <div align="right">
 
