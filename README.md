@@ -186,16 +186,16 @@ When debug logging is enabled, SMAPI will provide terminal outputs of dice rolls
 
 ## Upcoming Features <a id="upcoming"></a>
 
-*All upcoming features will be documented here. For feature progress, see [the latest changelog][changelog-link].*
+*This section outlines upcoming additions and enhancements. To track feature progress, refer to [the latest changelog][changelog-link].*
 
 ### Upcoming:
 
-- Translation support.
-- Bug fixes.
+- Introduction of translation support.
+- Addressing bug fixes.
 
 ### Planned:
 
-- Add more templates.
+- Expanding the selection of templates to choose from.
 
 <div align="right">
 
@@ -254,9 +254,7 @@ Turkish    | ❑                                  | ❑
 <!--Support-->
 ## Support My Work <a id="support"></a>
 
-If you would like to support my work, you can always [buy me a coffee][ko-fi-link].
-
-However, please note that this is entirely optional. My mods are available for free and entirely without expectation!
+If you would like to support my work, you have the option to [buy me a coffee][ko-fi-link]. However, please note that this is completely voluntary. My mods are available for free and entirely without expectation!
 
 <div align="right">
 
@@ -267,7 +265,7 @@ However, please note that this is entirely optional. My mods are available for f
 <!--License-->
 ## License <a id="license"></a>
 
-The source code for this mod is open-source and available under the [MIT license][license-link]. However, please do not host my official releases without my written consent.
+The source code for this mod is open-source and is released under the [MIT license][license-link]. However, please refrain from hosting my official releases without obtaining my written consent.
 
 <div align="right">
 
