@@ -177,6 +177,7 @@ namespace IWClimateControl
                 if (e.NameWithoutLocale.IsEquivalentTo("Data/Festivals/FestivalDates"))
                 {
                     Monitor.Log("Adding festival data...", LogLevel.Trace);
+                    // Split festival data into season and date.
                     Regex festivalPattern = new(@"([a-zA-Z]+)(\d+)");
                     foreach (string festival in Helper.GameContent.Load<Dictionary<string, string>>("Data/Festivals/FestivalDates").Keys)
                     {
@@ -185,6 +186,7 @@ namespace IWClimateControl
                         {
                             string festivalName = festivalData.Groups[1].Value;
                             int festivalDate = int.Parse(festivalData.Groups[2].Value);
+                            // Store list of dates per season.
                             if (!s_festivalDates.ContainsKey(festivalName))
                             {
                                 s_festivalDates[festivalName] = new List<int>() { festivalDate };
