@@ -216,10 +216,10 @@ namespace IW_ClimateControl
                 // and flip a coin for each weather type.
                 weatherRolls = new()
                 {
-                    FlipCoin(ClimateControl.s_weatherArrays.rainArray[dayToCheck % (28 * 4)]),
-                    FlipCoin(ClimateControl.s_weatherArrays.stormArray[dayToCheck % (28 * 4)]),
-                    FlipCoin(ClimateControl.s_weatherArrays.windArray[dayToCheck % (28 * 4)]),
-                    FlipCoin(ClimateControl.s_weatherArrays.snowArray[dayToCheck % (28 * 4)])
+                    FlipCoin(ClimateControl.s_weatherArrays.rainArray[dayToCheck % (28 * 4)], "Rain"),
+                    FlipCoin(ClimateControl.s_weatherArrays.stormArray[dayToCheck % (28 * 4)], "Thunderstorm"),
+                    FlipCoin(ClimateControl.s_weatherArrays.windArray[dayToCheck % (28 * 4)], "Wind"),
+                    FlipCoin(ClimateControl.s_weatherArrays.snowArray[dayToCheck % (28 * 4)], "Snow")
                 };
                 return InterpretChoice(weatherRolls);
             }
@@ -256,10 +256,10 @@ namespace IW_ClimateControl
                     // Tomorrow is day 1-9.
                     weatherRolls = new()
                     {
-                        FlipCoin(modelSeason.Rain.Early),
-                        FlipCoin(modelSeason.Storm.Early),
-                        FlipCoin(modelSeason.Wind.Early),
-                        FlipCoin(modelSeason.Snow.Early)
+                        FlipCoin(modelSeason.Rain.Early, "Rain"),
+                        FlipCoin(modelSeason.Storm.Early, "Thunderstorm"),
+                        FlipCoin(modelSeason.Wind.Early, "Wind"),
+                        FlipCoin(modelSeason.Snow.Early, "Snow")
                     };
                 }
                 else if (currentDate.Day % 28 is >= 9 and <= 18)
@@ -267,10 +267,10 @@ namespace IW_ClimateControl
                     // Tomorrow is day 10-19.
                     weatherRolls = new()
                     {
-                        FlipCoin(modelSeason.Rain.Mid),
-                        FlipCoin(modelSeason.Storm.Mid),
-                        FlipCoin(modelSeason.Wind.Mid),
-                        FlipCoin(modelSeason.Snow.Mid)
+                        FlipCoin(modelSeason.Rain.Mid, "Rain"),
+                        FlipCoin(modelSeason.Storm.Mid, "Thunderstorm"),
+                        FlipCoin(modelSeason.Wind.Mid, "Wind"),
+                        FlipCoin(modelSeason.Snow.Mid, "Snow")
                     };
                 }
                 else if (currentDate.Day % 28 is >= 19 and <= 27)
@@ -278,10 +278,10 @@ namespace IW_ClimateControl
                     // Tomorrow is day 20-28.
                     weatherRolls = new()
                     {
-                        FlipCoin(modelSeason.Rain.Late),
-                        FlipCoin(modelSeason.Storm.Late),
-                        FlipCoin(modelSeason.Wind.Late),
-                        FlipCoin(modelSeason.Snow.Late)
+                        FlipCoin(modelSeason.Rain.Late, "Rain"),
+                        FlipCoin(modelSeason.Storm.Late, "Thunderstorm"),
+                        FlipCoin(modelSeason.Wind.Late, "Wind"),
+                        FlipCoin(modelSeason.Snow.Late, "Snow")
                     };
                 }
                 return InterpretChoice(weatherRolls);
@@ -294,7 +294,7 @@ namespace IW_ClimateControl
         /// <param name="chance">Likelihood of a change.</param>
         /// <param name="api">Framework API.</param>
         /// <returns>Tuple: The successful weather type and the value of the dice roll.</returns>
-        private static Tuple<bool, double, double> FlipCoin(double chance)
+        private static Tuple<bool, double, double> FlipCoin(double chance, string weatherForRoll)
         {
             // If dice roll lands within the percentage, permit the change.
             // Otherwise, deny it. Smaller percentages have narrower
@@ -303,6 +303,9 @@ namespace IW_ClimateControl
             double diceRoll = ClimateControl.s_iWAPI.RollTheDice();
             if ((0.01 * chance) >= diceRoll)
                 weatherBool = true;
+
+            // Print all dicerolls to terminal.
+            ClimateControl.s_eventLogger.SendToSMAPI($"{weatherForRoll}: Roll of {diceRoll} vs Odds of {0.01 * chance}");
             return new Tuple<bool, double, double>(weatherBool, diceRoll, chance);
         }
 
