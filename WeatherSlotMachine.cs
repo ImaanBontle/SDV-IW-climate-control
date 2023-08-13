@@ -35,41 +35,17 @@ namespace IW_ClimateControl
         /// <param name="todayDate">Today's date.</param>
         internal static void AttemptChange(SDate todayDate)
         {
-            // Check if tomorrow has already been checked.
-            if (ClimateControl.s_weatherChanges.TomorrowReason == null)
-            {
-                // If not, can it change?
-                ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...");
-                PerformCheck(todayDate, out bool canChangeTomorrow, out string reasonTomorrow, out IIWAPI.WeatherType defaultTomorrow);
-                ClimateControl.s_weatherChanges.ChangeTomorrow = canChangeTomorrow;
-                ClimateControl.s_weatherChanges.TomorrowReason = reasonTomorrow;
-                if (canChangeTomorrow)
-                {
-                    // If can change, grab changes.
-                    if (ClimateControl.s_config.EnableInterpolation)
-                    {
-                        ClimateControl.s_weatherChanges.WeatherTomorrow = GenerateWeather(todayDate);
-                    }
-                    else
-                    {
-                        ClimateControl.s_weatherChanges.WeatherTomorrow = GenerateWeather(todayDate, ClimateControl.s_weatherChances);
-                    }
-                }
-                else
-                {
-                    // If can't change, save default weather.
-                    ClimateControl.s_weatherChanges.WeatherTomorrow = defaultTomorrow;
-                }
-            }
-            else
-            {
-                // Otherwise, grab predicted changes from day after tomorrow (shift day forward).
-                ClimateControl.s_weatherChanges.WeatherTomorrow = ClimateControl.s_weatherChanges.WeatherDayAfter;
-                ClimateControl.s_weatherChanges.ChangeTomorrow = ClimateControl.s_weatherChanges.ChangeDayAfter;
-                ClimateControl.s_weatherChanges.TomorrowReason = ClimateControl.s_weatherChanges.DayAfterReason;
-                ClimateControl.s_eventLogger.SendToSMAPI($"Weather already calculated for tomorrow: {ClimateControl.s_weatherChanges.WeatherTomorrow}.");
-            }
+            /*
+             * Needs to be shifted to a separate end-of-day function.
+            // Otherwise, grab predicted changes from day after tomorrow (shift day forward).
+            ClimateControl.s_weatherChanges.WeatherTomorrow = ClimateControl.s_weatherChanges.WeatherDayAfter;
+            ClimateControl.s_weatherChanges.ChangeTomorrow = ClimateControl.s_weatherChanges.ChangeDayAfter;
+            ClimateControl.s_weatherChanges.TomorrowReason = ClimateControl.s_weatherChanges.DayAfterReason;
+            ClimateControl.s_eventLogger.SendToSMAPI($"Weather already calculated for tomorrow: {ClimateControl.s_weatherChanges.WeatherTomorrow}.");
+            */
 
+            /*
+             * Needs to be adapted based on GenerateSaveData for general day-started calculations
             // Now perform checks for day after tomorrow.
             ClimateControl.s_eventLogger.SendToSMAPI("Calculating weather for the day after tomorrow...");
             WorldDate tomorrowDate = SDate.From(todayDate).AddDays(1).ToWorldDate();
@@ -96,6 +72,7 @@ namespace IW_ClimateControl
                 ClimateControl.s_weatherChanges.WeatherDayAfter = defaultDayAfter;
             }
             ClimateControl.s_eventLogger.SendToSMAPI("Done.");
+            */
         }
 
         /// <summary>

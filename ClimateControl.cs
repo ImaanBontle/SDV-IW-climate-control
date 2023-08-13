@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 // TODO: Investigate accurate TV reporting
 // TODO: Separate weather update (flags) and weather odds (dice rolls) so that odds are only transferred at end of day (means mods can check today's data until end of day)
 // TODO: Update all flags directly when changing weather (prevents storm-rain bug)
+// TODO: Finish updating weather calculations based on recent changes.
 
 namespace IWClimateControl
 {
