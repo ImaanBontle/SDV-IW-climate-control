@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 // TODO: Investigate accurate TV reporting
 // TODO: Separate weather update (flags) and weather odds (dice rolls) so that odds are only transferred at end of day (means mods can check today's data until end of day)
 // TODO: Update all flags directly when changing weather (prevents storm-rain bug)
-// TODO: Investigate issues with SMAPI logging
 
 namespace IWClimateControl
 {
@@ -110,6 +109,9 @@ namespace IWClimateControl
             // or if config.json is missing, creates a new one using values from Config.
             // 3 paths: New config (just load), saved changes (leave, copy into models), reset (new models, copy into config)
             s_config = Helper.ReadConfig<ModConfig>();
+
+            // Set SMAPI log levels
+            s_logLevel = s_config.EnableDebugLogging ? LogLevel.Info : LogLevel.Trace;
 
             // ----------
             // API IMPORT
