@@ -305,7 +305,8 @@ namespace IW_ClimateControl
                 weatherBool = true;
 
             // Print all dicerolls to terminal.
-            ClimateControl.s_eventLogger.SendToSMAPI($"{weatherForRoll}: Roll of {diceRoll} vs Odds of {0.01 * chance}");
+            ClimateControl.s_eventLogger.SendToSMAPI($"{weatherForRoll} was {(weatherBool ? "successful" : "unsuccessful")} with a diceroll of {diceRoll} against odds of {0.01 * chance}.");
+
             return new Tuple<bool, double, double>(weatherBool, diceRoll, chance);
         }
 
@@ -320,7 +321,6 @@ namespace IW_ClimateControl
         {
             // Default values
             double diceRoll = 1.0;
-            double odds;
             IIWAPI.WeatherType weatherJackpot = IIWAPI.WeatherType.sunny;
 
             // Find the weather with the lowest successful dice-roll.
@@ -329,24 +329,19 @@ namespace IW_ClimateControl
                 if ((weatherRolls[i].Item1 == true) && weatherRolls[i].Item2 <= diceRoll)
                 {
                     diceRoll = weatherRolls[i].Item2;
-                    odds = weatherRolls[i].Item3;
                     switch (i)
                     {
                         case 0:
                             weatherJackpot = IIWAPI.WeatherType.raining;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Rain was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                         case 1:
                             weatherJackpot = IIWAPI.WeatherType.storming;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Thunderstorm was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                         case 2:
                             weatherJackpot = IIWAPI.WeatherType.windy;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Wind was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                         case 3:
                             weatherJackpot = IIWAPI.WeatherType.snowing;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Snow was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                     }
                 }
