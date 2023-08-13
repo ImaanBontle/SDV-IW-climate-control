@@ -1,14 +1,7 @@
 ﻿using Force.DeepCloner;
 using IWClimateControl;
-using ServiceStack.Text;
 using StardewModdingAPI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace IW_ClimateControl
 {
@@ -61,20 +54,13 @@ namespace IW_ClimateControl
                 PropertyMatcher<StandardModel, ModConfig>.GenerateMatchedObject(ClimateControl.s_customModel, Config);
                 ClimateControl.s_customModel = ClimateControl.s_customModel.DeepClone();
             }
-
-            // Set SMAPI log levels
-            if (Config.EnableDebugLogging)
-            {
-                ClimateControl.s_logLevel = LogLevel.Info;
-            }
-            else
-            {
-                ClimateControl.s_logLevel = LogLevel.Trace;
-            }
         }
 
         public static void ResetModel(IModHelper Helper)
         {
+            // Set SMAPI log levels
+            ClimateControl.s_logLevel = ClimateControl.s_config.EnableDebugLogging ? LogLevel.Info : LogLevel.Trace;
+
             ClimateControl.s_eventLogger.SendToSMAPI("I was asked to reset all models");
             // Reset all models, except custom
             ClimateControl.s_standardModel = new();
@@ -91,6 +77,9 @@ namespace IW_ClimateControl
 
         public static void ChangeModel(ModConfig Config, IModHelper Helper)
         {
+            // Set SMAPI log levels
+            ClimateControl.s_logLevel = ClimateControl.s_config.EnableDebugLogging ? LogLevel.Info : LogLevel.Trace;
+
             ClimateControl.s_eventLogger.SendToSMAPI("I was asked to refresh all models");
             // Refresh relevant models
             ClimateControl.s_eventLogger.SendToSMAPI($"Model was changed from {ClimateControl.s_modelChoice} to {Config.ModelChoice}. Changes will be applied to {ClimateControl.s_modelChoice}");
@@ -107,6 +96,7 @@ namespace IW_ClimateControl
                 Helper.Data.WriteJsonFile("models/custom.json", ClimateControl.s_customModel);
                 ClimateControl.s_customModel = Helper.Data.ReadJsonFile<StandardModel>("models/custom.json");
             }
+
             // Load new model.
             LoadModel(Config);
             Helper.WriteConfig(Config);

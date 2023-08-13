@@ -111,6 +111,9 @@ namespace IWClimateControl
             // 3 paths: New config (just load), saved changes (leave, copy into models), reset (new models, copy into config)
             s_config = Helper.ReadConfig<ModConfig>();
 
+            // Set SMAPI log levels
+            s_logLevel = s_config.EnableDebugLogging ? LogLevel.Info : LogLevel.Trace;
+
             // ----------
             // API IMPORT
             // ----------
