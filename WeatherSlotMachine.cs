@@ -210,7 +210,7 @@ namespace IW_ClimateControl
                 }
 
                 // List of <success,dicerolls,odds> for each weather type.
-                List<Tuple<bool, double, double>> weatherRolls;
+                List<Tuple<bool, double>> weatherRolls;
 
                 // Grab the appropriate values for that day
                 // and flip a coin for each weather type.
@@ -247,7 +247,7 @@ namespace IW_ClimateControl
                 }
 
                 // List of <success,dicerolls,odds> for each weather type.
-                List<Tuple<bool, double, double>> weatherRolls = new();
+                List<Tuple<bool, double>> weatherRolls = new();
 
                 // Grab the appropriate values based on time of season
                 // and flip a coin for each weather type.
@@ -294,7 +294,7 @@ namespace IW_ClimateControl
         /// <param name="chance">Likelihood of a change.</param>
         /// <param name="api">Framework API.</param>
         /// <returns>Tuple: The successful weather type and the value of the dice roll.</returns>
-        private static Tuple<bool, double, double> FlipCoin(double chance, string weatherForRoll)
+        private static Tuple<bool, double> FlipCoin(double chance, string weatherForRoll)
         {
             // If dice roll lands within the percentage, permit the change.
             // Otherwise, deny it. Smaller percentages have narrower
@@ -307,7 +307,7 @@ namespace IW_ClimateControl
             // Print all dicerolls to terminal.
             ClimateControl.s_eventLogger.SendToSMAPI($"{weatherForRoll} was {(weatherBool ? "successful" : "unsuccessful")} with a diceroll of {diceRoll} against odds of {0.01 * chance}.");
 
-            return new Tuple<bool, double, double>(weatherBool, diceRoll, chance);
+            return new Tuple<bool, double>(weatherBool, diceRoll);
         }
 
         /// <summary>
@@ -317,7 +317,7 @@ namespace IW_ClimateControl
         /// <returns>
         /// <see cref="IIWAPI.WeatherType"/>: the generated weather.
         /// </returns>
-        private static IIWAPI.WeatherType InterpretChoice(List<Tuple<bool, double, double>> weatherRolls)
+        private static IIWAPI.WeatherType InterpretChoice(List<Tuple<bool, double>> weatherRolls)
         {
             // Default values
             double diceRoll = 1.0;
