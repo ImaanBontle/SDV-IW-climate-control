@@ -63,7 +63,7 @@ namespace IWClimateControl
         /// </summary>
         internal static SaveData s_weatherChanges;
         /// <summary>
-        /// Contains list of festival dates for this game.
+        /// Contains list of festival dates for this game sorted by season.
         /// </summary>
         internal static Dictionary<string, List<int>> s_festivalDates = new();
         /// <summary>
