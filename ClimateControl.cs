@@ -218,6 +218,12 @@ namespace IWClimateControl
                 // Load save data
                 Monitor.Log("Loading save data from file...", s_logLevel);
                 s_weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
+
+                // If weather has not been predicted thus far, generate tomorrow's weather prediction.
+                if (Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") == null)
+                {
+                    WeatherSlotMachine.GenerateSaveData(Game1.Date);
+                }
             }
         }
 

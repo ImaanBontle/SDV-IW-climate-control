@@ -12,6 +12,17 @@ namespace IW_ClimateControl
     internal class WeatherSlotMachine
     {
         /// <summary>
+        /// Generates weather data for first time on current save.
+        /// </summary>
+        /// <param name="currentDate">The current game date.</param>
+        internal static void GenerateSaveData(WorldDate currentDate)
+        {
+            ClimateControl.s_eventLogger.SendToSMAPI($"Today's date is {currentDate.DayOfMonth} {currentDate.Season} Y{currentDate.Year}");
+            ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...");
+            PerformCheck(currentDate, out bool canChangeTomorrow, out string reasonTomorrow, out IIWAPI.WeatherType defaultTomorrow);
+        }
+
+        /// <summary>
         /// Attempt weather changes for saved game.
         /// </summary>
         /// <param name="currentDate">The current game date.</param>
@@ -86,6 +97,7 @@ namespace IW_ClimateControl
         /// <param name="thisDate">The date to check.</param>
         /// <param name="canChange">Can the weather be changed?</param>
         /// <param name="reason">If not, why not?</param>
+        /// <param name="weatherType">If not, what is the default weather?</param>
         private static void PerformCheck(WorldDate thisDate, out bool canChange, out string reason, out IIWAPI.WeatherType weatherType)
         {
             // Initialize.
