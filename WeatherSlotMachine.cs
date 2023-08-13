@@ -17,8 +17,10 @@ namespace IW_ClimateControl
         /// <param name="currentDate">The current game date.</param>
         internal static void GenerateSaveData(WorldDate currentDate)
         {
+            // Check that tomorrow's weather can be changed.
             ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...");
             PerformCheck(currentDate, out bool canChangeTomorrow, out string reasonTomorrow, out IIWAPI.WeatherType defaultTomorrow);
+            ClimateControl.s_weatherChanges.SetChangeTomorrow(canChangeTomorrow).SetTomorrowReason(reasonTomorrow).SetWeatherTomorrow(defaultTomorrow);
         }
 
         /// <summary>
