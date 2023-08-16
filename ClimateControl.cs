@@ -254,30 +254,6 @@ namespace IWClimateControl
             }
         }
 
-        // -----------------
-        // INTERPOLATE MODEL
-        // -----------------
-        /// <summary>
-        /// Interpolates the probabilities onto a daily grid.
-        /// </summary>
-        internal static void InterpolateModel(IModHelper Helper)
-        {
-            s_eventLogger.SendToSMAPI("Model needs to be re-interpolated. Interpolating...");
-            if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
-            {
-                s_weatherChances = s_config;
-                s_weatherArrays = Interpolator.InterpolateWeather();
-                Helper.Data.WriteJsonFile("data/custom.json", s_weatherArrays);
-            }
-            else if (s_config.ModelChoice == IIWAPI.WeatherModel.standard.ToString())
-            {
-                s_weatherChances = s_standardModel;
-                s_weatherArrays = Interpolator.InterpolateWeather();
-                Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
-            }
-            s_eventLogger.SendToSMAPI("Done.");
-        }
-
         // --------------
         // CHANGE WEATHER
         // --------------
@@ -335,6 +311,30 @@ namespace IWClimateControl
                 Monitor.Log("Saving weather data to file...", s_logLevel);
                 Helper.Data.WriteSaveData("ClimateControl-WeatherData", s_weatherChanges);
             }
+        }
+
+        // -----------------
+        // INTERPOLATE MODEL
+        // -----------------
+        /// <summary>
+        /// Interpolates the probabilities onto a daily grid.
+        /// </summary>
+        internal static void InterpolateModel(IModHelper Helper)
+        {
+            s_eventLogger.SendToSMAPI("Model needs to be re-interpolated. Interpolating...");
+            if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
+            {
+                s_weatherChances = s_config;
+                s_weatherArrays = Interpolator.InterpolateWeather();
+                Helper.Data.WriteJsonFile("data/custom.json", s_weatherArrays);
+            }
+            else if (s_config.ModelChoice == IIWAPI.WeatherModel.standard.ToString())
+            {
+                s_weatherChances = s_standardModel;
+                s_weatherArrays = Interpolator.InterpolateWeather();
+                Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
+            }
+            s_eventLogger.SendToSMAPI("Done.");
         }
 
         // --------------------
