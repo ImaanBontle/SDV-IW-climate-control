@@ -17,18 +17,6 @@
         /// What should the weather be tomorrow? Defaults to sunny.
         /// </summary>
         public IIWAPI.WeatherType WeatherTomorrow { get; set; } = IIWAPI.WeatherType.sunny;
-        /// <summary>
-        /// Could the weather be changed the day after tomorrow?
-        /// </summary>
-        public bool ChangeDayAfter { get; set; } = false;
-        /// <summary>
-        /// The reason the weather could not be changed the day after tomorrow.
-        /// </summary>
-        public string DayAfterReason { get; set; } = null;
-        /// <summary>
-        /// What should the weather be the day after tomorrow? Defaults to sunny.
-        /// </summary>
-        public IIWAPI.WeatherType WeatherDayAfter { get; set; } = IIWAPI.WeatherType.sunny;
 
         /// <summary>
         /// Sets <see cref="ChangeTomorrow"/> to <paramref name="changeTomorrow"/>.
@@ -58,36 +46,6 @@
         public SaveData SetWeatherTomorrow(IIWAPI.WeatherType weatherTomorrow)
         {
             WeatherTomorrow = weatherTomorrow;
-            return this;
-        }
-        /// <summary>
-        /// Sets <see cref="ChangeDayAfter"/> to <paramref name="changeDayAfter"/>.
-        /// </summary>
-        /// <param name="changeDayAfter">See <see cref="ChangeDayAfter"/>.</param>
-        /// <returns><see cref="SaveData"/></returns>
-        public SaveData SetChangeDayAfter(bool changeDayAfter)
-        {
-            ChangeDayAfter = changeDayAfter;
-            return this;
-        }
-        /// <summary>
-        /// Sets <see cref="DayAfterReason"/> to <paramref name="dayAfterReason"/>.
-        /// </summary>
-        /// <param name="dayAfterReason">See <see cref="DayAfterReason"/>.</param>
-        /// <returns><see cref="SaveData"/></returns>
-        public SaveData SetDayAfterReason(string dayAfterReason)
-        {
-            DayAfterReason = dayAfterReason;
-            return this;
-        }
-        /// <summary>
-        /// Sets <see cref="WeatherDayAfter"/> to <paramref name="weatherDayAfter"/>.
-        /// </summary>
-        /// <param name="weatherDayAfter">See <see cref="WeatherDayAfter"/>.</param>
-        /// <returns><see cref="SaveData"/></returns>
-        public SaveData SetWeatherDayAfter(IIWAPI.WeatherType weatherDayAfter)
-        {
-            WeatherDayAfter = weatherDayAfter;
             return this;
         }
     }
