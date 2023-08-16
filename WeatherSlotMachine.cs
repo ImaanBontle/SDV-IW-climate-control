@@ -12,20 +12,19 @@ namespace IW_ClimateControl
     internal class WeatherSlotMachine
     {
         /// <summary>
-        /// Generates weather data for first time on current save.
+        /// Generates weather data for the day after <paramref name="dateToConsider"/>.
         /// </summary>
-        /// <param name="currentDate">The current game date.</param>
-        internal static void GenerateSaveData(SDate currentDate)
+        /// <param name="dateToConsider">The date to consider (NB: changes apply to the following day).</param>
+        internal static void GenerateTomorrowChanges(SDate dateToConsider)
         {
             // Check that tomorrow's weather can be changed.
-            ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...");
-            PerformCheck(currentDate, out bool canChangeTomorrow, out string reasonTomorrow, out IIWAPI.WeatherType defaultTomorrow);
+            PerformCheck(dateToConsider, out bool canChangeTomorrow, out string reasonTomorrow, out IIWAPI.WeatherType defaultTomorrow);
             ClimateControl.s_weatherChanges.SetChangeTomorrow(canChangeTomorrow).SetTomorrowReason(reasonTomorrow).SetWeatherTomorrow(defaultTomorrow);
 
             // Generate appropriate weather based on this information.
             if (canChangeTomorrow)
             {
-                ClimateControl.s_weatherChanges.SetWeatherTomorrow(GenerateWeather(currentDate));
+                ClimateControl.s_weatherChanges.SetWeatherTomorrow(GenerateWeather(dateToConsider));
             }
         }
 
@@ -103,13 +102,13 @@ namespace IW_ClimateControl
         }
 
         /// <summary>
-        /// Performs check if weather can be changed tomorrow.
+        /// Checks if the weather can be changed for the day after <paramref name="dateToConsider"/>.
         /// </summary>
-        /// <param name="thisDate">Today's date.</param>
+        /// <param name="dateToConsider">The date to consider.</param>
         /// <param name="canChange">Can tomorrow's weather be changed?</param>
         /// <param name="reason">If not, why not?</param>
         /// <param name="weatherType">If not, what is the default weather?</param>
-        private static void PerformCheck(SDate thisDate, out bool canChange, out string reason, out IIWAPI.WeatherType weatherType)
+        private static void PerformCheck(SDate dateToConsider, out bool canChange, out string reason, out IIWAPI.WeatherType weatherType)
         {
             // Initialize.
             canChange = true;
@@ -117,7 +116,7 @@ namespace IW_ClimateControl
             weatherType = IIWAPI.WeatherType.sunny;
 
             // Check possibilities
-            switch (thisDate.DaysSinceStart)
+            switch (dateToConsider.DaysSinceStart)
             {
                 case 1:
                 case 2:
@@ -126,11 +125,11 @@ namespace IW_ClimateControl
                     canChange = false;
                     reason = "the player has played too few days on this save.";
                     // Unique case: Spring 3 is tomorrow
-                    if (thisDate.DaysSinceStart == 2)
+                    if (dateToConsider.DaysSinceStart == 2)
                         weatherType = IIWAPI.WeatherType.raining;
                     break;
                 default:
-                    if (ClimateControl.s_festivalDates[thisDate.Season].Contains(thisDate.Day + 1))
+                    if (ClimateControl.s_festivalDates[dateToConsider.Season].Contains(dateToConsider.Day + 1))
                     {
                         // Festival tomorrow.
                         canChange = false;
@@ -144,7 +143,7 @@ namespace IW_ClimateControl
                     }
                     else
                     {
-                        switch (thisDate.Day)
+                        switch (dateToConsider.Day)
                         {
                             case 28:
                                 // First day of a season is always Sunny.
@@ -152,10 +151,10 @@ namespace IW_ClimateControl
                                 reason = "tomorrow is the first day of the season and it is always sunny.";
                                 break;
                             default:
-                                switch (Enum.Parse<IIWAPI.SeasonType>(thisDate.Season))
+                                switch (Enum.Parse<IIWAPI.SeasonType>(dateToConsider.Season))
                                 {
                                     case IIWAPI.SeasonType.summer:
-                                        if ((thisDate.Day + 1) % 13 == 0)
+                                        if ((dateToConsider.Day + 1) % 13 == 0)
                                         {
                                             // Summer 13 and 26 always storm.
                                             canChange = false;
@@ -164,7 +163,7 @@ namespace IW_ClimateControl
                                         }
                                         break;
                                     case IIWAPI.SeasonType.winter:
-                                        if ((thisDate.Day + 1) is >= 14 and <= 16)
+                                        if ((dateToConsider.Day + 1) is >= 14 and <= 16)
                                         {
                                             // Winter 14, 15 and 16 are always sunny (
                                             canChange = false;
@@ -181,35 +180,35 @@ namespace IW_ClimateControl
         }
 
         /// <summary>
-        /// Generates weather based on config values.
+        /// Generates weather for day after <paramref name="dateToConsider"/>, based on config values.
         /// </summary>
-        /// <param name="currentDate">Generated by Stardew Valley.</param>
+        /// <param name="dateToConsider">Date to consider.</param>
         /// <returns>
         /// <see cref="IIWAPI.WeatherType"/>: the generated weather.
         /// </returns>
-        public static IIWAPI.WeatherType GenerateWeather(SDate currentDate)
+        public static IIWAPI.WeatherType GenerateWeather(SDate dateToConsider)
         {
             // Determine whether to use interpolation or fixed values
             if (ClimateControl.s_config.EnableInterpolation)
             {
                 // Initialize
                 int dayToCheck = 0;
-                IIWAPI.SeasonType currentSeason = Enum.Parse<IIWAPI.SeasonType>(currentDate.Season);
+                IIWAPI.SeasonType currentSeason = Enum.Parse<IIWAPI.SeasonType>(dateToConsider.Season);
 
                 // Consider the relevant season.
                 switch (currentSeason)
                 {
                     case IIWAPI.SeasonType.spring:
-                        dayToCheck = currentDate.Day;
+                        dayToCheck = dateToConsider.Day;
                         break;
                     case IIWAPI.SeasonType.summer:
-                        dayToCheck = currentDate.Day + 28;
+                        dayToCheck = dateToConsider.Day + 28;
                         break;
                     case IIWAPI.SeasonType.fall:
-                        dayToCheck = currentDate.Day + 2 * 28;
+                        dayToCheck = dateToConsider.Day + 2 * 28;
                         break;
                     case IIWAPI.SeasonType.winter:
-                        dayToCheck = currentDate.Day + 3 * 28;
+                        dayToCheck = dateToConsider.Day + 3 * 28;
                         break;
                 }
 
@@ -231,7 +230,7 @@ namespace IW_ClimateControl
             {
                 // Initialize
                 Season modelSeason = new();
-                IIWAPI.SeasonType currentSeason = Enum.Parse<IIWAPI.SeasonType>(currentDate.Season);
+                IIWAPI.SeasonType currentSeason = Enum.Parse<IIWAPI.SeasonType>(dateToConsider.Season);
 
                 // Consider only the relevant season.
                 switch (currentSeason)
@@ -255,7 +254,7 @@ namespace IW_ClimateControl
 
                 // Grab the appropriate values based on time of season
                 // and flip a coin for each weather type.
-                if (currentDate.Day % 28 is >= 0 and <= 8)
+                if (dateToConsider.Day % 28 is >= 0 and <= 8)
                 {
                     // Tomorrow is day 1-9.
                     weatherRolls = new()
@@ -266,7 +265,7 @@ namespace IW_ClimateControl
                         FlipCoin(modelSeason.Snow.Early, "Snow")
                     };
                 }
-                else if (currentDate.Day % 28 is >= 9 and <= 18)
+                else if (dateToConsider.Day % 28 is >= 9 and <= 18)
                 {
                     // Tomorrow is day 10-19.
                     weatherRolls = new()
@@ -277,7 +276,7 @@ namespace IW_ClimateControl
                         FlipCoin(modelSeason.Snow.Mid, "Snow")
                     };
                 }
-                else if (currentDate.Day % 28 is >= 19 and <= 27)
+                else if (dateToConsider.Day % 28 is >= 19 and <= 27)
                 {
                     // Tomorrow is day 20-28.
                     weatherRolls = new()
