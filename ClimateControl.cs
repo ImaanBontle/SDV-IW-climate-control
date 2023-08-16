@@ -291,46 +291,15 @@ namespace IWClimateControl
             // Only perform change if main player in multiplayer.
             if (Context.IsMainPlayer)
             {
+                // Attempt to change weather
                 Monitor.Log("Attempting to change weather...", s_logLevel);
+                WeatherSlotMachine.AttemptChange();
 
-                // Grab relevant info for calculation
-                SDate currentDate = SDate.From(Game1.Date);
+                // Tell the Framework about the change.
                 ImmersiveWeathers.MessageContainer weatherWasChanged = new();
                 weatherWasChanged.Message.MessageType = ImmersiveWeathers.IIWAPI.MessageTypes.dayStarted;
                 weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IIWAPI.SisterMods.ClimateControl;
-
-                // Attempt to change weather
-                WeatherSlotMachine.AttemptChange(currentDate);
-
-                // Can weather be changed?
                 weatherWasChanged.Message.CouldChange = s_weatherChanges.ChangeTomorrow;
-                if (weatherWasChanged.Message.CouldChange)
-                {
-                    // Did any weather types pass the dice roll?
-                    if (s_weatherChanges.WeatherTomorrow != IIWAPI.WeatherType.sunny)
-                    {
-                        // Yes. Weather will change to winner.
-                        Monitor.Log($"Weather tomorrow changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", s_logLevel);
-                    }
-                    else if (s_weatherChanges.WeatherTomorrow == IIWAPI.WeatherType.sunny)
-                    {
-                        // No. Weather will remain Sunny.
-                        Monitor.Log($"No weather types passed the dice roll for tomorrow. Weather changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", s_logLevel);
-                    }
-
-                    // Change tomorrow's weather.
-                    Game1.weatherForTomorrow = (int)s_weatherChanges.WeatherTomorrow;
-
-                    // Store information for the Framework.
-                    weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IIWAPI.WeatherType)(int)s_weatherChanges.WeatherTomorrow;
-                }
-                else
-                {
-                    // If not, note this.
-                    Monitor.Log($"Weather could not be changed because {s_weatherChanges.TomorrowReason} Updating framework...", s_logLevel);
-                }
-
-                // Tell the Framework about the change.
                 s_iWAPI.ProcessMessage(weatherWasChanged);
 
                 // Check message was received by Framework.

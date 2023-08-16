@@ -30,11 +30,38 @@ namespace IW_ClimateControl
         }
 
         /// <summary>
-        /// Attempt weather changes for the day after <paramref name="todayDate"/>.
+        /// Attempt weather changes for tomorrow.
         /// </summary>
-        /// <param name="todayDate">Today's date.</param>
-        internal static void AttemptChange(SDate todayDate)
+        internal static void AttemptChange()
         {
+            // Debug logging.
+            string message;
+            // Can weather be changed?
+            if (ClimateControl.s_weatherChanges.ChangeTomorrow)
+            {
+                // If yes, did any weather types pass the dice roll?
+                if (ClimateControl.s_weatherChanges.WeatherTomorrow != IIWAPI.WeatherType.sunny)
+                {
+                    // Yes. Weather will change to reflect the winner.
+                    message = $"Weather tomorrow changed to {ClimateControl.s_weatherChanges.WeatherTomorrow}. Updating framework...";
+                }
+                else
+                {
+                    // No. Weather will remain Sunny.
+                    message = $"No weather types passed the dice roll for tomorrow. Weather changed to {ClimateControl.s_weatherChanges.WeatherTomorrow}. Updating framework...";
+                }
+                // Perform actual change in weather.
+                Game1.weatherForTomorrow = (int)ClimateControl.s_weatherChanges.WeatherTomorrow;
+            }
+            else
+            {
+                // If not, make note of this.
+                message = $"Weather could not be changed because {ClimateControl.s_weatherChanges.TomorrowReason} Updating framework...";
+            }
+            // Send debug log.
+            ClimateControl.s_eventLogger.SendToSMAPI(message);
+
+
             /*
              * Needs to be shifted to a separate end-of-day function.
             // Otherwise, grab predicted changes from day after tomorrow (shift day forward).
