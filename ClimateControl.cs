@@ -250,6 +250,7 @@ namespace IWClimateControl
                 {
                     Monitor.Log("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...", s_logLevel);
                     WeatherSlotMachine.GenerateTomorrowChanges(SDate.From(Game1.Date));
+                    Monitor.Log("Done.", s_logLevel);
                 }
             }
         }
