@@ -131,7 +131,6 @@ namespace IWClimateControl
             // -----------
             // At save load, load data.
             Helper.Events.GameLoop.SaveLoaded += SaveLoaded_LoadData;
-            Helper.Events.GameLoop.SaveLoaded += SaveLoaded_CacheModel;
 
             // ---------
             // DAY START
@@ -165,7 +164,7 @@ namespace IWClimateControl
         // GRAB MISCELLANEOUS DATA
         // -----------------------
         /// <summary>
-        /// Grabs supporting asset data from game files.
+        /// Grabs supporting data from game files.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -206,41 +205,16 @@ namespace IWClimateControl
         // LOAD SAVE DATA
         // --------------
         /// <summary>
-        /// Loads the save data for the main player.
+        /// Loads the necessary weather data when the save is loaded.
         /// </summary>
-        /// <remarks>Contains the weather for tomorrow and the day after. Allows consistency on game-load.</remarks>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
         private void SaveLoaded_LoadData(object sender, SaveLoadedEventArgs e)
         {
-            // Only perform load if main player in multiplayer.
-            if (Context.IsMainPlayer)
-            {
-                // Load save data
-                Monitor.Log("Loading save data from file...", s_logLevel);
-                s_weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
-
-                // If weather has not been predicted thus far, generate tomorrow's weather prediction.
-                if (Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") == null)
-                {
-                    WeatherSlotMachine.GenerateSaveData(Game1.Date);
-                }
-            }
-        }
-
-        // -------------------
-        // CACHE WEATHER MODEL
-        // -------------------
-        /// <summary>
-        /// Loads the necessary weather model when the save is loaded.
-        /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private void SaveLoaded_CacheModel(object sender, SaveLoadedEventArgs e)
-        {
             // Only perform load if main player in multiplater.
             if (Context.IsMainPlayer)
             {
+                // Cache relevant weather models
                 if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
                 {
                     // Custom model created by player.
@@ -264,6 +238,16 @@ namespace IWClimateControl
                         s_weatherArrays = Interpolator.InterpolateWeather();
                         Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
                     }
+                }
+
+                // Load save data
+                Monitor.Log("Loading save data from file...", s_logLevel);
+                s_weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
+
+                // If weather has not been predicted thus far, generate tomorrow's weather prediction.
+                if (Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") == null)
+                {
+                    WeatherSlotMachine.GenerateSaveData(Game1.Date);
                 }
             }
         }
