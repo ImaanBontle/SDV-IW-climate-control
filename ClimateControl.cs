@@ -139,11 +139,17 @@ namespace IWClimateControl
             // When day begins, interpolate model and set tomorrow's weather.
             Helper.Events.GameLoop.DayStarted += DayStarted_ChangeWeather;
 
+            //
+            //
+            //
+            // Before the day ends, prepare for tomorrow.
+            Helper.Events.GameLoop.DayEnding += DayEnding_PrepareForTomorrow;
+
             // -----------
             // GAME SAVING
             // -----------
             // When game saves, update save data object.
-            Helper.Events.GameLoop.Saving += Saving_PrepareForTomorrow;
+            Helper.Events.GameLoop.Saving += Saving_SaveData;
         }
 
         // ---------
@@ -297,19 +303,34 @@ namespace IWClimateControl
         // PREPARE FOR TOMORROW
         // --------------------
         /// <summary>
-        /// Perform end-of-day calculations and save the weather changes so they are consistent upon reloading.
+        /// Perform end-of-day calculations.
         /// </summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
-        private void Saving_PrepareForTomorrow(object sender, SavingEventArgs e)
+        private void DayEnding_PrepareForTomorrow(object sender, DayEndingEventArgs e)
+        {
+            // Only perform calculations if main player in multiplayer.
+            if (Context.IsMainPlayer)
+            {
+                // Calculate weather for day after tomorrow.
+                Monitor.Log("Day is ending. Calculating weather changes for day after tomorrow...", s_logLevel);
+                WeatherSlotMachine.GenerateTomorrowChanges(SDate.From(Game1.Date).AddDays(1));
+            }
+        }
+
+        // ---------
+        // SAVE DATA
+        // ---------
+        /// <summary>
+        /// Save the weather changes so they are consistent upon reloading.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private void Saving_SaveData(object sender, SavingEventArgs e)
         {
             // Only perform save if main player in multiplayer.
             if (Context.IsMainPlayer)
             {
-                // Calculate weather for day after tomorrow.
-                Monitor.Log("Day has ended. Calculating weather changes for day after tomorrow...", s_logLevel);
-                WeatherSlotMachine.GenerateTomorrowChanges(SDate.From(Game1.Date).AddDays(1));
-
                 // Save data to file.
                 Monitor.Log("Saving weather data to file...", s_logLevel);
                 Helper.Data.WriteSaveData("ClimateControl-WeatherData", s_weatherChanges);
