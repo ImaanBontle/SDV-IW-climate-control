@@ -148,7 +148,9 @@ namespace IW_ClimateControl
         /// </returns>
         public static IIWAPI.WeatherType GenerateWeather(SDate dateToConsider)
         {
-            // Determine whether to use interpolation or fixed values
+            // Print layout reminder to terminal.
+            ClimateControl.s_eventLogger.SendToSMAPI("OUTCOME: ROLL vs. ODDS (WEATHER-TYPE)");
+            // Determine whether to use interpolation or fixed values.
             if (ClimateControl.s_config.EnableInterpolation)
             {
                 // Initialize
@@ -268,7 +270,7 @@ namespace IW_ClimateControl
                 weatherBool = true;
 
             // Print all dicerolls to terminal.
-            ClimateControl.s_eventLogger.SendToSMAPI($"{weatherForRoll} was {(weatherBool ? "successful" : "unsuccessful")} with a diceroll of {diceRoll} against odds of {0.01 * chance}.");
+            ClimateControl.s_eventLogger.SendToSMAPI($"{(weatherBool ? "Success" : "Failure")}: {Math.Round(diceRoll * 100, 2)} vs. {Math.Round(chance, 2)} ({weatherForRoll}).");
 
             return new Tuple<bool, double>(weatherBool, diceRoll);
         }
