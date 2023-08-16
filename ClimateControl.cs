@@ -283,7 +283,7 @@ namespace IWClimateControl
                 if (!weatherWasChanged.Response.Acknowledged)
                 {
                     // Not received. Log an error for SMAPI.
-                    Monitor.Log("Error: No acknowledgement received from framework. WHAT DO I DO??", LogLevel.Error);
+                    Monitor.Log("Error: No acknowledgement received from framework. This shouldn't be possible! WHAT DO I DO??", LogLevel.Error);
                 }
             }
             else
