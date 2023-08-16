@@ -143,7 +143,7 @@ namespace IWClimateControl
             // GAME SAVING
             // -----------
             // When game saves, update save data object.
-            Helper.Events.GameLoop.Saving += Saving_SaveWeather;
+            Helper.Events.GameLoop.Saving += Saving_PrepareForTomorrow;
         }
 
         // ---------
@@ -315,15 +315,15 @@ namespace IWClimateControl
             }
         }
 
-        // --------------
-        // SAVE GAME DATA
-        // --------------
+        // --------------------
+        // PREPARE FOR TOMORROW
+        // --------------------
         /// <summary>
-        /// Save the weather changes so they are consistent upon loading.
+        /// Perform end-of-day calculations and save the weather changes so they are consistent upon reloading.
         /// </summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
-        private void Saving_SaveWeather(object sender, SavingEventArgs e)
+        private void Saving_PrepareForTomorrow(object sender, SavingEventArgs e)
         {
             // Only perform save if main player in multiplayer.
             if (Context.IsMainPlayer)
