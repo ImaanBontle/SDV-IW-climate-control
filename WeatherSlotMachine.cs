@@ -12,81 +12,63 @@ namespace IW_ClimateControl
     internal class WeatherSlotMachine
     {
         /// <summary>
-        /// Attempt weather changes for saved game.
+        /// Generates weather data for the day after <paramref name="dateToConsider"/>.
         /// </summary>
-        /// <param name="currentDate">The current game date.</param>
-        internal static void AttemptChange(WorldDate currentDate)
+        /// <param name="dateToConsider">The date to consider (NB: changes apply to the following day).</param>
+        internal static void GenerateTomorrowChanges(SDate dateToConsider)
         {
-            // Check if tomorrow has already been checked.
-            if (ClimateControl.s_weatherChanges.TomorrowReason == null)
-            {
-                // If not, can it change?
-                ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...");
-                PerformCheck(currentDate, out bool canChangeTomorrow, out string reasonTomorrow, out IIWAPI.WeatherType defaultTomorrow);
-                ClimateControl.s_weatherChanges.ChangeTomorrow = canChangeTomorrow;
-                ClimateControl.s_weatherChanges.TomorrowReason = reasonTomorrow;
-                if (canChangeTomorrow)
-                {
-                    // If can change, grab changes.
-                    if (ClimateControl.s_config.EnableInterpolation)
-                    {
-                        ClimateControl.s_weatherChanges.WeatherTomorrow = GenerateWeather(currentDate);
-                    }
-                    else
-                    {
-                        ClimateControl.s_weatherChanges.WeatherTomorrow = GenerateWeather(currentDate, ClimateControl.s_weatherChances);
-                    }
-                }
-                else
-                {
-                    // If can't change, save default weather.
-                    ClimateControl.s_weatherChanges.WeatherTomorrow = defaultTomorrow;
-                }
-            }
-            else
-            {
-                // Otherwise, grab predicted changes from day after tomorrow (shift day forward).
-                ClimateControl.s_weatherChanges.WeatherTomorrow = ClimateControl.s_weatherChanges.WeatherDayAfter;
-                ClimateControl.s_weatherChanges.ChangeTomorrow = ClimateControl.s_weatherChanges.ChangeDayAfter;
-                ClimateControl.s_weatherChanges.TomorrowReason = ClimateControl.s_weatherChanges.DayAfterReason;
-                ClimateControl.s_eventLogger.SendToSMAPI($"Weather already calculated for tomorrow: {ClimateControl.s_weatherChanges.WeatherTomorrow}.");
-            }
+            // Check that tomorrow's weather can be changed.
+            PerformCheck(dateToConsider, out bool canChangeTomorrow, out string reasonTomorrow, out IIWAPI.WeatherType defaultTomorrow);
+            ClimateControl.s_weatherChanges.SetChangeTomorrow(canChangeTomorrow).SetTomorrowReason(reasonTomorrow).SetWeatherTomorrow(defaultTomorrow);
 
-            // Now perform checks for day after tomorrow.
-            ClimateControl.s_eventLogger.SendToSMAPI("Calculating weather for the day after tomorrow...");
-            WorldDate tomorrowDate = SDate.From(currentDate).AddDays(1).ToWorldDate();
-            PerformCheck(tomorrowDate, out bool canChangeDayAfter, out string reasonDayAfter, out IIWAPI.WeatherType defaultDayAfter);
-            ClimateControl.s_weatherChanges.ChangeDayAfter = canChangeDayAfter;
-            ClimateControl.s_weatherChanges.DayAfterReason = reasonDayAfter;
-
-            // Can day after be changed?
-            if (ClimateControl.s_weatherChanges.ChangeDayAfter)
+            // Generate appropriate weather based on this information.
+            if (canChangeTomorrow)
             {
-                // If yes, grab changes.
-                if (ClimateControl.s_config.EnableInterpolation)
-                {
-                    ClimateControl.s_weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate);
-                }
-                else
-                {
-                    ClimateControl.s_weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate, ClimateControl.s_weatherChances);
-                }
+                ClimateControl.s_weatherChanges.SetWeatherTomorrow(GenerateWeather(dateToConsider));
             }
-            else
-            {
-                // If not, grab defaults.
-                ClimateControl.s_weatherChanges.WeatherDayAfter = defaultDayAfter;
-            }
-            ClimateControl.s_eventLogger.SendToSMAPI("Done.");
         }
 
         /// <summary>
-        /// Performs check if weather can be changed.
+        /// Attempt weather changes for tomorrow.
         /// </summary>
-        /// <param name="thisDate">The date to check.</param>
-        /// <param name="canChange">Can the weather be changed?</param>
+        internal static void AttemptTomorrowChange()
+        {
+            // Debug logging.
+            string message;
+            // Can weather be changed?
+            if (ClimateControl.s_weatherChanges.ChangeTomorrow)
+            {
+                // If yes, did any weather types pass the dice roll?
+                if (ClimateControl.s_weatherChanges.WeatherTomorrow != IIWAPI.WeatherType.sunny)
+                {
+                    // Yes. Weather will change to reflect the winner.
+                    message = $"Weather tomorrow changed to {ClimateControl.s_weatherChanges.WeatherTomorrow}. Updating framework...";
+                }
+                else
+                {
+                    // No. Weather will remain Sunny.
+                    message = $"No weather types passed the dice roll for tomorrow. Weather changed to {ClimateControl.s_weatherChanges.WeatherTomorrow}. Updating framework...";
+                }
+                // Perform actual change in weather.
+                Game1.weatherForTomorrow = (int)ClimateControl.s_weatherChanges.WeatherTomorrow;
+            }
+            else
+            {
+                // If not, make note of this.
+                message = $"Weather could not be changed because {ClimateControl.s_weatherChanges.TomorrowReason} Updating framework...";
+            }
+            // Send debug log.
+            ClimateControl.s_eventLogger.SendToSMAPI(message);
+        }
+
+        /// <summary>
+        /// Checks if the weather can be changed for the day after <paramref name="dateToConsider"/>.
+        /// </summary>
+        /// <param name="dateToConsider">The date to consider.</param>
+        /// <param name="canChange">Can tomorrow's weather be changed?</param>
         /// <param name="reason">If not, why not?</param>
-        private static void PerformCheck(WorldDate thisDate, out bool canChange, out string reason, out IIWAPI.WeatherType weatherType)
+        /// <param name="weatherType">If not, what is the default weather?</param>
+        private static void PerformCheck(SDate dateToConsider, out bool canChange, out string reason, out IIWAPI.WeatherType weatherType)
         {
             // Initialize.
             canChange = true;
@@ -94,208 +76,181 @@ namespace IW_ClimateControl
             weatherType = IIWAPI.WeatherType.sunny;
 
             // Check possibilities
-            switch (thisDate.TotalDays)
+            switch (dateToConsider.DaysSinceStart)
             {
-                case 0:
                 case 1:
                 case 2:
+                case 3:
                     // Too early in game.
                     canChange = false;
                     reason = "the player has played too few days on this save.";
-                    // Spring 3
-                    if (thisDate.TotalDays == 1)
+                    // Unique case: Spring 3 is tomorrow
+                    if (dateToConsider.DaysSinceStart == 2)
                         weatherType = IIWAPI.WeatherType.raining;
                     break;
                 default:
-                    if (ClimateControl.s_festivalDates[thisDate.Season].Contains(thisDate.DayOfMonth))
+                    if (ClimateControl.s_festivalDates[dateToConsider.Season].Contains(dateToConsider.Day + 1))
                     {
                         // Festival tomorrow.
                         canChange = false;
                         reason = "tomorrow is a festival.";
                     }
-                    else switch (Game1.weatherForTomorrow)
+                    else if (Game1.weatherForTomorrow == (int)IIWAPI.WeatherType.wedding)
+                    {
+                        // Wedding tomorrow.
+                        canChange = false;
+                        reason = "tomorrow is your wedding. Congratulations!";
+                    }
+                    else
+                    {
+                        switch (dateToConsider.Day)
                         {
-                            case (int)IIWAPI.WeatherType.wedding:
-                                // Wedding tomorrow.
+                            case 28:
+                                // First day of a season is always Sunny.
                                 canChange = false;
-                                reason = "tomorrow is your wedding. Congratulations!";
+                                reason = "tomorrow is the first day of the season and it is always sunny.";
                                 break;
                             default:
-                                switch (thisDate.DayOfMonth)
+                                switch (Enum.Parse<IIWAPI.SeasonType>(dateToConsider.Season))
                                 {
-                                    case 28:
-                                        // First day of a season is always Sunny.
-                                        canChange = false;
-                                        reason = "tomorrow is the first day of the season and it is always sunny.";
-                                        break;
-                                    default:
-                                        switch (Enum.Parse<IIWAPI.SeasonType>(thisDate.Season))
+                                    case IIWAPI.SeasonType.summer:
+                                        if ((dateToConsider.Day + 1) % 13 == 0)
                                         {
-                                            case IIWAPI.SeasonType.summer:
-                                                if ((thisDate.DayOfMonth + 1) % 13 == 0)
-                                                {
-                                                    // Summer 13 and 26 always storm.
-                                                    canChange = false;
-                                                    reason = "tomorrow is a Summer day and is hardcoded to storm.";
-                                                    weatherType = IIWAPI.WeatherType.storming;
-                                                }
-                                                break;
-                                            case IIWAPI.SeasonType.winter:
-                                                if ((thisDate.DayOfMonth + 1) is >= 14 and <= 16)
-                                                {
-                                                    // Winter 14, 15 and 16 are always sunny
-                                                    canChange = false;
-                                                    reason = "tomorrow is a Winter day and is hardcoded to be sunny.";
-                                                }
-                                                break;
+                                            // Summer 13 and 26 always storm.
+                                            canChange = false;
+                                            reason = "tomorrow is a Summer day and is hardcoded to storm.";
+                                            weatherType = IIWAPI.WeatherType.storming;
+                                        }
+                                        break;
+                                    case IIWAPI.SeasonType.winter:
+                                        if ((dateToConsider.Day + 1) is >= 14 and <= 16)
+                                        {
+                                            // Winter 14, 15 and 16 are always sunny (
+                                            canChange = false;
+                                            reason = "tomorrow is a Winter day and is hardcoded to be sunny.";
                                         }
                                         break;
                                 }
                                 break;
                         }
+                        break;
+                    }
                     break;
             }
         }
 
         /// <summary>
-        /// Generates weather based on config values.
+        /// Generates weather for day after <paramref name="dateToConsider"/>, based on config values.
         /// </summary>
-        /// <param name="currentDate">Generated by Stardew Valley.</param>
-        /// <param name="weatherChances">This model's probability parameters.</param>
-        /// <param name="api">Framework API.</param>
+        /// <param name="dateToConsider">Date to consider.</param>
         /// <returns>
         /// <see cref="IIWAPI.WeatherType"/>: the generated weather.
         /// </returns>
-        public static IIWAPI.WeatherType GenerateWeather(WorldDate currentDate, ModelDefinition weatherChances)
+        public static IIWAPI.WeatherType GenerateWeather(SDate dateToConsider)
         {
-            // Initialize
-            Season modelSeason = new();
-            IIWAPI.SeasonType currentSeason = Enum.Parse<IIWAPI.SeasonType>(currentDate.Season);
-
-            // Consider only the relevant season.
-            switch (currentSeason)
+            // Print layout reminder to terminal.
+            ClimateControl.s_eventLogger.SendToSMAPI("OUTCOME: ROLL vs. ODDS (WEATHER-TYPE)");
+            // Determine whether to use interpolation or fixed values.
+            if (ClimateControl.s_config.EnableInterpolation)
             {
-                case IIWAPI.SeasonType.spring:
-                    modelSeason = weatherChances.Spring;
-                    break;
-                case IIWAPI.SeasonType.summer:
-                    modelSeason = weatherChances.Summer;
-                    break;
-                case IIWAPI.SeasonType.fall:
-                    modelSeason = weatherChances.Fall;
-                    break;
-                case IIWAPI.SeasonType.winter:
-                    modelSeason = weatherChances.Winter;
-                    break;
-            }
-            return ChooseWeather(modelSeason, currentDate);
-        }
+                // Initialize
+                int dayToCheck = 0;
+                IIWAPI.SeasonType currentSeason = Enum.Parse<IIWAPI.SeasonType>(dateToConsider.Season);
 
-        /// <summary>
-        /// Generates weather based on interpolated values.
-        /// </summary>
-        /// <param name="currentDate">Generated by Stardew Valley.</param>
-        /// <returns>
-        /// <see cref="IIWAPI.WeatherType"/>: the generated weather.
-        /// </returns>
-        public static IIWAPI.WeatherType GenerateWeather(WorldDate currentDate)
-        {
-            // Initialize
-            int dayToCheck = 0;
-            IIWAPI.SeasonType currentSeason = Enum.Parse<IIWAPI.SeasonType>(currentDate.Season);
+                // Consider the relevant season.
+                switch (currentSeason)
+                {
+                    case IIWAPI.SeasonType.spring:
+                        dayToCheck = dateToConsider.Day;
+                        break;
+                    case IIWAPI.SeasonType.summer:
+                        dayToCheck = dateToConsider.Day + 28;
+                        break;
+                    case IIWAPI.SeasonType.fall:
+                        dayToCheck = dateToConsider.Day + 2 * 28;
+                        break;
+                    case IIWAPI.SeasonType.winter:
+                        dayToCheck = dateToConsider.Day + 3 * 28;
+                        break;
+                }
 
-            // Consider the relevant season.
-            switch (currentSeason)
-            {
-                case IIWAPI.SeasonType.spring:
-                    dayToCheck = currentDate.DayOfMonth;
-                    break;
-                case IIWAPI.SeasonType.summer:
-                    dayToCheck = currentDate.DayOfMonth + 28;
-                    break;
-                case IIWAPI.SeasonType.fall:
-                    dayToCheck = currentDate.DayOfMonth + 2 * 28;
-                    break;
-                case IIWAPI.SeasonType.winter:
-                    dayToCheck = currentDate.DayOfMonth + 3 * 28;
-                    break;
-            }
-            return ChooseWeather(dayToCheck);
-        }
+                // List of <success,dicerolls,odds> for each weather type.
+                List<Tuple<bool, double>> weatherRolls;
 
-        /// <summary>
-        /// Chooses weather for tomorrow using config values.
-        /// </summary>
-        /// <param name="modelSeason">The likelihood of each weather type in this season based on model parameters.</param>
-        /// <param name="currentDate">Generated by Stardew Valley</param>
-        /// <returns>
-        /// <see cref="IIWAPI.WeatherType"/>: the generated weather.
-        /// </returns>
-        private static IIWAPI.WeatherType ChooseWeather(Season modelSeason, WorldDate currentDate)
-        {
-            // List of <success,dicerolls,odds> for each weather type.
-            List<Tuple<bool, double, double>> weatherRolls = new();
-
-            // Grab the appropriate values based on time of season
-            // and flip a coin for each weather type.
-            if (currentDate.DayOfMonth % 28 is >= 0 and <= 8)
-            {
-                // Tomorrow is day 1-9.
+                // Grab the appropriate values for that day
+                // and flip a coin for each weather type.
                 weatherRolls = new()
                 {
-                    FlipCoin(modelSeason.Rain.Early),
-                    FlipCoin(modelSeason.Storm.Early),
-                    FlipCoin(modelSeason.Wind.Early),
-                    FlipCoin(modelSeason.Snow.Early)
+                    FlipCoin(ClimateControl.s_weatherArrays.rainArray[dayToCheck % (28 * 4)], "Rain"),
+                    FlipCoin(ClimateControl.s_weatherArrays.stormArray[dayToCheck % (28 * 4)], "Thunderstorm"),
+                    FlipCoin(ClimateControl.s_weatherArrays.windArray[dayToCheck % (28 * 4)], "Wind"),
+                    FlipCoin(ClimateControl.s_weatherArrays.snowArray[dayToCheck % (28 * 4)], "Snow")
                 };
+                return InterpretChoice(weatherRolls);
             }
-            else if (currentDate.DayOfMonth % 28 is >= 9 and <= 18)
+            else
             {
-                // Tomorrow is day 10-19.
-                weatherRolls = new()
-                {
-                    FlipCoin(modelSeason.Rain.Mid),
-                    FlipCoin(modelSeason.Storm.Mid),
-                    FlipCoin(modelSeason.Wind.Mid),
-                    FlipCoin(modelSeason.Snow.Mid)
-                };
-            }
-            else if (currentDate.DayOfMonth % 28 is >= 19 and <= 27)
-            {
-                // Tomorrow is day 20-28.
-                weatherRolls = new()
-                {
-                    FlipCoin(modelSeason.Rain.Late),
-                    FlipCoin(modelSeason.Storm.Late),
-                    FlipCoin(modelSeason.Wind.Late),
-                    FlipCoin(modelSeason.Snow.Late)
-                };
-            }
-            return InterpretChoice(weatherRolls);
-        }
+                // Initialize
+                Season modelSeason = new();
+                IIWAPI.SeasonType currentSeason = Enum.Parse<IIWAPI.SeasonType>(dateToConsider.Season);
 
-        /// <summary>
-        /// Chooses weather for tomorrow using interpolated values.
-        /// </summary>
-        /// <param name="currentDate">Date of the year, from 1-112.</param>
-        /// <returns>
-        /// <see cref="IIWAPI.WeatherType"/>: the generated weather.
-        /// </returns>
-        private static IIWAPI.WeatherType ChooseWeather(int currentDate)
-        {
-            // List of <success,dicerolls,odds> for each weather type.
-            List<Tuple<bool, double, double>> weatherRolls;
+                // Consider only the relevant season.
+                switch (currentSeason)
+                {
+                    case IIWAPI.SeasonType.spring:
+                        modelSeason = ClimateControl.s_weatherChances.Spring;
+                        break;
+                    case IIWAPI.SeasonType.summer:
+                        modelSeason = ClimateControl.s_weatherChances.Summer;
+                        break;
+                    case IIWAPI.SeasonType.fall:
+                        modelSeason = ClimateControl.s_weatherChances.Fall;
+                        break;
+                    case IIWAPI.SeasonType.winter:
+                        modelSeason = ClimateControl.s_weatherChances.Winter;
+                        break;
+                }
 
-            // Grab the appropriate values for that day
-            // and flip a coin for each weather type.
-            weatherRolls = new()
-            {
-                FlipCoin(ClimateControl.s_weatherArrays.rainArray[currentDate % (28 * 4)]),
-                FlipCoin(ClimateControl.s_weatherArrays.stormArray[currentDate % (28 * 4)]),
-                FlipCoin(ClimateControl.s_weatherArrays.windArray[currentDate % (28 * 4)]),
-                FlipCoin(ClimateControl.s_weatherArrays.snowArray[currentDate % (28 * 4)])
-            };
-            return InterpretChoice(weatherRolls);
+                // List of <success,dicerolls,odds> for each weather type.
+                List<Tuple<bool, double>> weatherRolls = new();
+
+                // Grab the appropriate values based on time of season
+                // and flip a coin for each weather type.
+                if (dateToConsider.Day % 28 is >= 0 and <= 8)
+                {
+                    // Tomorrow is day 1-9.
+                    weatherRolls = new()
+                    {
+                        FlipCoin(modelSeason.Rain.Early, "Rain"),
+                        FlipCoin(modelSeason.Storm.Early, "Thunderstorm"),
+                        FlipCoin(modelSeason.Wind.Early, "Wind"),
+                        FlipCoin(modelSeason.Snow.Early, "Snow")
+                    };
+                }
+                else if (dateToConsider.Day % 28 is >= 9 and <= 18)
+                {
+                    // Tomorrow is day 10-19.
+                    weatherRolls = new()
+                    {
+                        FlipCoin(modelSeason.Rain.Mid, "Rain"),
+                        FlipCoin(modelSeason.Storm.Mid, "Thunderstorm"),
+                        FlipCoin(modelSeason.Wind.Mid, "Wind"),
+                        FlipCoin(modelSeason.Snow.Mid, "Snow")
+                    };
+                }
+                else if (dateToConsider.Day % 28 is >= 19 and <= 27)
+                {
+                    // Tomorrow is day 20-28.
+                    weatherRolls = new()
+                    {
+                        FlipCoin(modelSeason.Rain.Late, "Rain"),
+                        FlipCoin(modelSeason.Storm.Late, "Thunderstorm"),
+                        FlipCoin(modelSeason.Wind.Late, "Wind"),
+                        FlipCoin(modelSeason.Snow.Late, "Snow")
+                    };
+                }
+                return InterpretChoice(weatherRolls);
+            }
         }
 
         /// <summary>
@@ -304,7 +259,7 @@ namespace IW_ClimateControl
         /// <param name="chance">Likelihood of a change.</param>
         /// <param name="api">Framework API.</param>
         /// <returns>Tuple: The successful weather type and the value of the dice roll.</returns>
-        private static Tuple<bool, double, double> FlipCoin(double chance)
+        private static Tuple<bool, double> FlipCoin(double chance, string weatherForRoll)
         {
             // If dice roll lands within the percentage, permit the change.
             // Otherwise, deny it. Smaller percentages have narrower
@@ -313,7 +268,11 @@ namespace IW_ClimateControl
             double diceRoll = ClimateControl.s_iWAPI.RollTheDice();
             if ((0.01 * chance) >= diceRoll)
                 weatherBool = true;
-            return new Tuple<bool, double, double>(weatherBool, diceRoll, chance);
+
+            // Print all dicerolls to terminal.
+            ClimateControl.s_eventLogger.SendToSMAPI($"{(weatherBool ? "Success" : "Failure")}: {Math.Round(diceRoll * 100, 2)} vs. {Math.Round(chance, 2)} ({weatherForRoll}).");
+
+            return new Tuple<bool, double>(weatherBool, diceRoll);
         }
 
         /// <summary>
@@ -323,11 +282,10 @@ namespace IW_ClimateControl
         /// <returns>
         /// <see cref="IIWAPI.WeatherType"/>: the generated weather.
         /// </returns>
-        private static IIWAPI.WeatherType InterpretChoice(List<Tuple<bool, double, double>> weatherRolls)
+        private static IIWAPI.WeatherType InterpretChoice(List<Tuple<bool, double>> weatherRolls)
         {
             // Default values
             double diceRoll = 1.0;
-            double odds;
             IIWAPI.WeatherType weatherJackpot = IIWAPI.WeatherType.sunny;
 
             // Find the weather with the lowest successful dice-roll.
@@ -336,24 +294,19 @@ namespace IW_ClimateControl
                 if ((weatherRolls[i].Item1 == true) && weatherRolls[i].Item2 <= diceRoll)
                 {
                     diceRoll = weatherRolls[i].Item2;
-                    odds = weatherRolls[i].Item3;
                     switch (i)
                     {
                         case 0:
                             weatherJackpot = IIWAPI.WeatherType.raining;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Rain was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                         case 1:
                             weatherJackpot = IIWAPI.WeatherType.storming;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Thunderstorm was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                         case 2:
                             weatherJackpot = IIWAPI.WeatherType.windy;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Wind was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                         case 3:
                             weatherJackpot = IIWAPI.WeatherType.snowing;
-                            ClimateControl.s_eventLogger.SendToSMAPI($"Snow was successful with a diceroll of {diceRoll} against odds of {0.01 * odds}");
                             break;
                     }
                 }

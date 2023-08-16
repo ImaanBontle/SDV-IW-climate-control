@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IW_ClimateControl
+﻿namespace IW_ClimateControl
 {
     /// <summary>
     /// Stores relevant weather predictions to save file.
@@ -23,17 +17,36 @@ namespace IW_ClimateControl
         /// What should the weather be tomorrow? Defaults to sunny.
         /// </summary>
         public IIWAPI.WeatherType WeatherTomorrow { get; set; } = IIWAPI.WeatherType.sunny;
+
         /// <summary>
-        /// Could the weather be changed the day after tomorrow?
+        /// Sets <see cref="ChangeTomorrow"/> to <paramref name="changeTomorrow"/>.
         /// </summary>
-        public bool ChangeDayAfter { get; set; } = false;
+        /// <param name="changeTomorrow">See <see cref="ChangeTomorrow"/>.</param>
+        /// <returns><see cref="SaveData"/></returns>
+        public SaveData SetChangeTomorrow(bool changeTomorrow)
+        {
+            ChangeTomorrow = changeTomorrow;
+            return this;
+        }
         /// <summary>
-        /// The reason the weather could not be changed the day after tomorrow.
+        /// Sets <see cref="TomorrowReason"/> to <paramref name="tomorrowReason"/>.
         /// </summary>
-        public string DayAfterReason { get; set; } = null;
+        /// <param name="tomorrowReason">See <see cref="TomorrowReason"/>.</param>
+        /// <returns><see cref="SaveData"/></returns>
+        public SaveData SetTomorrowReason(string tomorrowReason)
+        {
+            TomorrowReason = tomorrowReason;
+            return this;
+        }
         /// <summary>
-        /// What should the weather be the day after tomorrow? Defaults to sunny.
+        /// Sets <see cref="WeatherTomorrow"/> to <paramref name="weatherTomorrow"/>.
         /// </summary>
-        public IIWAPI.WeatherType WeatherDayAfter { get; set; } = IIWAPI.WeatherType.sunny;
+        /// <param name="weatherTomorrow">See <see cref="WeatherTomorrow"/>.</param>
+        /// <returns><see cref="SaveData"/></returns>
+        public SaveData SetWeatherTomorrow(IIWAPI.WeatherType weatherTomorrow)
+        {
+            WeatherTomorrow = weatherTomorrow;
+            return this;
+        }
     }
 }

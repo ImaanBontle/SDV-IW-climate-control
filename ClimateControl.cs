@@ -2,6 +2,7 @@
 using IW_ClimateControl;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -11,6 +12,7 @@ using System.Text.RegularExpressions;
 // TODO: Investigate accurate TV reporting
 // TODO: Separate weather update (flags) and weather odds (dice rolls) so that odds are only transferred at end of day (means mods can check today's data until end of day)
 // TODO: Update all flags directly when changing weather (prevents storm-rain bug)
+// TODO: Finish updating weather calculations based on recent changes.
 
 namespace IWClimateControl
 {
@@ -63,7 +65,7 @@ namespace IWClimateControl
         /// </summary>
         internal static SaveData s_weatherChanges;
         /// <summary>
-        /// Contains list of festival dates for this game.
+        /// Contains list of festival dates for this game sorted by season.
         /// </summary>
         internal static Dictionary<string, List<int>> s_festivalDates = new();
         /// <summary>
@@ -130,7 +132,6 @@ namespace IWClimateControl
             // -----------
             // At save load, load data.
             Helper.Events.GameLoop.SaveLoaded += SaveLoaded_LoadData;
-            Helper.Events.GameLoop.SaveLoaded += SaveLoaded_CacheModel;
 
             // ---------
             // DAY START
@@ -138,11 +139,17 @@ namespace IWClimateControl
             // When day begins, interpolate model and set tomorrow's weather.
             Helper.Events.GameLoop.DayStarted += DayStarted_ChangeWeather;
 
+            //
+            //
+            //
+            // Before the day ends, prepare for tomorrow.
+            Helper.Events.GameLoop.DayEnding += DayEnding_PrepareForTomorrow;
+
             // -----------
             // GAME SAVING
             // -----------
             // When game saves, update save data object.
-            Helper.Events.GameLoop.Saving += Saving_SaveWeather;
+            Helper.Events.GameLoop.Saving += Saving_SaveData;
         }
 
         // ---------
@@ -164,7 +171,7 @@ namespace IWClimateControl
         // GRAB MISCELLANEOUS DATA
         // -----------------------
         /// <summary>
-        /// Grabs supporting asset data from game files.
+        /// Grabs supporting data from game files.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -177,6 +184,7 @@ namespace IWClimateControl
                 if (e.NameWithoutLocale.IsEquivalentTo("Data/Festivals/FestivalDates"))
                 {
                     Monitor.Log("Adding festival data...", LogLevel.Trace);
+                    // Split festival data into season and date.
                     Regex festivalPattern = new(@"([a-zA-Z]+)(\d+)");
                     foreach (string festival in Helper.GameContent.Load<Dictionary<string, string>>("Data/Festivals/FestivalDates").Keys)
                     {
@@ -185,6 +193,7 @@ namespace IWClimateControl
                         {
                             string festivalName = festivalData.Groups[1].Value;
                             int festivalDate = int.Parse(festivalData.Groups[2].Value);
+                            // Store list of dates per season.
                             if (!s_festivalDates.ContainsKey(festivalName))
                             {
                                 s_festivalDates[festivalName] = new List<int>() { festivalDate };
@@ -203,35 +212,16 @@ namespace IWClimateControl
         // LOAD SAVE DATA
         // --------------
         /// <summary>
-        /// Loads the save data for the main player.
+        /// Loads the necessary weather data when the save is loaded.
         /// </summary>
-        /// <remarks>Contains the weather for tomorrow and the day after. Allows consistency on game-load.</remarks>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
         private void SaveLoaded_LoadData(object sender, SaveLoadedEventArgs e)
         {
-            // Only perform load if main player in multiplayer.
-            if (Context.IsMainPlayer)
-            {
-                // Load save data
-                Monitor.Log("Loading save data from file...", s_logLevel);
-                s_weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
-            }
-        }
-
-        // -------------------
-        // CACHE WEATHER MODEL
-        // -------------------
-        /// <summary>
-        /// Loads the necessary weather model when the save is loaded.
-        /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private void SaveLoaded_CacheModel(object sender, SaveLoadedEventArgs e)
-        {
             // Only perform load if main player in multiplater.
             if (Context.IsMainPlayer)
             {
+                // Cache relevant weather models
                 if (s_config.ModelChoice == IIWAPI.WeatherModel.custom.ToString())
                 {
                     // Custom model created by player.
@@ -256,6 +246,94 @@ namespace IWClimateControl
                         Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
                     }
                 }
+
+                // Load save data
+                Monitor.Log("Loading save data from file...", s_logLevel);
+                s_weatherChanges = Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") ?? new SaveData();
+
+                // If weather has not been predicted thus far, generate tomorrow's weather prediction.
+                if (Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") == null)
+                {
+                    Monitor.Log("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...", s_logLevel);
+                    WeatherSlotMachine.GenerateTomorrowChanges(SDate.From(Game1.Date));
+                    Monitor.Log("Done.", s_logLevel);
+                }
+            }
+        }
+
+        // --------------
+        // CHANGE WEATHER
+        // --------------
+        /// <summary>
+        /// Changes tomorrow's weather at the start of each day.
+        /// </summary>
+        /// <remarks>Weather will not change if tomorrow is a special day (e.g. tomorrow is a festival or a wedding).</remarks>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private void DayStarted_ChangeWeather(object sender, DayStartedEventArgs e)
+        {
+            // Only perform change if main player in multiplayer.
+            if (Context.IsMainPlayer)
+            {
+                // Attempt to change weather
+                Monitor.Log("Attempting to change weather...", s_logLevel);
+                WeatherSlotMachine.AttemptTomorrowChange();
+
+                // Tell the Framework about the change.
+                ImmersiveWeathers.MessageContainer weatherWasChanged = new();
+                weatherWasChanged.Message.MessageType = ImmersiveWeathers.IIWAPI.MessageTypes.dayStarted;
+                weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IIWAPI.SisterMods.ClimateControl;
+                weatherWasChanged.Message.CouldChange = s_weatherChanges.ChangeTomorrow;
+                s_iWAPI.ProcessMessage(weatherWasChanged);
+
+                // Check message was received by Framework.
+                if (!weatherWasChanged.Response.Acknowledged)
+                {
+                    // Not received. Log an error for SMAPI.
+                    Monitor.Log("Error: No acknowledgement received from framework. This shouldn't be possible! WHAT DO I DO??", LogLevel.Error);
+                }
+            }
+            else
+            {
+                Monitor.Log("This is not the main player. Not attempting weather change...", s_logLevel);
+            }
+        }
+
+        // --------------------
+        // PREPARE FOR TOMORROW
+        // --------------------
+        /// <summary>
+        /// Perform end-of-day calculations.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private void DayEnding_PrepareForTomorrow(object sender, DayEndingEventArgs e)
+        {
+            // Only perform calculations if main player in multiplayer.
+            if (Context.IsMainPlayer && SDate.From(Game1.Date).Day > 0)
+            {
+                // Calculate weather for day after tomorrow (referred to as 'tomorrow' in-game to avoid confusion).
+                Monitor.Log($"Calculating weather changes for tomorrow...", s_logLevel);
+                WeatherSlotMachine.GenerateTomorrowChanges(SDate.From(Game1.Date).AddDays(1));
+            }
+        }
+
+        // ---------
+        // SAVE DATA
+        // ---------
+        /// <summary>
+        /// Save the weather changes so they are consistent upon reloading.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private void Saving_SaveData(object sender, SavingEventArgs e)
+        {
+            // Only perform save if main player in multiplayer.
+            if (Context.IsMainPlayer)
+            {
+                // Save data to file.
+                Monitor.Log("Saving weather data to file...", s_logLevel);
+                Helper.Data.WriteSaveData("ClimateControl-WeatherData", s_weatherChanges);
             }
         }
 
@@ -281,94 +359,6 @@ namespace IWClimateControl
                 Helper.Data.WriteJsonFile("data/standard.json", s_weatherArrays);
             }
             s_eventLogger.SendToSMAPI("Done.");
-        }
-
-        // --------------
-        // CHANGE WEATHER
-        // --------------
-        /// <summary>
-        /// Changes tomorrow's weather at the start of each day.
-        /// </summary>
-        /// <remarks>Weather will not change if tomorrow is a special day(e.g. tomorrow is a festival or a wedding).</remarks>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private void DayStarted_ChangeWeather(object sender, DayStartedEventArgs e)
-        {
-            // Only perform change if main player in multiplayer.
-            if (Context.IsMainPlayer)
-            {
-                Monitor.Log("Attempting to change weather...", s_logLevel);
-
-                // Grab relevant info for calculation
-                WorldDate currentDate = Game1.Date;
-                ImmersiveWeathers.MessageContainer weatherWasChanged = new();
-                weatherWasChanged.Message.MessageType = ImmersiveWeathers.IIWAPI.MessageTypes.dayStarted;
-                weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IIWAPI.SisterMods.ClimateControl;
-
-                // Attempt to change weather
-                WeatherSlotMachine.AttemptChange(currentDate);
-
-                // Can weather be changed?
-                weatherWasChanged.Message.CouldChange = s_weatherChanges.ChangeTomorrow;
-                if (weatherWasChanged.Message.CouldChange)
-                {
-                    // Did any weather types pass the dice roll?
-                    if (s_weatherChanges.WeatherTomorrow != IIWAPI.WeatherType.sunny)
-                    {
-                        // Yes. Weather will change to winner.
-                        Monitor.Log($"Weather tomorrow changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", s_logLevel);
-                    }
-                    else if (s_weatherChanges.WeatherTomorrow == IIWAPI.WeatherType.sunny)
-                    {
-                        // No. Weather will remain Sunny.
-                        Monitor.Log($"No weather types passed the dice roll for tomorrow. Weather changed to {s_weatherChanges.WeatherTomorrow}. Updating framework...", s_logLevel);
-                    }
-
-                    // Change tomorrow's weather.
-                    Game1.weatherForTomorrow = (int)s_weatherChanges.WeatherTomorrow;
-
-                    // Store information for the Framework.
-                    weatherWasChanged.Message.WeatherType = (ImmersiveWeathers.IIWAPI.WeatherType)(int)s_weatherChanges.WeatherTomorrow;
-                }
-                else
-                {
-                    // If not, note this.
-                    Monitor.Log($"Weather could not be changed because {s_weatherChanges.TomorrowReason} Updating framework...", s_logLevel);
-                }
-
-                // Tell the Framework about the change.
-                s_iWAPI.ProcessMessage(weatherWasChanged);
-
-                // Check message was received by Framework.
-                if (!weatherWasChanged.Response.Acknowledged)
-                {
-                    // Not received. Log an error for SMAPI.
-                    Monitor.Log("Error: No acknowledgement received from framework. WHAT DO I DO??", LogLevel.Error);
-                }
-            }
-            else
-            {
-                Monitor.Log("This is not the main player. Not attempting weather change...", s_logLevel);
-            }
-        }
-
-        // --------------
-        // SAVE GAME DATA
-        // --------------
-        /// <summary>
-        /// Save the weather changes so they are consistent upon loading.
-        /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private void Saving_SaveWeather(object sender, SavingEventArgs e)
-        {
-            // Only perform save if main player in multiplayer.
-            if (Context.IsMainPlayer)
-            {
-                // Save data to file.
-                Monitor.Log("Saving weather data to file...", s_logLevel);
-                Helper.Data.WriteSaveData("ClimateControl-WeatherData", s_weatherChanges);
-            }
         }
 
         // --------------------
