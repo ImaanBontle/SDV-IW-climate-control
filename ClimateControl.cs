@@ -310,10 +310,10 @@ namespace IWClimateControl
         private void DayEnding_PrepareForTomorrow(object sender, DayEndingEventArgs e)
         {
             // Only perform calculations if main player in multiplayer.
-            if (Context.IsMainPlayer)
+            if (Context.IsMainPlayer && SDate.From(Game1.Date).Day > 0)
             {
                 // Calculate weather for day after tomorrow.
-                Monitor.Log("Day is ending. Calculating weather changes for day after tomorrow...", s_logLevel);
+                Monitor.Log($"Day {SDate.From(Game1.Date).Day} is ending. Calculating weather changes for day after tomorrow...", s_logLevel);
                 WeatherSlotMachine.GenerateTomorrowChanges(SDate.From(Game1.Date).AddDays(1));
             }
         }
