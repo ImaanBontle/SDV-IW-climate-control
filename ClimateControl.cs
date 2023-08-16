@@ -2,6 +2,7 @@
 using IW_ClimateControl;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -282,7 +283,7 @@ namespace IWClimateControl
         /// <summary>
         /// Changes tomorrow's weather at the start of each day.
         /// </summary>
-        /// <remarks>Weather will not change if tomorrow is a special day(e.g. tomorrow is a festival or a wedding).</remarks>
+        /// <remarks>Weather will not change if tomorrow is a special day (e.g. tomorrow is a festival or a wedding).</remarks>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
         private void DayStarted_ChangeWeather(object sender, DayStartedEventArgs e)
@@ -293,7 +294,7 @@ namespace IWClimateControl
                 Monitor.Log("Attempting to change weather...", s_logLevel);
 
                 // Grab relevant info for calculation
-                WorldDate currentDate = Game1.Date;
+                SDate currentDate = SDate.From(Game1.Date);
                 ImmersiveWeathers.MessageContainer weatherWasChanged = new();
                 weatherWasChanged.Message.MessageType = ImmersiveWeathers.IIWAPI.MessageTypes.dayStarted;
                 weatherWasChanged.Message.SisterMod = ImmersiveWeathers.IIWAPI.SisterMods.ClimateControl;
