@@ -248,7 +248,7 @@ namespace IWClimateControl
                 // If weather has not been predicted thus far, generate tomorrow's weather prediction.
                 if (Helper.Data.ReadSaveData<SaveData>("ClimateControl-WeatherData") == null)
                 {
-                    WeatherSlotMachine.GenerateSaveData(Game1.Date);
+                    WeatherSlotMachine.GenerateSaveData(SDate.From(Game1.Date));
                 }
             }
         }

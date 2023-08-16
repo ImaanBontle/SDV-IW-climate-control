@@ -15,7 +15,7 @@ namespace IW_ClimateControl
         /// Generates weather data for first time on current save.
         /// </summary>
         /// <param name="currentDate">The current game date.</param>
-        internal static void GenerateSaveData(WorldDate currentDate)
+        internal static void GenerateSaveData(SDate currentDate)
         {
             // Check that tomorrow's weather can be changed.
             ClimateControl.s_eventLogger.SendToSMAPI("Weather not yet calculated for this save. Calculating tomorrow's weather for the first time...");
@@ -25,7 +25,7 @@ namespace IW_ClimateControl
             // Generate appropriate weather based on this information.
             if (canChangeTomorrow)
             {
-                ClimateControl.s_weatherChanges.SetWeatherTomorrow(GenerateWeather(SDate.From(currentDate)));
+                ClimateControl.s_weatherChanges.SetWeatherTomorrow(GenerateWeather(currentDate));
             }
         }
 
@@ -82,7 +82,7 @@ namespace IW_ClimateControl
         /// <param name="canChange">Can tomorrow's weather be changed?</param>
         /// <param name="reason">If not, why not?</param>
         /// <param name="weatherType">If not, what is the default weather?</param>
-        private static void PerformCheck(WorldDate thisDate, out bool canChange, out string reason, out IIWAPI.WeatherType weatherType)
+        private static void PerformCheck(SDate thisDate, out bool canChange, out string reason, out IIWAPI.WeatherType weatherType)
         {
             // Initialize.
             canChange = true;
@@ -90,20 +90,20 @@ namespace IW_ClimateControl
             weatherType = IIWAPI.WeatherType.sunny;
 
             // Check possibilities
-            switch (thisDate.TotalDays)
+            switch (thisDate.DaysSinceStart)
             {
-                case 0:
                 case 1:
                 case 2:
+                case 3:
                     // Too early in game.
                     canChange = false;
                     reason = "the player has played too few days on this save.";
                     // Unique case: Spring 3 is tomorrow
-                    if (thisDate.TotalDays == 1)
+                    if (thisDate.DaysSinceStart == 2)
                         weatherType = IIWAPI.WeatherType.raining;
                     break;
                 default:
-                    if (ClimateControl.s_festivalDates[thisDate.Season].Contains(thisDate.DayOfMonth + 1))
+                    if (ClimateControl.s_festivalDates[thisDate.Season].Contains(thisDate.Day + 1))
                     {
                         // Festival tomorrow.
                         canChange = false;
@@ -117,7 +117,7 @@ namespace IW_ClimateControl
                     }
                     else
                     {
-                        switch (thisDate.DayOfMonth)
+                        switch (thisDate.Day)
                         {
                             case 28:
                                 // First day of a season is always Sunny.
@@ -128,7 +128,7 @@ namespace IW_ClimateControl
                                 switch (Enum.Parse<IIWAPI.SeasonType>(thisDate.Season))
                                 {
                                     case IIWAPI.SeasonType.summer:
-                                        if ((thisDate.DayOfMonth + 1) % 13 == 0)
+                                        if ((thisDate.Day + 1) % 13 == 0)
                                         {
                                             // Summer 13 and 26 always storm.
                                             canChange = false;
@@ -137,9 +137,9 @@ namespace IW_ClimateControl
                                         }
                                         break;
                                     case IIWAPI.SeasonType.winter:
-                                        if ((thisDate.DayOfMonth + 1) is >= 14 and <= 16)
+                                        if ((thisDate.Day + 1) is >= 14 and <= 16)
                                         {
-                                            // Winter 14, 15 and 16 are always sunny
+                                            // Winter 14, 15 and 16 are always sunny (
                                             canChange = false;
                                             reason = "tomorrow is a Winter day and is hardcoded to be sunny.";
                                         }
