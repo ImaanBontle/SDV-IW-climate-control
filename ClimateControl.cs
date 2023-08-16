@@ -312,8 +312,8 @@ namespace IWClimateControl
             // Only perform calculations if main player in multiplayer.
             if (Context.IsMainPlayer && SDate.From(Game1.Date).Day > 0)
             {
-                // Calculate weather for day after tomorrow.
-                Monitor.Log($"Day {SDate.From(Game1.Date).Day} is ending. Calculating weather changes for day after tomorrow...", s_logLevel);
+                // Calculate weather for day after tomorrow (referred to as 'tomorrow' in-game to avoid confusion).
+                Monitor.Log($"Calculating weather changes for tomorrow...", s_logLevel);
                 WeatherSlotMachine.GenerateTomorrowChanges(SDate.From(Game1.Date).AddDays(1));
             }
         }
