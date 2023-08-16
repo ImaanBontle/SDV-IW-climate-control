@@ -31,7 +31,7 @@ namespace IW_ClimateControl
         /// <summary>
         /// Attempt weather changes for tomorrow.
         /// </summary>
-        internal static void AttemptChange()
+        internal static void AttemptTomorrowChange()
         {
             // Debug logging.
             string message;

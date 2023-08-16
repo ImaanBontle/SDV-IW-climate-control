@@ -270,7 +270,7 @@ namespace IWClimateControl
             {
                 // Attempt to change weather
                 Monitor.Log("Attempting to change weather...", s_logLevel);
-                WeatherSlotMachine.AttemptChange();
+                WeatherSlotMachine.AttemptTomorrowChange();
 
                 // Tell the Framework about the change.
                 ImmersiveWeathers.MessageContainer weatherWasChanged = new();
