@@ -306,6 +306,8 @@ namespace IWClimateControl
             if (Context.IsMainPlayer)
             {
                 // Calculate weather for day after tomorrow.
+                Monitor.Log("Day has ended. Calculating weather changes for day after tomorrow...", s_logLevel);
+                WeatherSlotMachine.GenerateTomorrowChanges(SDate.From(Game1.Date).AddDays(1));
 
                 // Save data to file.
                 Monitor.Log("Saving weather data to file...", s_logLevel);

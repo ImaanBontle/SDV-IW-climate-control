@@ -59,46 +59,6 @@ namespace IW_ClimateControl
             }
             // Send debug log.
             ClimateControl.s_eventLogger.SendToSMAPI(message);
-
-
-            /*
-             * Needs to be shifted to a separate end-of-day function.
-            // Otherwise, grab predicted changes from day after tomorrow (shift day forward).
-            ClimateControl.s_weatherChanges.WeatherTomorrow = ClimateControl.s_weatherChanges.WeatherDayAfter;
-            ClimateControl.s_weatherChanges.ChangeTomorrow = ClimateControl.s_weatherChanges.ChangeDayAfter;
-            ClimateControl.s_weatherChanges.TomorrowReason = ClimateControl.s_weatherChanges.DayAfterReason;
-            ClimateControl.s_eventLogger.SendToSMAPI($"Weather already calculated for tomorrow: {ClimateControl.s_weatherChanges.WeatherTomorrow}.");
-            */
-
-            /*
-             * Needs to be adapted based on GenerateSaveData for general day-started calculations
-            // Now perform checks for day after tomorrow.
-            ClimateControl.s_eventLogger.SendToSMAPI("Calculating weather for the day after tomorrow...");
-            WorldDate tomorrowDate = SDate.From(todayDate).AddDays(1).ToWorldDate();
-            PerformCheck(tomorrowDate, out bool canChangeDayAfter, out string reasonDayAfter, out IIWAPI.WeatherType defaultDayAfter);
-            ClimateControl.s_weatherChanges.ChangeDayAfter = canChangeDayAfter;
-            ClimateControl.s_weatherChanges.DayAfterReason = reasonDayAfter;
-
-            // Can day after be changed?
-            if (ClimateControl.s_weatherChanges.ChangeDayAfter)
-            {
-                // If yes, grab changes.
-                if (ClimateControl.s_config.EnableInterpolation)
-                {
-                    ClimateControl.s_weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate);
-                }
-                else
-                {
-                    ClimateControl.s_weatherChanges.WeatherDayAfter = GenerateWeather(tomorrowDate, ClimateControl.s_weatherChances);
-                }
-            }
-            else
-            {
-                // If not, grab defaults.
-                ClimateControl.s_weatherChanges.WeatherDayAfter = defaultDayAfter;
-            }
-            ClimateControl.s_eventLogger.SendToSMAPI("Done.");
-            */
         }
 
         /// <summary>
