@@ -5,7 +5,7 @@
   "Description": "Allows for custom control of the game's climate in each season and week.",
   "UniqueID": "MsBontle.ClimateControl",
   "EntryDll": "IW-ClimateControl.dll",
-  "MinimumApiVersion": "3.18.1",
+  "MinimumApiVersion": "3.18.4",
   "UpdateKeys": [ "Nexus:14659", "ModDrop:???", "GitHub:ImaanBontle/SDV-IW-climate-control" ],
   "Dependencies": [
     {
