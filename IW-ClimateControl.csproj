@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ImmersiveWeathers\ImmersiveWeathers.csproj">
+    <ProjectReference Include="..\ImmersiveWeathers\IW-ImmersiveWeathers.csproj">
       <Private>False</Private>
       <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
     </ProjectReference>
