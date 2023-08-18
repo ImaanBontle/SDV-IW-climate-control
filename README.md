@@ -222,7 +222,7 @@ If you encounter any bugs, please remove any [incompatible mods](#incompatible) 
 
 ***Please only submit bug reports if you have confirmed that the bug is not present in the vanilla game itself!***
 
-Alternatively, f you would like submit a bugfix, you can do so by submitting a pull request using the https://github.com/ImaanBontle/SDV-IW-climate-control/labels/fix and https://github.com/ImaanBontle/SDV-IW-climate-control/labels/contribution labels.
+Alternatively, if you would like submit a bugfix, you can do so by submitting a pull request using the https://github.com/ImaanBontle/SDV-IW-climate-control/labels/fix and https://github.com/ImaanBontle/SDV-IW-climate-control/labels/contribution labels.
 
 <!--Feature Suggestions-->
 ### Feature Suggestions <a id="suggestions"></a>
