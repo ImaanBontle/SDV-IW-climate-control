@@ -1,11 +1,6 @@
 ﻿using IWClimateControl;
-using StardewModdingAPI.Utilities;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IW_ClimateControl
 {
@@ -167,11 +162,11 @@ namespace IW_ClimateControl
             // Wherever two consecutive inputs are 0, all intervening values should be 0.
             for (int i = 3; i < daysToInterpolate.Length - 2; i++)
             {
-                if ((rainChances[i] == 0) && (rainChances[i-1] == 0))
+                if ((rainChances[i] == 0) && (rainChances[i - 1] == 0))
                 {
                     for (int j = (int)daysToInterpolate[i - 1]; j <= (int)daysToInterpolate[i]; j++)
                     {
-                        usefulRain[j-1] = 0.0;
+                        usefulRain[j - 1] = 0.0;
                     }
                 }
                 if ((stormChances[i] == 0) && (stormChances[i - 1] == 0))
